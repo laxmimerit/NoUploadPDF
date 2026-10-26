@@ -48,7 +48,8 @@ For every tool task (5–15), also:
     Lint, type checking, and the webpack production build pass. Local production checks covered all eleven
     card clicks, direct requests, refreshes, registry content, and six invalid paths.
     An in-memory display-name change preserved the original URL, home-page link, page content, and metadata.
-    Still open: CI and Vercel preview review.
+    Inspected the styled page in the existing development server.
+    Still open: approval to push the branch to GitHub, then CI and Vercel preview review.
 
 - [ ] **3. Build the shared tool shell.**
   - Depends on: Task 2.
