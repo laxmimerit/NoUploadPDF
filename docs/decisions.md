@@ -32,6 +32,7 @@ Status: Accepted. Recorded: 2026-10-27.
 running in a Web Worker. The registry drives home-page cards and tool pages.
 The shell owns file selection, options, progress, errors, downloads, and reset.
 The engine owns PDF operations and communicates with the shell through worker messages.
+Updated 2026-10-27: The registry also drives the shared menu's tool-group dropdowns on every page; see decision 5.
 
 Follow the existing [PDF engine rules](../src/lib/pdf-engine/AGENTS.md):
 
@@ -86,3 +87,24 @@ Keeping route identifiers in the registry preserves one source of truth for tool
 Any future intentional URL change needs an explicit migration and redirect for the old address.
 With Cache Components enabled, a registry check in `src/proxy.ts` rejects unknown tool paths before streaming
 starts, so they return HTTP 404 instead of a streamed 200 response containing not-found UI.
+
+## 5. Put tool discovery in the first screen and navigation on every page
+
+Status: Accepted. Recorded: 2026-10-27.
+
+**Question:** How should visitors understand the site and find its tools immediately?
+
+**Decision:** Use a compact home-page introduction with every tool visible and directly linked without scrolling.
+Put a shared menu at the top of every page with one registry-driven dropdown per tool group and an About link.
+Deliver this work before the shared tool shell.
+
+**Why:** The current large hero fills the first screen and pushes tools below it, leaving visitors unsure what
+the site does. Immediate tool visibility and consistent navigation make the site's purpose and choices clear.
+
+**What it costs:** The first-screen requirement limits space for hero content and tool-card detail.
+Dropdowns need keyboard and touch support.
+
+**Refinement (2026-10-27):** Fit the complete grouped grid in a laptop's first screen; narrow screens may scroll
+to keep links readable. Use a short headline and one supporting line. Put the logo and name on the left of the
+shared header, followed by dropdowns whose groups and tools are derived from the registry, then About.
+About must distinguish the browser-only design from today's state: all tools are still coming soon.

@@ -29,7 +29,7 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
   const tool = await getTool(params);
 
   return (
-    <main className="min-h-screen bg-[#fafaf8] px-5 py-8 text-stone-900 sm:px-8 sm:py-12">
+    <main id="main-content" className="px-5 py-8 text-stone-900 sm:px-8 sm:py-12">
       <div className="mx-auto max-w-3xl">
         <Link
           href="/"
