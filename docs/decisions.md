@@ -58,8 +58,8 @@ before merge. Include what changed and how it was checked in the pull request.
 
 CI already exists in `.github/workflows/ci.yml` and runs lint, type checking, and a production build.
 For local sandbox builds, use `npm run build:webpack`, as required by the repo instructions.
-Vercel preview integration and branch protection have not been verified; this record sets the required workflow,
-without claiming those controls are configured.
+Vercel preview integration was verified through PR #8 on 2026-10-27, including deployed-page review.
+Branch protection has not been verified; this record sets the required workflow without claiming it is configured.
 
 **Why:** Pull requests preserve review context. CI catches automated failures.
 Previews let reviewers inspect the deployed behavior before it reaches the main site.
@@ -67,3 +67,22 @@ Previews let reviewers inspect the deployed behavior before it reaches the main 
 **What it costs:** Reviews and builds take time. CI and preview deployments consume their providers' allowances.
 Deployment limits may delay work, and preview availability depends on the Vercel integration.
 The workflow must remain within the free Hobby hosting constraint.
+
+## 4. Give each tool a fixed registry slug
+
+Status: Accepted. Recorded: 2026-10-27.
+
+**Question:** How should tool page addresses stay stable when display names change?
+
+**Decision:** Give every entry in `src/lib/tools.ts` an explicit, unique, fixed `slug`.
+Use `/tools/<slug>` for its page address. Home-page links, route lookup, and generated pages use that slug,
+never a value derived from the display name. Page names and descriptions still come from the registry.
+Renaming a tool must leave its slug and existing links unchanged.
+
+**Why:** Shared links and bookmarks should keep working after a display-name change.
+Keeping route identifiers in the registry preserves one source of truth for tool navigation.
+
+**What it costs:** Slugs must be kept unique and maintained separately from display names.
+Any future intentional URL change needs an explicit migration and redirect for the old address.
+With Cache Components enabled, a registry check in `src/proxy.ts` rejects unknown tool paths before streaming
+starts, so they return HTTP 404 instead of a streamed 200 response containing not-found UI.

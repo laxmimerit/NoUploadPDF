@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { toolGroups, tools, type ToolIcon } from "@/lib/tools";
 
 const iconPaths: Record<ToolIcon, React.ReactNode> = {
@@ -14,7 +15,7 @@ const iconPaths: Record<ToolIcon, React.ReactNode> = {
   compress: <><path d="m8 3-5 5h4v4h4V8h4l-5-5zM16 21l5-5h-4v-4h-4v4H9z" /></>,
 };
 
-function ToolCard({ name, description, icon }: (typeof tools)[number]) {
+function ToolCard({ slug, name, description, icon }: (typeof tools)[number]) {
   return (
     <article className="group relative flex min-h-[190px] flex-col rounded-2xl border border-stone-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(27,50,45,0.025)] transition duration-200 hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-[0_12px_30px_rgba(27,50,45,0.08)] sm:p-6">
       <div className="mb-6 flex items-start justify-between">
@@ -25,7 +26,15 @@ function ToolCard({ name, description, icon }: (typeof tools)[number]) {
         </span>
         <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-stone-500">Coming soon</span>
       </div>
-      <h3 className="text-[15px] font-semibold tracking-[-0.02em] text-stone-900">{name}</h3>
+      <h3 className="text-[15px] font-semibold tracking-[-0.02em] text-stone-900">
+        <Link
+          href={`/tools/${slug}`}
+          className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none
+            focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-teal-800"
+        >
+          {name}
+        </Link>
+      </h3>
       <p className="mt-1.5 max-w-[26ch] text-[13px] leading-5 text-stone-500">{description}</p>
     </article>
   );
@@ -97,7 +106,7 @@ export default function Home() {
                 <section aria-labelledby={`group-${group.toLowerCase()}`} key={group}>
                   <h3 id={`group-${group.toLowerCase()}`} className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-500">{group}</h3>
                   <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {groupTools.map((tool) => <ToolCard key={tool.name} {...tool} />)}
+                    {groupTools.map((tool) => <ToolCard key={tool.slug} {...tool} />)}
                   </div>
                 </section>
               );
