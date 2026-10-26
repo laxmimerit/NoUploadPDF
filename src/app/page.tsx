@@ -72,7 +72,7 @@ export default function Home() {
         <section aria-labelledby="how-it-works" className="relative mx-auto mt-10 max-w-3xl rounded-2xl border border-stone-200/80 bg-white/80 px-5 py-5 sm:mt-12 sm:px-6">
           <h2 id="how-it-works" className="text-center text-[11px] font-semibold uppercase tracking-[0.15em] text-teal-800/75">How it works</h2>
           <ol role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
-            {["Choose a PDF", "Your browser does the work", "Download the result"].map((step, index) => (
+            {["Choose a PDF", "Your browser does the work", "Download the finished file"].map((step, index) => (
               <li className="flex items-center gap-2.5 text-[13px] font-medium leading-5 text-stone-600" key={step}>
                 <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-50 text-xs font-semibold text-teal-800 ring-1 ring-teal-900/5">{index + 1}</span>
                 {step}
