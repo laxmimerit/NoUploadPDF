@@ -1,1 +1,8 @@
 model_verbosity = "medium"
+default_permissions = "no-secrets"
+
+[permissions.no-secrets]
+extends = ":workspace"
+
+[permissions.no-secrets.filesystem.":workspace_roots"]
+"**/.env*" = "deny"
