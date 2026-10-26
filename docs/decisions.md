@@ -58,8 +58,8 @@ before merge. Include what changed and how it was checked in the pull request.
 
 CI already exists in `.github/workflows/ci.yml` and runs lint, type checking, and a production build.
 For local sandbox builds, use `npm run build:webpack`, as required by the repo instructions.
-Vercel preview integration and branch protection have not been verified; this record sets the required workflow,
-without claiming those controls are configured.
+Vercel preview integration was verified through PR #8 on 2026-10-27, including deployed-page review.
+Branch protection has not been verified; this record sets the required workflow without claiming it is configured.
 
 **Why:** Pull requests preserve review context. CI catches automated failures.
 Previews let reviewers inspect the deployed behavior before it reaches the main site.

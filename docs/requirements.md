@@ -14,7 +14,8 @@ Each page shows its registry name and description and is marked "Coming soon".
 The shared tool shell and PDF engine are planned work; the tools do not yet process files.
 The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
 The favicon passed its live-site browser-tab check on 2026-10-27.
-CI already runs lint, type checking, and a build. Vercel preview integration and branch protection are unverified.
+CI runs lint, type checking, and a build. Vercel preview integration was verified through PR #8 on 2026-10-27.
+Branch protection remains unverified.
 
 ## Personas and success criteria
 

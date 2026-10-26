@@ -35,7 +35,7 @@ For every tool task (5–15), also:
     Lint, type checking, and the webpack production build pass.
     Completion (2026-10-27): User confirmed that the live-site check passed after merge.
 
-- [ ] **2. Give every tool its own registry-driven page.**
+- [x] **2. Give every tool its own registry-driven page.**
   - Deliverable: A stable URL for each registry entry, linked from its home-page card.
     Use explicit, fixed slugs from the registry for URLs; never derive addresses from display names.
     Derive page names and descriptions from the registry. See decision 4.
@@ -49,7 +49,9 @@ For every tool task (5–15), also:
     card clicks, direct requests, refreshes, registry content, and six invalid paths.
     An in-memory display-name change preserved the original URL, home-page link, page content, and metadata.
     Inspected the styled page in the existing development server.
-    Still open: approval to push the branch to GitHub, then CI and Vercel preview review.
+    Completion (2026-10-27): [PR #8](https://github.com/laxmimerit/NoUploadPDF/pull/8) passed CI and Vercel checks.
+    Reviewed all eleven card links, exact names and descriptions, "Coming soon" states, and refreshes on the
+    Vercel preview. An unknown tool URL showed the 404 page. Task 2's done criteria pass.
 
 - [ ] **3. Build the shared tool shell.**
   - Depends on: Task 2.
