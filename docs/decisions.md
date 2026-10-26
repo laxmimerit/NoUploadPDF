@@ -67,3 +67,22 @@ Previews let reviewers inspect the deployed behavior before it reaches the main 
 **What it costs:** Reviews and builds take time. CI and preview deployments consume their providers' allowances.
 Deployment limits may delay work, and preview availability depends on the Vercel integration.
 The workflow must remain within the free Hobby hosting constraint.
+
+## 4. Give each tool a fixed registry slug
+
+Status: Accepted. Recorded: 2026-10-27.
+
+**Question:** How should tool page addresses stay stable when display names change?
+
+**Decision:** Give every entry in `src/lib/tools.ts` an explicit, unique, fixed `slug`.
+Use `/tools/<slug>` for its page address. Home-page links, route lookup, and generated pages use that slug,
+never a value derived from the display name. Page names and descriptions still come from the registry.
+Renaming a tool must leave its slug and existing links unchanged.
+
+**Why:** Shared links and bookmarks should keep working after a display-name change.
+Keeping route identifiers in the registry preserves one source of truth for tool navigation.
+
+**What it costs:** Slugs must be kept unique and maintained separately from display names.
+Any future intentional URL change needs an explicit migration and redirect for the old address.
+With Cache Components enabled, a registry check in `src/proxy.ts` rejects unknown tool paths before streaming
+starts, so they return HTTP 404 instead of a streamed 200 response containing not-found UI.

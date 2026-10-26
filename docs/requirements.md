@@ -9,10 +9,11 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 
 ## Current state
 
-The home page lists eleven tools from `src/lib/tools.ts`. All are marked "Coming soon".
-Tool pages, the shared tool shell, and the PDF engine are planned work; the tools do not yet process files.
+The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
+Each page shows its registry name and description and is marked "Coming soon".
+The shared tool shell and PDF engine are planned work; the tools do not yet process files.
 The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
-Live-site verification is pending merge.
+The favicon passed its live-site browser-tab check on 2026-10-27.
 CI already runs lint, type checking, and a build. Vercel preview integration and branch protection are unverified.
 
 ## Personas and success criteria
@@ -29,7 +30,9 @@ Meera's notes remain images; converting them does not recognize or transcribe ha
 
 ## Functional requirements
 
-The tool registry is the source of truth for tool names, descriptions, and groups.
+The tool registry is the source of truth for tool names, descriptions, groups, and fixed slugs.
+Each tool's address is `/tools/<slug>`, using its explicit, unique slug from `src/lib/tools.ts`.
+Never derive a tool address from its display name; renaming a tool must preserve existing links.
 Each tool will have its own page and use the shared shell and browser PDF engine.
 Pages stay marked "Coming soon" until their implementation and done criteria pass.
 

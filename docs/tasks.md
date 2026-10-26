@@ -22,7 +22,7 @@ For every tool task (5–15), also:
 
 ## Checklist
 
-- [ ] **1. Replace the default favicon.**
+- [x] **1. Replace the default favicon.**
   - Deliverable: A PDF page with a lock, using `teal-800`, `oklch(43.7% 0.078 188.216)`.
   - Done: The custom icon loads through Next.js icon metadata, and the default Next.js favicon is replaced.
     Inspect the browser tab and the icon at 16px and 32px; the page and lock remain legible.
@@ -33,14 +33,22 @@ For every tool task (5–15), also:
     Inspected the rendered icon at 16px and 32px. Confirmed Next.js emits only the SVG icon link,
     the icon URL returns HTTP 200 with the correct content type, and the served file matches the source asset.
     Lint, type checking, and the webpack production build pass.
-    Still open: CI and preview review, and the live-site tab check after merge.
+    Completion (2026-10-27): User confirmed that the live-site check passed after merge.
 
 - [ ] **2. Give every tool its own registry-driven page.**
   - Deliverable: A stable URL for each registry entry, linked from its home-page card.
-    Extend the registry with route identifiers as needed; derive page names and descriptions from it.
+    Use explicit, fixed slugs from the registry for URLs; never derive addresses from display names.
+    Derive page names and descriptions from the registry. See decision 4.
   - Done: All eleven links open the corresponding page with its exact registry name, description, and "Coming soon".
     Direct navigation and refresh work on each URL. Unknown tool paths return a 404.
     No file-processing controls are presented as functional yet.
+  - Progress (2026-10-27): Added eleven fixed slugs and `/tools/<slug>` pages, linked from the home-page cards.
+    Names, descriptions, groups, page metadata, and static route generation use the registry.
+    All pages remain "Coming soon" without processing controls. Unknown tool paths return HTTP 404.
+    Lint, type checking, and the webpack production build pass. Local production checks covered all eleven
+    card clicks, direct requests, refreshes, registry content, and six invalid paths.
+    An in-memory display-name change preserved the original URL, home-page link, page content, and metadata.
+    Still open: CI and Vercel preview review.
 
 - [ ] **3. Build the shared tool shell.**
   - Depends on: Task 2.
