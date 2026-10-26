@@ -9,3 +9,22 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 <!-- END:nextjs-agent-rules -->
 
 Use `npm run build:webpack` when checking the build locally in the sandbox.
+
+## About NoUploadPDF
+
+NoUploadPDF provides PDF tools that run in the browser. Files are never uploaded.
+
+## Where things live
+
+- Pages live in `src/app`.
+- The tool registry lives in `src/lib/tools.ts`.
+
+## Check our work
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build:webpack`
+
+## Code style
+
+Keep new code lines under about 120 characters.
