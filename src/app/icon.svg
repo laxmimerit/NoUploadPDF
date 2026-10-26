@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Tailwind teal-800: oklch(43.7% 0.078 188.216), expressed in sRGB for icon compatibility. -->
+  <path d="M7 2h12l8 8v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" fill="#115e59"/>
+  <path d="M19 2v6a2 2 0 0 0 2 2h6" fill="white" fill-opacity=".9"/>
+  <path d="M13 17v-3a3 3 0 0 1 6 0v3" stroke="white" stroke-width="2.5"/>
+  <rect x="10" y="16" width="12" height="10" rx="2" fill="white"/>
+  <path d="M16 20v2" stroke="#115e59" stroke-width="2" stroke-linecap="round"/>
+</svg>

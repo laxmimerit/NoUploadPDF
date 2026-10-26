@@ -11,7 +11,8 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 
 The home page lists eleven tools from `src/lib/tools.ts`. All are marked "Coming soon".
 Tool pages, the shared tool shell, and the PDF engine are planned work; the tools do not yet process files.
-The favicon is still the default Next.js icon.
+The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
+Live-site verification is pending merge.
 CI already runs lint, type checking, and a build. Vercel preview integration and branch protection are unverified.
 
 ## Personas and success criteria
