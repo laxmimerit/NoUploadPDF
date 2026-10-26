@@ -46,7 +46,13 @@ A shared engine centralizes PDF behavior, while the Web Worker keeps heavy proce
 **What it costs:** Worker communication needs explicit job, result, and error handling.
 Buffer transfers require careful ownership and cleanup to avoid unnecessary copies and memory growth.
 Shared interfaces require coordination when tools change. Browser and worker support restrict library choices,
-and workers still share the visitor's device and memory limits. PDF-library selection is deferred to implementation.
+and workers still share the visitor's device and memory limits. The library choice is recorded in decision 6.
+
+**Implementation refinement (2026-10-27):** Jobs carry an ID, fixed tool slug, file buffers, and options.
+Replies carry that ID and progress, a result, or an error. Both client and worker reject concurrent jobs.
+The client transfers fresh input buffers by default and offers an explicit retain-buffers mode for callers
+that still need them. The shell retains browser File objects for previews and retry, rather than retaining
+job buffers. Reset and unmount terminate the worker, cancel previews, revoke object URLs, and discard stale replies.
 
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
@@ -108,3 +114,29 @@ Dropdowns need keyboard and touch support.
 to keep links readable. Use a short headline and one supporting line. Put the logo and name on the left of the
 shared header, followed by dropdowns whose groups and tools are derived from the registry, then About.
 About must distinguish the browser-only design from today's state: all tools are still coming soon.
+
+## 6. Use Cantoo's PDF library for changes and pdf.js for previews
+
+Status: Accepted. Recorded: 2026-10-27.
+
+**Question:** Which libraries should power browser PDF work?
+
+**Decision:** Use [`@cantoo/pdf-lib`](https://github.com/cantoo-scribe/pdf-lib) inside the shared engine
+Web Worker for validation and future PDF changes. Use Mozilla's [pdf.js](https://mozilla.github.io/pdf.js/)
+only to read and draw page previews. Install both through npm and serve pdf.js worker, fonts, character maps,
+and decoder assets from this app's own origin, without a CDN or document upload.
+The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
+The package preparation script runs before development and both build commands; generated assets are ignored
+by Git and ESLint. No tool operation is registered yet, so validated jobs return the not-built message.
+
+**Why:** The original [`pdf-lib` has had no release since 2021](https://github.com/Hopding/pdf-lib/releases).
+Cantoo maintains a compatible fork that works in a Web Worker. Keeping modifications in that worker preserves
+interaction responsiveness. pdf.js supplies page rendering, keeping the two libraries' responsibilities clear.
+
+**What it costs:** Two PDF libraries increase download size and dependency maintenance.
+pdf.js loads only after file selection; the modification library is bundled into the job worker.
+Each preview and job reads its own bytes from the retained File; pdf.js can transfer its preview buffer,
+while job buffers are separately transferred to the engine. Documents and thumbnails still consume device memory.
+Previews render serially at bounded thumbnail resolution and release parser and canvas resources afterward.
+Generated pdf.js assets must match the installed package version. These dependencies use modern browser APIs;
+unsupported browsers receive a recovery error. No server processing or paid service is introduced.

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Locally served pdf.js assets copied from the installed dependency
+/public/pdfjs/

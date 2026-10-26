@@ -78,15 +78,27 @@ For every tool task (6–16), also:
     Local builds used a temporary fresh output directory under `.next` because existing output cleanup returned
     EPERM; restored the normal output configuration afterward. PR, CI, and preview review remain required before merge.
 
-- [ ] **4. Build the shared tool shell.**
+- [x] **4. Build the shared tool shell.**
   - Depends on: Tasks 2–3.
   - Deliverable: Reusable file selection, tool options, processing state, progress, error, download, and reset UI.
     Provide an interface for connecting tool operations without duplicating the shell.
   - Done: A controlled local fixture exercises each state, including retry after error and reset after success.
     Keyboard navigation reaches all controls, status and errors are accessible, and the layout works on narrow screens.
     Incomplete tools keep their "Coming soon" state; fixture behavior is not shipped as a working PDF tool.
+  - Completion (2026-10-27): All eleven tool pages use the shared client shell. PDF selection by file button
+    and drop events feeds a file list with name, size, page count, and a pdf.js thumbnail for every page.
+    The shell exposes options and engine interfaces, accessible progress and recovery errors, a result download,
+    and reset. All tools remain "Coming soon" and real jobs report that the tool is not built yet.
+    A temporary local fixture exercised processing, success, download, error retry, reset after success,
+    cancellation, and unmount. Reopened the downloaded three-page fixture and checked its page count and previews.
+    Keyboard checks covered file selection, control traversal, retry, reset, and focus return to file selection.
+    Checked desktop and narrow layouts at 1280×720, 390×844, and 320×700 without horizontal overflow.
+    Temporary fixture routes, operations, and diagnostic controls were removed; no test setup was added.
+    Lint, type checking, and the webpack production build pass. Existing output-directory cleanup returned EPERM,
+    so local production builds used fresh temporary directories under `.next`; normal configuration was restored.
+    PR, CI, and Vercel preview review remain required before merge.
 
-- [ ] **5. Build the shared Web Worker engine foundation.**
+- [x] **5. Build the shared Web Worker engine foundation.**
   - Depends on: Task 4.
   - Deliverable: A browser-only engine with job execution, result/error messages, buffer handling, and cleanup.
     Choose a worker-compatible PDF library and document the choice and its costs in a decision record.
@@ -94,6 +106,20 @@ For every tool task (6–16), also:
     A failed job reports an error and permits retry. Reset or unmount cleans up resources and ignores stale results.
     The main thread remains interactive during work, and file contents produce no network requests.
     The engine follows its AGENTS.md rules; unfinished tools remain "Coming soon".
+  - Completion (2026-10-27): Added typed jobs with IDs, tool slugs, files, and options; progress, result, and
+    error replies; one-job guards in both client and worker; transferable buffers; and cleanup on reset/unmount.
+    The shell retains browser File objects for preview and retry, and transfers fresh buffers to the engine.
+    Added `@cantoo/pdf-lib` for worker validation and future changes, and pdf.js for local previews. Decision 6
+    records the choice, including the original pdf-lib's lack of releases since 2021, and the memory/bundle costs.
+    Non-PDF, damaged, password-protected, and not-built errors explain the next action. Direct worker fixtures
+    also covered encrypted object streams that fail strict parsing before encryption detection.
+    The temporary worker fixture returned a readable three-page PDF through the shell. Its diagnostic interface
+    confirmed detached transferred buffers, concurrent-job rejection, a responsive main thread, released object
+    URLs, and no stale result after cancellation/unmount. Observed requests were app assets and route reads;
+    no document contents were transmitted. The engine contains no DOM, React, window, fetch, or analytics code.
+    The successful fixture operation was removed, leaving the operation registry empty as requested.
+    Lint, type checking, and the webpack production build pass. No test runner or persistent test fixtures were added.
+    PR, CI, and Vercel preview review remain required before merge.
 
 - [ ] **6. Implement Merge PDF.**
   - Depends on: Tasks 4–5.
