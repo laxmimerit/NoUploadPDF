@@ -54,7 +54,7 @@ export default function Home() {
             Private PDF tools, right in your browser
           </div>
           <h1 className="mt-6 text-[clamp(2.55rem,6vw,4.5rem)] font-semibold leading-[1.04] tracking-[-0.065em] text-[#1d2d29]">
-            Your files never leave<br className="hidden sm:block" /> your compter<span className="text-teal-700">.</span>
+            Your files never leave<br className="hidden sm:block" /> your computer<span className="text-teal-700">.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-stone-500 sm:text-base">
             Simple PDF tools that work privately on your device. No uploads, no accounts, no fuss.
