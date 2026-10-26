@@ -12,6 +12,9 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
 Each page shows its registry name and description and is marked "Coming soon".
 The shared tool shell and PDF engine are planned work; the tools do not yet process files.
+The home page uses a compact introduction and grouped tool grid. A shared header on every page contains
+the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
+About explains the browser-only processing design and explicitly states that processing is not available yet.
 The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
 The favicon passed its live-site browser-tab check on 2026-10-27.
 CI runs lint, type checking, and a build. Vercel preview integration was verified through PR #8 on 2026-10-27.
@@ -36,6 +39,22 @@ Each tool's address is `/tools/<slug>`, using its explicit, unique slug from `sr
 Never derive a tool address from its display name; renaming a tool must preserve existing links.
 Each tool will have its own page and use the shared shell and browser PDF engine.
 Pages stay marked "Coming soon" until their implementation and done criteria pass.
+
+### Home page and site navigation
+
+The home page must explain what NoUploadPDF does within the first screen: free PDF tools designed to process
+files in the browser without uploading them. Keep current availability clear while processing is being built.
+Every tool must be visible and directly linked in the initial viewport of a laptop, without scrolling.
+Use a short headline and one supporting line above the grouped tool grid. Narrow screens may scroll vertically.
+
+The top of every page must have the logo and name on the left, followed by one dropdown per registry tool group.
+Derive both the groups and their tools from the registry; never maintain a separate list.
+Each dropdown links to every tool in that group using its fixed slug.
+The menu also links to a short About page at `/about`, which explains the site's purpose and browser-only privacy
+promise without claiming unfinished functionality works today.
+Dropdowns must work with keyboard, pointer, and touch input, including on narrow screens.
+
+### Tools and shared shell
 
 | Tool | Group | Required behavior |
 | --- | --- | --- |
@@ -72,7 +91,7 @@ Browser memory and device capacity limit job sizes; failures must offer a useful
 ## Visual identity
 
 The primary accent is Tailwind `teal-800`: `oklch(43.7% 0.078 188.216)`.
-It comes from the current home-page logo background, PDF wordmark, and tool icons in `src/app/page.tsx`;
+It comes from the shared logo and PDF wordmark in `src/components/site-header.tsx` and the home-page tool icons;
 the value is defined in the installed Tailwind theme.
 Use this accent for the planned favicon: a PDF page with a lock, legible at browser-tab sizes.
 Use neutral colors as needed for contrast; introduce no second favicon accent.

@@ -100,4 +100,10 @@ export const tools: Tool[] = [
   },
 ];
 
-export const toolGroups: Tool["group"][] = ["Organize", "Convert", "Edit", "Optimize"];
+// Preserve first appearance in the registry; never maintain a separate group list.
+export const toolGroups = [...new Set(tools.map((tool) => tool.group))];
+
+export const groupedTools = toolGroups.map((group) => ({
+  group,
+  tools: tools.filter((tool) => tool.group === group),
+}));
