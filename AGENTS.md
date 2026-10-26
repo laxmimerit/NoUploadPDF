@@ -14,6 +14,8 @@ Use `npm run build:webpack` when checking the build locally in the sandbox.
 
 NoUploadPDF provides PDF tools that run in the browser. Files are never uploaded.
 
+Read `docs/requirements.md`, `docs/decisions.md`, and `docs/tasks.md` at the start of each chat; tick tasks off when their done criteria pass, and update the relevant decision record when a decision changes.
+
 ## Where things live
 
 - Pages live in `src/app`.
