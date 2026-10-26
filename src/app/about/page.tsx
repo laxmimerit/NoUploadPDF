@@ -18,7 +18,8 @@ export default function AboutPage() {
         </p>
         <p>
           Today, you can browse the tools and visit their pages. All tools are marked “Coming soon”;
-          file selection and PDF processing are not available yet. The app does not accept or upload your files.
+          you can choose PDFs and preview every page on your device. PDF processing is not available yet.
+          Your files are never uploaded.
         </p>
       </div>
       <Link className="mt-8 inline-block font-medium text-teal-800 underline underline-offset-4" href="/">

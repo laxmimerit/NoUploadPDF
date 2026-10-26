@@ -11,10 +11,13 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 
 The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
 Each page shows its registry name and description and is marked "Coming soon".
-The shared tool shell and PDF engine are planned work; the tools do not yet process files.
+All eleven pages share file selection, a file list with size and page count, local pdf.js page thumbnails,
+options, progress, errors, download handling, and reset. The worker foundation validates PDFs and accepts
+jobs with a tool, files, and options. No PDF operation is implemented; valid jobs report that the tool
+is not built yet. Download stays disabled until an operation supplies a result.
 The home page uses a compact introduction and grouped tool grid. A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
-About explains the browser-only processing design and explicitly states that processing is not available yet.
+About explains local previews and the browser-only design, and states that PDF processing is not available yet.
 The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
 The favicon passed its live-site browser-tab check on 2026-10-27.
 CI runs lint, type checking, and a build. Vercel preview integration was verified through PR #8 on 2026-10-27.
@@ -72,6 +75,13 @@ Dropdowns must work with keyboard, pointer, and touch input, including on narrow
 
 The shared shell handles file selection, tool options, progress, errors, downloads, and reset.
 Input errors must be understandable and allow visitors to correct their selection and retry.
+The foundation currently accepts PDFs on every page, including Images to PDF; image input belongs to task 11.
+Show a thumbnail for every page using pdf.js, which is used only for previews at this stage.
+Use `@cantoo/pdf-lib` for PDF validation and future changes inside the shared Web Worker.
+Jobs carry the tool slug, file buffers, and options; replies carry progress, a result, or a readable error.
+Run one job at a time and transfer buffers unless the caller still needs them.
+Keep browser File objects for preview and retry, reading fresh buffers for transfer instead of copying buffers.
+Reset and unmount must terminate work, ignore late replies, and release files, previews, and result URLs.
 
 ## Non-functional requirements
 
@@ -85,7 +95,7 @@ Input errors must be understandable and allow visitors to correct their selectio
   Review hosting usage and current plan limits before introducing dependencies or infrastructure that add cost.
   This is a deployment constraint, not a claim that usage is unlimited.
 
-Numeric performance targets and PDF-library selection belong to later implementation work.
+Numeric performance targets belong to later implementation work. The PDF-library choice is in decision 6.
 Browser memory and device capacity limit job sizes; failures must offer a useful recovery path.
 
 ## Visual identity

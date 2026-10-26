@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ToolShell } from "@/components/tool-shell";
 import { tools } from "@/lib/tools";
 
 export function generateStaticParams() {
@@ -51,8 +52,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             Coming soon
           </p>
           <p className="mt-4 text-sm leading-6 text-stone-500">
-            This tool is being built. File processing will be available here when it is ready.
+            Preview your PDFs on your device. This tool is being built and cannot create a result yet.
           </p>
+          <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />
         </section>
         <p className="mt-6 text-center text-xs leading-5 text-stone-500">
           NoUploadPDF · Private PDF tools. Your files stay on your device.
