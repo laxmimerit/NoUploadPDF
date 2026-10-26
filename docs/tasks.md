@@ -1,7 +1,7 @@
 # NoUploadPDF tasks
 
 Use the [requirements](requirements.md) and [decisions](decisions.md) at the start of each task.
-Each numbered task is intended for one chat. All tasks below are planned and unchecked.
+Each numbered task is intended for one chat. Unchecked tasks may have work awaiting final verification.
 Tick a task off only when its done criteria pass, and report the checks performed.
 
 ## Shared done criteria
@@ -28,6 +28,12 @@ For every tool task (5–15), also:
     Inspect the browser tab and the icon at 16px and 32px; the page and lock remain legible.
     Use neutral colors for contrast without adding another accent.
     The live site's browser tab shows the new icon after the merge.
+  - Progress (2026-10-27): Removed the default `src/app/favicon.ico` and added `src/app/icon.svg` as the only icon,
+    per the requested SVG-only setup. It uses teal-800 (`#115e59` in sRGB) with a white page fold and lock.
+    Inspected the rendered icon at 16px and 32px. Confirmed Next.js emits only the SVG icon link,
+    the icon URL returns HTTP 200 with the correct content type, and the served file matches the source asset.
+    Lint, type checking, and the webpack production build pass.
+    Still open: CI and preview review, and the live-site tab check after merge.
 
 - [ ] **2. Give every tool its own registry-driven page.**
   - Deliverable: A stable URL for each registry entry, linked from its home-page card.
