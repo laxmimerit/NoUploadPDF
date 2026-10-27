@@ -6,7 +6,7 @@ Tick a task off only when its done criteria pass, and report the checks performe
 
 ## Shared done criteria
 
-For every implementation task, run `npm run lint`, `npm run typecheck`, and `npm run build:webpack`.
+For every implementation task, run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build:webpack`.
 Use the pull request, CI, and Vercel preview workflow from decision 3.
 Read the relevant installed Next.js guide before writing framework code.
 
@@ -21,6 +21,21 @@ For every tool task (6–16), also:
 - Remove "Coming soon" for that tool only when its done criteria pass; keep other unfinished tools marked.
 
 ## Checklist
+
+- [x] **Add fixture-based unit tests before implementing the PDF tools.**
+  - Deliverable: Vitest setup, five fictional fixtures, and a script to regenerate them.
+    Cover registry contracts, page counts, worker errors for damaged, locked, and renamed files,
+    the current not-built behavior, and plain recovery copy for every error code.
+  - Done: Regenerate the fixtures; run the tests, lint, type checking, and the webpack production build.
+    Test application behavior without testing PDF-library internals. Add the tests to CI.
+  - Completion (2026-10-27): Added five small fictional fixtures, a regeneration script, and 38 Vitest tests
+    across four files. Tests cover fixed slugs and grouping, validation page counts, each fixture's worker
+    outcome, progress, batch failure, concurrency, retry, cleanup, and all eight recovery messages.
+    Regenerated fixtures and verified repeatable bytes for the four unencrypted files. Rendered the invoice
+    and report; independently opened the encrypted invoice with its documented test password.
+    All 38 tests, lint, and type checking pass locally. The webpack production build passes in a clean temporary
+    copy installed with `npm ci`; the original checkout cannot remove an old `.next` cache due to EPERM.
+    CI now runs `npm test`. PR, CI, and preview review remain required before merge.
 
 - [x] **1. Replace the default favicon.**
   - Deliverable: A PDF page with a lock, using `teal-800`, `oklch(43.7% 0.078 188.216)`.

@@ -20,7 +20,9 @@ the logo and name on the left, registry-driven tool-group dropdowns, and an Abou
 About explains local previews and the browser-only design, and states that PDF processing is not available yet.
 The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
 The favicon passed its live-site browser-tab check on 2026-10-27.
-CI runs lint, type checking, and a build. Vercel preview integration was verified through PR #8 on 2026-10-27.
+Vitest covers registry contracts, PDF validation and worker jobs, and recovery messages using fictional fixtures.
+CI runs unit tests, lint, type checking, and a build.
+Vercel preview integration was verified through PR #8 on 2026-10-27.
 Branch protection remains unverified.
 
 ## Personas and success criteria

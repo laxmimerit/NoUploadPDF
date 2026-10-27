@@ -63,7 +63,7 @@ Status: Accepted. Recorded: 2026-10-27.
 **Decision:** Every change goes through a pull request. CI must pass and the Vercel preview must be reviewed
 before merge. Include what changed and how it was checked in the pull request.
 
-CI already exists in `.github/workflows/ci.yml` and runs lint, type checking, and a production build.
+CI already exists in `.github/workflows/ci.yml` and runs unit tests, lint, type checking, and a production build.
 For local sandbox builds, use `npm run build:webpack`, as required by the repo instructions.
 Vercel preview integration was verified through PR #8 on 2026-10-27, including deployed-page review.
 Branch protection has not been verified; this record sets the required workflow without claiming it is configured.
@@ -74,6 +74,14 @@ Previews let reviewers inspect the deployed behavior before it reaches the main 
 **What it costs:** Reviews and builds take time. CI and preview deployments consume their providers' allowances.
 Deployment limits may delay work, and preview availability depends on the Vercel integration.
 The workflow must remain within the free Hobby hosting constraint.
+
+**Unit-test refinement (2026-10-27):** Use Vitest in Node for registry contracts, engine validation and worker
+jobs, and exact recovery messages. Keep five small fictional files in `tests/fixtures`, regenerated with
+`npm run fixtures:generate` using the existing PDF library. Test our validation and job behavior against real
+file bytes; stub only the worker message port. Validation returns the page count it already reads, while jobs
+for all tools still return `not-built`. These tests do not replace browser checks for previews, worker buffer
+transfers, interaction, or privacy. Vitest 4 supports the project's existing Node 20 type definitions and Node 24
+runtime without a type-definition upgrade. It adds development dependencies only.
 
 ## 4. Give each tool a fixed registry slug
 
