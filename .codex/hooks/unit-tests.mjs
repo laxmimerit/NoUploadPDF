@@ -13,20 +13,27 @@ const event = JSON.parse(await new Promise((resolve, reject) => {
 if (event.stop_hook_active === true) {
   process.stdout.write("{}\n");
 } else {
-  const result = spawnSync("npm", ["test"], {
-    cwd: fileURLToPath(new URL("../../", import.meta.url)),
-    encoding: "utf8",
-    timeout: 240_000,
-    maxBuffer: 4 * 1024 * 1024,
-    env: { ...process.env, NO_COLOR: "1" },
-  });
+  const root = fileURLToPath(new URL("../../", import.meta.url));
+  const git = (args) => spawnSync("git", args, { cwd: root, encoding: "utf8" }).stdout ?? "";
+  // Only the unit tests related to this turn's changed files; CI runs the full suite.
+  const changed = [...new Set([...git(["diff", "--name-only", "HEAD"]).split("\n"),
+    ...git(["ls-files", "--others", "--exclude-standard"]).split("\n")])]
+    .filter((file) => /\.(ts|tsx|mts|js|mjs)$/.test(file) && !file.startsWith(".codex/"));
+  const result = changed.length === 0 ? { status: 0 } : spawnSync("npx",
+    ["vitest", "related", "--run", "--reporter=dot", "--passWithNoTests", ...changed], {
+      cwd: root,
+      encoding: "utf8",
+      timeout: 240_000,
+      maxBuffer: 4 * 1024 * 1024,
+      env: { ...process.env, NO_COLOR: "1" },
+    });
 
   if (result.status === 0 && !result.error) {
     process.stdout.write("{}\n");
   } else {
     const output = [result.stdout, result.stderr, result.error?.message].filter(Boolean).join("\n");
     const reason = [
-      "npm test failed or could not finish. Fix the unit-test failure and rerun npm test before finishing.",
+      "The related unit tests failed or could not finish. Fix the failure and rerun those tests before finishing.",
       "This hook blocks only once per turn. If tests still fail, report that and keep the task unfinished.",
       output.slice(-12_000),
     ].join("\n\n");

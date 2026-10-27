@@ -25,13 +25,20 @@ Read `docs/requirements.md`, `docs/decisions.md`, and `docs/tasks.md` at the sta
 
 ## Check our work
 
-- `npm test`
-- `npm run lint`
-- `npm run typecheck`
-- `npm run build:webpack`
+- Unit tests for the files you changed: `npx vitest run <test files> --reporter=dot`
+- `npm run lint --silent`
+- `npm run typecheck --silent`
+- `npm run build:webpack --silent`
 
 Run every check and require all of them to pass before saying a task is done or ticking it off.
 If any check fails, is skipped, or is blocked, report it and keep the task unfinished.
+
+## Keep output small
+
+- Run only the tests for the files you changed, with `npx vitest run <files> --reporter=dot`; CI runs the full suite.
+- Keep builds and installs quiet (`--silent`).
+- Never print whole files or long logs. Read line ranges with `rg -n` or `sed -n`, and show only the failing part of a log.
+- Take a browser screenshot only when checking something visual.
 
 ## Code style
 
