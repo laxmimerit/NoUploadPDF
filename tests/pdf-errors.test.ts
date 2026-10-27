@@ -11,6 +11,7 @@ const expectedMessages = {
   empty: "Choose at least one PDF, then try again.",
   busy: "A job is already running. Wait for it to finish, or choose Start again.",
   cancelled: "The job was stopped. Choose your PDFs to start again.",
+  "invalid-options": "Check the tool options, correct them, and try again.",
   failed: "The PDF could not be processed. Try fewer or smaller files, or choose Start again.",
 } satisfies Record<PdfErrorCode, string>;
 

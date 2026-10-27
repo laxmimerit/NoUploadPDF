@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { PdfPreviews } from "@/components/pdf-previews";
 import { PdfError } from "@/lib/pdf-engine/errors";
 import type { PdfOptions } from "@/lib/pdf-engine/protocol";
+import { resultOutputs } from "@/lib/pdf-engine/protocol";
 import { createPdfEngine, type PdfEngine } from "@/lib/pdf-worker-client";
 
 type SelectedFile = { id: string; file: File; pages?: number; error?: string };
@@ -48,11 +49,16 @@ function FileRow({ entry, onDetails, onRemove, disabled }: {
 }
 
 // Tool implementations supply their own options UI and values; the lifecycle stays here.
-export function ToolShell({ tool, toolName, options = {}, children, engineFactory = createPdfEngine }: {
+export function ToolShell({
+  tool, toolName, available = false, maxFiles, options = {}, children, onReset, engineFactory = createPdfEngine,
+}: {
   tool: string;
   toolName: string;
+  available?: boolean;
+  maxFiles?: number;
   options?: PdfOptions;
   children?: ReactNode;
+  onReset?: () => void;
   engineFactory?: () => PdfEngine;
 }) {
   const [files, setFiles] = useState<SelectedFile[]>([]);
@@ -60,26 +66,34 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("Choose PDFs to preview their pages.");
   const [error, setError] = useState<string>();
-  const [download, setDownload] = useState<Download>();
+  const [downloads, setDownloads] = useState<Download[]>([]);
   const [dragging, setDragging] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const engine = useRef<PdfEngine | null>(null);
-  const resultUrl = useRef<string | undefined>(undefined);
+  const resultUrls = useRef<string[]>([]);
   const generation = useRef(0);
   const busy = useRef(false);
+  const focusAfterReset = useRef(false);
   const processing = status === "processing";
 
   const clearResult = useCallback(() => {
-    if (resultUrl.current) URL.revokeObjectURL(resultUrl.current);
-    resultUrl.current = undefined;
-    setDownload(undefined);
+    resultUrls.current.forEach((url) => URL.revokeObjectURL(url));
+    resultUrls.current = [];
+    setDownloads([]);
   }, []);
 
   useEffect(() => () => {
     generation.current++;
     engine.current?.dispose();
-    if (resultUrl.current) URL.revokeObjectURL(resultUrl.current);
+    resultUrls.current.forEach((url) => URL.revokeObjectURL(url));
   }, []);
+
+  useEffect(() => {
+    if (status === "idle" && focusAfterReset.current) {
+      focusAfterReset.current = false;
+      input.current?.focus();
+    }
+  }, [status]);
 
   const details = useCallback((id: string, detail: { pages?: number; error?: string }) => {
     setFiles((current) => current.map((entry) => entry.id === id ? { ...entry, ...detail } : entry));
@@ -98,6 +112,11 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
         known.add(key);
         additions.push({ id: crypto.randomUUID(), file });
       }
+    }
+    if (maxFiles && files.length + additions.length > maxFiles) {
+      setError(`Choose exactly one PDF for ${toolName}. Remove the selected file before choosing another.`);
+      setMessage("No files were added. Choose one PDF and try again.");
+      return;
     }
     setMessage(duplicates.size
       ? Array.from(duplicates, (name) => `${name} is already in the list.`).join(" ")
@@ -121,6 +140,7 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
   }
 
   function reset() {
+    focusAfterReset.current = true;
     generation.current++;
     engine.current?.dispose();
     engine.current = null;
@@ -131,6 +151,7 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
     setProgress(0);
     setError(undefined);
     setDragging(false);
+    onReset?.();
     setMessage("Files cleared. Choose PDFs to start again.");
     if (input.current) input.current.value = "";
     input.current?.focus();
@@ -160,14 +181,19 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
         setMessage(text);
       });
       if (current !== generation.current) return;
-      const url = URL.createObjectURL(new Blob([result.data], { type: result.mimeType }));
-      resultUrl.current = url;
-      setDownload({ url, name: result.name });
+      const ready: Download[] = [];
+      for (const output of resultOutputs(result)) {
+        const url = URL.createObjectURL(new Blob([output.data], { type: output.mimeType }));
+        resultUrls.current.push(url);
+        ready.push({ url, name: output.name });
+      }
+      setDownloads(ready);
       setProgress(100);
       setStatus("success");
       setMessage("Your result is ready. Download it, or start again to clear your files.");
     } catch (failure) {
       if (current !== generation.current) return;
+      clearResult();
       setStatus("error");
       setError(failure instanceof PdfError ? failure.message : new PdfError("failed").message);
       setMessage("No result was created. Your files are still available to preview.");
@@ -192,14 +218,16 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
           setDragging(false);
           choose(Array.from(event.dataTransfer.files));
         }}>
-        <p className="text-sm font-semibold text-stone-800">Drop PDFs here</p>
+        <p className="text-sm font-semibold text-stone-800">{maxFiles === 1 ? "Drop one PDF here" : "Drop PDFs here"}</p>
         <p id="pdf-input-help" className="mt-1 text-xs leading-5 text-stone-500">
-          Or choose files below. Previews work today; PDF tools are coming soon.
+          {available
+            ? "Choose a PDF, enter page ranges, and process it on your device."
+            : "Or choose files below. Previews work today; this PDF tool is coming soon."}
         </p>
         <label className="mt-4 inline-block text-sm font-medium text-teal-800" htmlFor="pdf-files">
           Choose PDF files
         </label>
-        <input ref={input} id="pdf-files" type="file" accept="application/pdf,.pdf" multiple
+        <input ref={input} id="pdf-files" type="file" accept="application/pdf,.pdf" multiple={maxFiles !== 1}
           aria-describedby="pdf-input-help" disabled={processing}
           className="mt-2 block w-full min-w-0 text-xs text-stone-600 file:mr-3 file:cursor-pointer
             file:rounded-lg file:border-0 file:bg-teal-800 file:px-4 file:py-3 file:font-semibold file:text-white
@@ -218,7 +246,14 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
         </ul>
       </div>}
 
-      <fieldset disabled={processing} className="min-w-0 rounded-xl border border-stone-200 p-4">
+      <fieldset disabled={processing} className="min-w-0 rounded-xl border border-stone-200 p-4"
+        onChange={() => {
+          clearResult();
+          setError(undefined);
+          setProgress(0);
+          setStatus(files.length ? "ready" : "idle");
+          setMessage("Options changed. Process your PDF to create a new result.");
+        }}>
         <legend className="px-1 text-sm font-semibold">Tool options</legend>
         {children ?? <p className="text-sm text-stone-500">Options will appear when this tool is built.</p>}
       </fieldset>
@@ -233,10 +268,15 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
       <div className="flex flex-wrap gap-3">
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
           disabled={processing || !files.length || files.some((entry) => entry.error || entry.pages === undefined)}>
-          {processing ? "Checking PDFs…" : status === "error" ? "Try again" : "Process PDFs"}
+          {processing ? "Processing PDFs…" : status === "error" ? "Try again" : "Process PDFs"}
         </button>
-        {download
-          ? <a className="shell-button shell-primary" href={download.url} download={download.name}>Download</a>
+        {downloads.length
+          ? downloads.map((download) => (
+            <a key={download.url} className="shell-button shell-primary max-w-full break-all"
+              href={download.url} download={download.name}>
+              {downloads.length === 1 ? "Download" : `Download ${download.name}`}
+            </a>
+          ))
           : <button type="button" className="shell-button" disabled>Download</button>}
         <button type="button" className="shell-button" onClick={reset}>Start again</button>
       </div>

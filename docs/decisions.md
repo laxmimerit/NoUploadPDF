@@ -60,6 +60,19 @@ This avoids accidental repeats without reading or hashing file contents. Files w
 are treated as duplicates even if their contents differ. A selection containing only duplicates preserves
 the existing result and error state.
 
+**Page-range tools refinement (2026-10-27):** Split PDF and Extract pages accept exactly one PDF.
+A shared parser accepts comma-separated whole page numbers and inclusive ranges, with page numbers starting at 1.
+Every part is checked before output creation. Invalid-option errors identify the part, explain the problem,
+and preserve their correction message across the worker boundary. Other error codes keep fixed recovery copy.
+Split produces one PDF per part, in input order; overlaps are allowed because outputs are separate files.
+Extract deduplicates selected pages and saves them in source order. Pages outside the selection are omitted.
+The registry owns availability, the options component choice, and the single-file limit.
+
+Results retain the single-output shape for existing callers and add a multiple-output variant for Split PDF.
+Every output buffer is transferred back, and the shell creates one download URL per PDF. Changing options,
+changing files, reset, and unmount release those URLs. Separate links avoid a ZIP dependency and let visitors
+choose which outputs to download; the cost is one download action per split PDF.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -184,7 +197,7 @@ only to read and draw page previews. Install both through npm and serve pdf.js w
 and decoder assets from this app's own origin, without a CDN or document upload.
 The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
 The package preparation script runs before development and both build commands; generated assets are ignored
-by Git and ESLint. No tool operation is registered yet, so validated jobs return the not-built message.
+by Git and ESLint. Split PDF and Extract pages now register worker operations. Other tools still return the not-built message.
 
 **Why:** The original [`pdf-lib` has had no release since 2021](https://github.com/Hopding/pdf-lib/releases).
 Cantoo maintains a compatible fork that works in a Web Worker. Keeping modifications in that worker preserves

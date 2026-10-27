@@ -15,7 +15,7 @@ const iconPaths: Record<ToolIcon, React.ReactNode> = {
   compress: <><path d="m8 3-5 5h4v4h4V8h4l-5-5zM16 21l5-5h-4v-4h-4v4H9z" /></>,
 };
 
-function ToolCard({ slug, name, description, icon }: Tool) {
+function ToolCard({ slug, name, description, icon, available }: Tool) {
   return (
     <li>
       <Link href={`/tools/${slug}`} className="tool-card">
@@ -32,7 +32,10 @@ function ToolCard({ slug, name, description, icon }: Tool) {
           {iconPaths[icon]}
         </svg>
         <span>
-          <span className="block text-sm font-semibold text-stone-900">{name}</span>
+          <span className="block text-sm font-semibold text-stone-900">
+            {name}
+            {available && <span className="ml-2 text-[10px] font-normal text-teal-800"> Ready</span>}
+          </span>
           <span className="mt-1 block text-xs leading-4 text-stone-600">{description}</span>
         </span>
       </Link>
@@ -48,14 +51,16 @@ export default function Home() {
           PDF tools. No uploads.
         </h1>
         <p className="mt-2 text-sm leading-6 text-stone-600">
-          Free PDF tools built for your browser, with files kept on your device. Coming soon.
+          Free PDF tools for your browser. Split PDFs and extract pages with files kept on your device.
         </p>
       </section>
 
       <section aria-labelledby="toolbox-title">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 id="toolbox-title" className="text-sm font-semibold text-stone-900">Choose a tool</h2>
-          <p className="text-xs text-stone-500">{tools.length} tools · All coming soon</p>
+          <p className="text-xs text-stone-500">
+            {tools.length} tools · {tools.filter((tool) => tool.available).length} ready to use
+          </p>
         </div>
         <div className="space-y-3">
           {groupedTools.map(({ group, tools: entries }) => (

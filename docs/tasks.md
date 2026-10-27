@@ -198,17 +198,37 @@ For every tool task (6–16), also:
   - Done: Merge labeled two-page and three-page fixtures; output has five pages in the chosen order.
     Reverse the file order and verify the output changes accordingly. Apply the shared tool done criteria.
 
-- [ ] **7. Implement Split PDF.**
+- [x] **7. Implement Split PDF.**
   - Depends on: Tasks 4–5.
   - Deliverable: Split a PDF into separate PDFs using chosen page ranges.
   - Done: Split a labeled five-page fixture at ranges 1–2 and 3–5; outputs contain two and three matching pages.
     Reject reversed and out-of-range boundaries. Apply the shared tool done criteria.
+  - Completion (2026-10-27): Added one local worker operation, shared range validation, single-file options,
+    and separate PDF download links. Downloaded and reopened the five-page fixture split at `1-2, 3-5`;
+    pdf.js read the matching two and three page labels. Also downloaded `1-3, 7, 10-12` from the report
+    and verified all three files' text and page order. Browser checks covered zero/reversed ranges,
+    correction and retry, processing, downloads, keyboard reset, and 320×700 layout without overflow.
+    The browser resource inventory showed only local app assets and route reads; processing code contains
+    no network calls. All 110 unit tests, lint, type checking, and the webpack build pass.
+    A fresh build directory under `.next` resolved the old output cleanup EPERM, which also occurred on
+    an outside-sandbox retry; restored `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` afterward.
+    Home cards still fit at 1280×720 and 1366×768. PR, CI, and Vercel preview review remain pending.
 
-- [ ] **8. Implement Extract pages.**
+- [x] **8. Implement Extract pages.**
   - Depends on: Tasks 4–5.
   - Deliverable: Save selected pages as one new PDF.
   - Done: Extract pages 2 and 4 from a labeled five-page fixture; output contains exactly those pages in source order.
     Reject empty and out-of-range selections. Apply the shared tool done criteria.
+  - Completion (2026-10-27): Added the extraction worker operation and shared range options.
+    Downloaded `4, 2, 2` from the five-page fixture and reopened it with pdf.js: exactly pages 2 and 4,
+    in source order, with original text intact. Unit tests also verify `1-3, 7, 10-12`, repeated/overlapping
+    pages, empty/malformed/reversed/out-of-range selections, one-page PDFs, and unsupported inputs.
+    In-app browser checks covered damaged/non-PDF errors, replacing the file and successfully retrying
+    without reload, keyboard processing, reset, option-change cleanup, and the 320×700 layout.
+    The checks and build-directory workaround recorded for task 7 also pass for this implementation.
+    Added two Playwright visitor cases and updated availability assertions; all 17 cases are discovered.
+    The standalone Chromium suite was not run: page checks used the skill-required in-app browser.
+    The existing Chromium e2e task stays unfinished. PR, CI, and Vercel preview review remain pending.
 
 - [ ] **9. Implement Rotate PDF.**
   - Depends on: Tasks 4–5.

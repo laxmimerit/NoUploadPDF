@@ -17,8 +17,8 @@ export default function AboutPage() {
           without uploading them.
         </p>
         <p>
-          Today, you can browse the tools and visit their pages. All tools are marked “Coming soon”;
-          you can choose PDFs and preview every page on your device. PDF processing is not available yet.
+          Split PDF and Extract pages are ready to use. Choose one PDF, enter page ranges, and download
+          the result. Other tools are marked “Coming soon”; you can preview PDFs on their pages.
           Your files are never uploaded.
         </p>
       </div>

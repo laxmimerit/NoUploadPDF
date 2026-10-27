@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ToolShell } from "@/components/tool-shell";
+import { PageRangeTool } from "@/components/page-range-tool";
 import { tools } from "@/lib/tools";
 
 export function generateStaticParams() {
@@ -48,13 +49,18 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             {tool.name}
           </h1>
           <p className="mt-4 text-base leading-7 text-stone-600">{tool.description}</p>
-          <p className="mt-6 inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
+          {!tool.available && <p
+            className="mt-6 inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
             Coming soon
-          </p>
+          </p>}
           <p className="mt-4 text-sm leading-6 text-stone-500">
-            Preview your PDFs on your device. This tool is being built and cannot create a result yet.
+            {tool.available
+              ? "Choose one PDF and enter the pages you want to save. Everything runs on your device."
+              : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
-          <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />
+          {tool.options === "page-ranges"
+            ? <PageRangeTool key={tool.slug} tool={tool} />
+            : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
         </section>
         <p className="mt-6 text-center text-xs leading-5 text-stone-500">
           NoUploadPDF · Private PDF tools. Your files stay on your device.

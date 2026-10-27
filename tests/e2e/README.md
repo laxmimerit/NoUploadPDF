@@ -34,3 +34,8 @@ Failed or inactive deployments fail the job; it never uses an older success, a b
 The job uses GitHub's automatic read-only token to read deployments; no repository or Vercel secrets are required.
 Public previews need no protection bypass token. CI uploads reports and failure traces for seven days.
 The CI workflow itself can only be verified on GitHub after the change is pushed.
+
+Split PDF and Extract pages also have visitor tests for invalid range parts, retry, keyboard processing,
+multiple downloads, reopened output page counts, option changes, reset focus, and a 320px layout.
+They watch for requests with bodies during the workflow. The existing Merge PDF test retains coverage
+for the not-built state.

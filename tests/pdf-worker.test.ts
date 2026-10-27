@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PdfError } from "../src/lib/pdf-engine/errors";
 import type { PdfInput, PdfJob, PdfReply } from "../src/lib/pdf-engine/protocol";
+import { resultOutputs } from "../src/lib/pdf-engine/protocol";
+import { PDFDocument } from "@cantoo/pdf-lib";
 import { tools } from "../src/lib/tools";
 import { brokenFixtures, readFixture, validFixtures } from "./fixtures";
 
 describe("PDF worker jobs", () => {
   let replies: PdfReply[];
   let dispatch: (event: { data: PdfJob }) => Promise<void>;
+  let transferred: Transferable[][];
 
   function job(files: PdfInput[], id = "fixture-job", tool = "merge-pdf"): PdfJob {
     return { type: "job", id, tool, files, options: {} };
@@ -20,10 +23,14 @@ describe("PDF worker jobs", () => {
 
   beforeEach(async () => {
     replies = [];
+    transferred = [];
     vi.resetModules();
     // Run our real handler and validator; replace only the host's worker message port.
     vi.stubGlobal("onmessage", null);
-    vi.stubGlobal("postMessage", (reply: PdfReply) => replies.push(structuredClone(reply)));
+    vi.stubGlobal("postMessage", (reply: PdfReply, transfer: Transferable[] = []) => {
+      replies.push(structuredClone(reply));
+      if (reply.type === "result") transferred.push(transfer);
+    });
     await import("../src/lib/pdf-engine/worker");
     dispatch = Reflect.get(globalThis, "onmessage") as typeof dispatch;
   });
@@ -51,11 +58,41 @@ describe("PDF worker jobs", () => {
     expectError("retry", "not-built");
   });
 
-  it("keeps every registered tool unavailable until an operation exists", async () => {
-    for (const tool of tools) {
+  it("keeps unfinished tools unavailable", async () => {
+    for (const tool of tools.filter((entry) => !entry.available)) {
       await dispatch({ data: job([await readFixture("invoice.pdf")], tool.slug, tool.slug) });
       expectError(tool.slug, "not-built");
     }
+  });
+
+  it.each(["split-pdf", "extract-pages"])("runs %s with real fixture bytes and retries invalid options", async (tool) => {
+    const invalid = { ...job([await readFixture("report.pdf")], "invalid", tool), options: { ranges: "1-3, 0" } };
+    await dispatch({ data: invalid });
+    expect(replies.find((reply) => reply.type === "error" && reply.id === "invalid")).toMatchObject({
+      code: "invalid-options", message: expect.stringContaining("Part 2 (\u201c0\u201d): page numbers start at 1."),
+    });
+    const request = { ...job([await readFixture("report.pdf")], "success", tool), options: { ranges: "1-3, 7, 10-12" } };
+    await dispatch({ data: request });
+    const reply = replies.find((entry) => entry.type === "result" && entry.id === "success");
+    expect(reply?.type).toBe("result");
+    if (reply?.type !== "result") throw new Error("Expected output");
+    const outputs = resultOutputs(reply.result);
+    const counts = await Promise.all(outputs.map(async (output) => (await PDFDocument.load(output.data)).getPageCount()));
+    expect(counts).toEqual(tool === "split-pdf" ? [3, 1, 3] : [7]);
+    expect(transferred).toHaveLength(1);
+    expect(transferred[0]).toHaveLength(outputs.length);
+    expect(transferred[0].every((buffer) => buffer instanceof ArrayBuffer)).toBe(true);
+    expect(request.files).toEqual([]);
+    expect(replies.filter((entry) => entry.id === "success" && entry.type === "progress").length).toBeGreaterThan(2);
+  });
+
+  it.each(["split-pdf", "extract-pages"])("rejects broken inputs for %s and allows retry", async (tool) => {
+    for (const { name, code } of brokenFixtures) {
+      await dispatch({ data: { ...job([await readFixture(name)], name, tool), options: { ranges: "1" } } });
+      expectError(name, code);
+    }
+    await dispatch({ data: { ...job([await readFixture("invoice.pdf")], "retry", tool), options: { ranges: "1" } } });
+    expect(replies.find((entry) => entry.id === "retry" && entry.type === "result")).toBeDefined();
   });
 
   it("rejects an empty selection without progress", async () => {
