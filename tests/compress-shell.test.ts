@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { createElement, useEffect } from "react";
+import { MessageChannel } from "node:worker_threads";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { CompressTool } from "../src/components/compress-tool";
@@ -14,6 +15,39 @@ vi.mock("@/components/pdf-previews", () => ({
   },
 }));
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+it.each(["scan", "cleanup"])("downloads the original bytes after %s transfers its input", async (mode) => {
+  const bytes = new Uint8Array([37, 80, 68, 70, 45, 49]);
+  const engine = {
+    run: vi.fn(async (job: { files: { data: ArrayBuffer }[] }) => {
+      const { port1, port2 } = new MessageChannel();
+      const returned = new Promise<ArrayBuffer>((resolve) => port2.once("message", resolve));
+      port1.postMessage(job.files[0].data, [job.files[0].data]);
+      const data = await returned;
+      port1.close();
+      port2.close();
+      return { name: "report.pdf", mimeType: "application/pdf", data };
+    }),
+    dispose: vi.fn(),
+  };
+  const createObjectURL = vi.fn((_blob: Blob) => "blob:original");
+  vi.stubGlobal("URL", { createObjectURL, revokeObjectURL: vi.fn() });
+  render(createElement(ToolShell, { tool: "compress-pdf", toolName: "Compress PDF",
+    options: mode === "scan" ? { mode, quality: "smaller" } : { mode }, engineFactory: () => engine }));
+  const workspace = within(screen.getByRole("region", { name: "Compress PDF workspace" }));
+  const file = new File([bytes], "report.pdf", { type: "application/pdf" });
+  Object.defineProperty(file, "arrayBuffer", { value: async () => bytes.slice().buffer });
+  fireEvent.change(workspace.getByLabelText("Choose PDF files"), { target: { files: [file] } });
+  fireEvent.click(workspace.getByRole("button", { name: mode === "scan" ? "Compress PDF" : "Clean up PDF" }));
+  const link = await workspace.findByRole("link", { name: "Download" });
+  expect(link.getAttribute("download")).toBe("report.pdf");
+  const blob = createObjectURL.mock.calls[0][0] as Blob;
+  expect(blob.size).toBe(bytes.byteLength);
+  const reader = new FileReader();
+  const contents = new Promise<ArrayBuffer>((resolve) => { reader.onload = () => resolve(reader.result as ArrayBuffer); });
+  reader.readAsArrayBuffer(blob);
+  expect(new Uint8Array(await contents)).toEqual(bytes);
+});
 
 it.each([[5, "report-compressed.pdf", false], [10, "report.pdf", true]])(
   "shows both sizes and the correct download for a %i byte result", async (size, name, original) => {
