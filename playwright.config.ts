@@ -12,6 +12,8 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: previewURL || localURL,
+    // Vercel's documented automation opt-out prevents preview-toolbar network traffic.
+    extraHTTPHeaders: previewURL ? { "x-vercel-skip-toolbar": "1" } : {},
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

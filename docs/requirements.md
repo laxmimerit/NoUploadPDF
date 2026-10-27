@@ -52,7 +52,9 @@ The browser cases await execution; the merge flows passed manual in-app browser 
 against a local production build, including reopened downloads in both orders, damaged-file recovery,
 protection errors, keyboard controls, reset, and narrow layout.
 On pull requests, a new e2e job follows successful checks and waits for the PR head commit's public Vercel
-preview through GitHub deployment statuses. Local browser execution is not yet verified: macOS denied Chromium
+preview through GitHub deployment statuses. Automated preview requests send Vercel's documented
+`x-vercel-skip-toolbar: 1` header before navigation, preventing its injected toolbar from making unrelated
+login-validation POSTs and draft-status HEAD probes. All privacy request listeners and assertions remain unchanged. Local browser execution is not yet verified: macOS denied Chromium
 startup on 2026-10-27, including the elevated retry. The e2e task remains unfinished until the tests pass.
 Vercel preview integration was verified through PR #8 on 2026-10-27.
 Branch protection remains unverified.

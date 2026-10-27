@@ -176,6 +176,20 @@ seven days. Unit tests cover the polling behavior; the hosted job still requires
 This adds a development dependency, a Chromium download, CI runner time, and short-lived report storage.
 No hosting service or paid processing is introduced. See `tests/e2e/README.md` for commands and troubleshooting.
 
+**Preview automation refinement (2026-10-27):** When `PLAYWRIGHT_BASE_URL` is set, Playwright sends
+`x-vercel-skip-toolbar: 1` on every context request, including the first page navigation. Vercel documents
+this automation opt-out in [Managing the toolbar](https://vercel.com/docs/vercel-toolbar/managing-toolbar#disable-toolbar-for-automation).
+The setting changes only automated preview requests; local runs and normal visitors are unaffected.
+Keep all privacy listeners and assertions unchanged. Do not intercept or ignore toolbar requests in the audit.
+
+The first PR #16 browser run reached the page-grid tools' final network assertions after successful drag,
+keyboard, download, reset, and narrow-layout checks, but failed six privacy cases. Vercel injected a toolbar
+that posts login validation to `vercel.live`. Its public feedback script also calls `fetch(location.href)`
+with method `HEAD` and `x-vercel-draft-status: 1` to probe draft-mode status. Those body-free HEAD requests
+explain the page's own URL in the merge audit, which rejects every non-GET request. The documented opt-out
+prevents the injection instead of loosening the product's privacy checks. No deployment setting, credential,
+dependency, or app behavior changes; the cost is a provider-specific header in preview test configuration.
+
 ## 4. Give each tool a fixed registry slug
 
 Status: Accepted. Recorded: 2026-10-27.

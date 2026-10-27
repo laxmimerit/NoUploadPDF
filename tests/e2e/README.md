@@ -30,6 +30,15 @@ PLAYWRIGHT_BASE_URL=https://your-preview.vercel.app npm run test:e2e
 ```
 
 Setting `PLAYWRIGHT_BASE_URL` disables the local server entirely. No local build or deployment token is needed.
+Preview runs send `x-vercel-skip-toolbar: 1` through Playwright's context-wide `extraHTTPHeaders`,
+including the first navigation. This is Vercel's supported automation opt-out:
+[Disable toolbar for automation](https://vercel.com/docs/vercel-toolbar/managing-toolbar#disable-toolbar-for-automation).
+Local runs do not add this header. No request interception, allowlist, or privacy-assertion exception is used.
+
+The injected toolbar otherwise posts to `vercel.live/login/validate`. Its feedback script also sends a
+body-free `HEAD` to `location.href` with `x-vercel-draft-status: 1` to probe draft-mode status, which explains
+same-page URLs in the merge audit. That audit correctly rejects any non-GET request, even on the app's origin.
+Skipping the toolbar removes both sources of traffic while retaining the complete request audit.
 Reports go to `playwright-report`; failures retain screenshots and traces in `test-results`.
 Open a saved report with `npx playwright show-report`.
 

@@ -24,6 +24,18 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [ ] **Keep preview automation free of Vercel Toolbar requests.**
+  - Deliverable: Opt out of Vercel's injected preview toolbar through its documented automation request header.
+    Explain the same-page URL requests and retain every privacy audit and assertion unchanged.
+  - Progress (2026-10-27): Added preview-only context-wide `x-vercel-skip-toolbar: 1` in Playwright config.
+    Official Vercel docs confirm the opt-out. The toolbar's public feedback script issues body-free HEAD
+    requests to `location.href` with `x-vercel-draft-status: 1`; these are correctly flagged by the merge
+    audit's non-GET check. The external login-validation POST and same-page HEAD probes are prevented by
+    skipping toolbar injection. No tests, listeners, assertions, or request allowlists were changed.
+    All 162 Vitest tests, lint, type checking, and `npm run build:webpack` pass. The build used fresh
+    `.next/toolbar-automation-20261027` output; temporary configuration was restored exactly.
+    PR #16 CI must verify the complete suite on this change's preview before this task is checked off.
+
 - [ ] **Fix page-grid dragging when scrolling moves the handle.**
   - Deliverable: The unchanged Reorder & delete visitor test moves page 4 before page 2 and completes its
     download, reset, keyboard, and privacy checks.
