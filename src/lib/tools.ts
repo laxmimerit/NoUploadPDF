@@ -21,7 +21,7 @@ export type Tool = {
   available?: boolean;
   minimumFiles?: number;
   reorderFiles?: boolean;
-  options?: "page-ranges" | "page-grid";
+  options?: "page-ranges" | "page-grid" | "page-numbers" | "watermark";
   actionLabel?: string;
   maxFiles?: number;
 };
@@ -95,6 +95,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "page-numbers",
+    available: true,
+    options: "page-numbers",
+    maxFiles: 1,
+    actionLabel: "Save numbered PDF",
     name: "Page numbers",
     description: "Add clear page numbers to your PDF.",
     icon: "page-numbers",
@@ -102,6 +106,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "watermark-pdf",
+    available: true,
+    options: "watermark",
+    maxFiles: 1,
+    actionLabel: "Save watermarked PDF",
     name: "Watermark PDF",
     description: "Add a personal mark to your pages.",
     icon: "watermark",

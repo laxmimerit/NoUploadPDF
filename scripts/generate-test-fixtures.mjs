@@ -81,6 +81,19 @@ firstFour.forEach((page, index) => {
 });
 await writeFile(new URL("four-pages.pdf", directory), await fourPages.save({ useObjectStreams: false }));
 
+const overlayPages = await createDocument("Fictional three-page overlay placement report");
+const overlayFont = await overlayPages.embedFont(StandardFonts.Helvetica);
+for (const [index, size] of [[0, [595, 842]], [1, [842, 595]], [2, [650, 900]]]) {
+  const page = overlayPages.addPage(size);
+  page.drawText(`Overlay fixture page ${index + 1}`, { x: 80, y: 420, size: 18, font: overlayFont });
+  page.drawText("Original fictional content stays readable.", { x: 80, y: 380, size: 12, font: overlayFont });
+  if (index === 2) {
+    page.setCropBox(40, 60, 550, 780);
+    page.setRotation(degrees(90));
+  }
+}
+await writeFile(new URL("overlay-pages.pdf", directory), await overlayPages.save({ useObjectStreams: false }));
+
 // Keep the PDF signature, but truncate an object so the file cannot be parsed.
 await writeFile(new URL("damaged.pdf", directory), "%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages\n");
 
@@ -91,4 +104,4 @@ await writeFile(new URL("password-protected.pdf", directory), await locked.save(
 await writeFile(new URL("renamed-text.pdf", directory),
   "This is a plain text test file with a .pdf extension. It is not a PDF.\n");
 
-console.log("Generated nine fictional fixtures in tests/fixtures.");
+console.log("Generated ten fictional fixtures in tests/fixtures.");

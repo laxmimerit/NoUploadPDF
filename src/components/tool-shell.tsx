@@ -291,7 +291,11 @@ export function ToolShell({
               ? "Files merge in the order shown. You can change it before processing."
               : config?.options === "page-grid"
                 ? "Choose one PDF, then use the page controls below."
-                : "Choose a PDF and enter page ranges."
+                : config?.options === "page-numbers"
+                  ? "Choose one PDF, then set the starting number and position."
+                  : config?.options === "watermark"
+                    ? "Choose one PDF, then preview and configure your watermark."
+                    : "Choose a PDF and enter page ranges."
             : "Previews work today; this PDF tool is coming soon."}
         </p>
         <label className="sr-only" htmlFor="pdf-files">Choose PDF files</label>

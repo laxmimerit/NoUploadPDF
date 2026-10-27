@@ -424,3 +424,15 @@ progress { accent-color: var(--green); }
   .page-preview-sheet { height: 240px; }
 }
 @media (prefers-reduced-motion: reduce) { .page-preview-sheet img { transition: none; } }
+
+.text-tool-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.text-tool-fields label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 500; }
+.text-tool-fields input, .text-tool-fields select { min-width: 0; width: 100%; min-height: 44px;
+  border: 1px solid var(--outline); border-radius: 8px; padding: 10px; background: var(--sunk);
+  color: var(--foreground); font: inherit; }
+.text-tool-fields input[type="range"] { padding: 10px 0; accent-color: var(--green-text); }
+.text-tool-fields input:focus-visible, .text-tool-fields select:focus-visible {
+  outline: 2px solid var(--green-text); outline-offset: 3px; }
+.text-tool-help { margin-top: 14px; }
+.watermark-preview { margin-top: 16px; }
+@media (max-width: 520px) { .text-tool-fields { grid-template-columns: minmax(0, 1fr); } }

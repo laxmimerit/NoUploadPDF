@@ -16,7 +16,7 @@ export default function AboutPage() {
         <p className="eyebrow">ABOUT NOUPLOADPDF</p>
         <h1>Built so your documents stay yours.</h1>
         <p className="hero-lead">NoUploadPDF does the work inside your browser.
-          Merge, split, extract, rotate, and arrange PDF pages on your own device.
+          Merge, split, arrange, number, and watermark PDF pages on your own device.
           Your contracts, IDs, and invoices are never uploaded.</p>
         <PrivacyPill>Files stay on this device</PrivacyPill>
       </section>

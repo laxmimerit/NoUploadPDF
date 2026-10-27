@@ -39,7 +39,7 @@ describe("page content on navigation", () => {
     it(`removes the old home-page labels when the header opens ${tool.name}`, () => {
       route.pathname = "/";
       const view = render(content());
-      expect(screen.getAllByText("Coming soon", { exact: true })).toHaveLength(6);
+      expect(screen.getAllByText("Coming soon", { exact: true })).toHaveLength(4);
 
       route.pathname = `/tools/${tool.slug}`;
       view.rerender(content());

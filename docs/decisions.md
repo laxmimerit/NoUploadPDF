@@ -107,6 +107,22 @@ lifecycle. Use the current theme surface and respect the device's bottom safe ar
 workspace and keeps its original place in document and keyboard order. This avoids scrolling past every page
 to save or download; the cost is reserving a strip of the editing viewport for the actions.
 
+**Text overlays refinement (2026-10-27):** Page numbers and Watermark PDF each accept one PDF and
+reuse the shared shell and worker lifecycle. Numbers use bottom centre, bottom right, or top right and any
+safe integer start, including zero and negative values; reject a sequence that would exceed integer precision.
+Watermarks accept 1–200 characters on one line, all pages or the existing range syntax, centre or diagonal
+placement, and 5–50% opacity. Standard embedded Helvetica fonts keep processing local without a new font
+dependency; unsupported characters receive a correction message. Text scales down within the visible page
+but rejects sizes below six points. Crop/media intersection and existing quarter turns define placement.
+
+The watermark placement preview runs the export operation in a separate local worker, then renders that
+result with pdf.js. This keeps the preview and saved placement aligned without duplicating positioning math.
+Preview changes cancel previous work and ignore late replies. Saving reuses an unchanged completed preview;
+thumbnail batches follow their render generation, so regenerated files cannot append stale images.
+The cost is an extra local PDF read and worker job while configuring a watermark. No document data or
+watermark text leaves the browser. Source-based
+filenames end in `-numbered.pdf` or `-watermarked.pdf`.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -251,8 +267,9 @@ Shared navigation still makes every registry tool directly reachable from every 
 **What it costs:** Seeing all cards requires scrolling. Filters and mobile navigation add interactive states
 and accessibility checks. Local fonts add asset weight but avoid runtime requests to a font provider.
 
-**Truthful content (updated 2026-10-27):** Merge PDF, Split PDF, Extract pages, Rotate PDF, and Reorder & delete
-are implemented; the other six retain “Coming soon”. Page-grid browser verification remains pending in tasks 9–10.
+**Truthful content (updated 2026-10-27):** Merge PDF, Split PDF, Extract pages, Rotate PDF, Reorder & delete,
+Page numbers, and Watermark PDF have implementations; the other four retain “Coming soon”. Browser
+verification remains pending in tasks 9–10; tasks 13–14 passed local browser checks.
 PDF previews still work on unfinished pages. Split downloads separate PDFs, not a ZIP. Merge retains the first
 file's base name plus `-merged.pdf`. Offline operation is not supported: loading the app and assets needs internet.
 The design's offline fact and FAQ answer must not be used. Privacy green marks privacy, local processing,
@@ -283,8 +300,8 @@ only to read and draw page previews. Install both through npm and serve pdf.js w
 and decoder assets from this app's own origin, without a CDN or document upload.
 The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
 The package preparation script runs before development and both build commands; generated assets are ignored
-by Git and ESLint. Merge PDF, Split PDF, Extract pages, Rotate PDF, and Reorder & delete
-have registered worker operations.
+by Git and ESLint. Merge PDF, Split PDF, Extract pages, Rotate PDF, Reorder & delete, Page numbers,
+and Watermark PDF have registered worker operations.
 Unfinished tools return the not-built message.
 
 **Why:** The original [`pdf-lib` has had no release since 2021](https://github.com/Hopding/pdf-lib/releases).

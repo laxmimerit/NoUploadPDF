@@ -196,6 +196,51 @@ describe("PDF worker jobs", () => {
     expectError("fixture-job", "empty");
   });
 
+  it.each(["page-numbers", "watermark-pdf"])("runs %s, preserves content and transfers its output", async (tool) => {
+    const file = await readFixture("overlay-pages.pdf");
+    const original = await pageTexts(file.data.slice(0));
+    const request = job([file], "overlay", tool);
+    request.options = tool === "page-numbers"
+      ? { position: "top-right", startNumber: 5 }
+      : { text: "FICTIONAL DRAFT", ranges: "1, 3", position: "diagonal", opacity: 0.25 };
+    await dispatch({ data: request });
+    const reply = replies.find((entry) => entry.id === "overlay" && entry.type === "result");
+    if (reply?.type !== "result") throw new Error("Expected an overlay result");
+    const [output] = resultOutputs(reply.result);
+    const updated = await pageTexts(output.data.slice(0));
+    expect((await PDFDocument.load(output.data)).getPageCount()).toBe(3);
+    original.forEach((text, index) => expect(updated[index]).toContain(text));
+    if (tool === "watermark-pdf") {
+      expect(updated[0]).toContain("FICTIONAL DRAFT");
+      expect(updated[1]).toBe(original[1]);
+      expect(updated[2]).toContain("FICTIONAL DRAFT");
+    } else {
+      updated.forEach((text, index) => expect(text).toMatch(new RegExp(`\\b${index + 5}\\b`)));
+    }
+    expect(transferred).toEqual([[output.data]]);
+    expect(request.files).toEqual([]);
+    const progress = replies.flatMap((entry) => entry.type === "progress" ? [entry.value] : []);
+    expect(progress.at(-1)).toBe(100);
+    expect(progress).toEqual([...progress].sort((a, b) => a - b));
+  });
+
+  it.each(["page-numbers", "watermark-pdf"])("recovers from broken inputs/options for %s", async (tool) => {
+    for (const { name, code } of brokenFixtures) {
+      await dispatch({ data: job([await readFixture(name)], name, tool) });
+      expectError(name, code);
+    }
+    await dispatch({ data: job([await readFixture("invoice.pdf")], "invalid", tool) });
+    expect(replies.find((reply) => reply.id === "invalid" && reply.type === "error")).toMatchObject({
+      code: "invalid-options", message: expect.stringMatching(/choose|enter|use|try|correct/i),
+    });
+    const request = job([await readFixture("invoice.pdf")], "retry", tool);
+    request.options = tool === "page-numbers"
+      ? { position: "bottom-center", startNumber: -1 }
+      : { text: "RETRY COPY", ranges: "1", position: "center", opacity: 0.5 };
+    await dispatch({ data: request });
+    expect(replies.find((entry) => entry.id === "retry" && entry.type === "result")).toBeDefined();
+  });
+
   it("checks every file and stops at a broken file in a batch", async () => {
     const request = job([
       await readFixture("invoice.pdf"),

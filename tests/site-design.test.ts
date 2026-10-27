@@ -28,7 +28,7 @@ describe("tool discovery", () => {
     render(createElement(ToolGrid));
     const toolbox = within(screen.getByRole("region", { name: "Choose a tool" }));
     expect(toolbox.getAllByRole("link")).toHaveLength(11);
-    expect(toolbox.getAllByText("Coming soon")).toHaveLength(6);
+    expect(toolbox.getAllByText("Coming soon")).toHaveLength(4);
     for (const tool of tools) {
       expect(toolbox.getByRole("link", { name: tool.name }).getAttribute("href")).toBe(`/tools/${tool.slug}`);
     }

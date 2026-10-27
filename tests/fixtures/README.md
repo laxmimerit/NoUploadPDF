@@ -12,6 +12,7 @@ The script uses the existing `@cantoo/pdf-lib` dependency and does not access th
 | `merge-three.pdf` | Three labeled pages for checking merged content and order. |
 | `five-pages.pdf` | First five labeled report pages, for split/extract acceptance checks. |
 | `four-pages.pdf` | Four labeled report pages with existing rotations 0, 90, 180, 270 degrees. |
+| `overlay-pages.pdf` | Three labeled pages: portrait, landscape, and a cropped page rotated 90 degrees. |
 | `damaged.pdf` | PDF header followed by a truncated catalog object. Returns `damaged`. |
 | `password-protected.pdf` | One-page invoice encrypted with AES-256. Returns `password`. |
 | `renamed-text.pdf` | Plain text saved with a PDF extension. Returns `not-pdf`. |

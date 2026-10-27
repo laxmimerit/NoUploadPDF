@@ -1,22 +1,28 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { hasPdfHeader, PdfError, readablePdfError } from "@/lib/pdf-engine/errors";
 
 export type Thumbnail = { page: number; url: string };
 
-export function PdfPreviews({ file, onReady, onError, children }: {
+export function PdfPreviews({ file, onReady, onError, children, renderPages = true }: {
+  renderPages?: boolean;
   children?: (thumbnails: Thumbnail[]) => ReactNode;
   file: File;
   onReady: (pages: number) => void;
   onError: (message: string) => void;
 }) {
-  const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
+  const generation = useMemo(() => ({ file, onReady, onError, renderPages }), [file, onReady, onError, renderPages]);
+  const [preview, setPreview] = useState<{ generation: object; thumbnails: Thumbnail[] }>({
+    generation, thumbnails: [],
+  });
+  const thumbnails = preview.generation === generation ? preview.thumbnails : [];
 
   useEffect(() => {
     let stopped = false;
     let passwordRequested = false;
     const urls: string[] = [];
+    const rendered: Thumbnail[] = [];
     let loading: import("pdfjs-dist").PDFDocumentLoadingTask | undefined;
     let rendering: import("pdfjs-dist").RenderTask | undefined;
 
@@ -52,7 +58,7 @@ export function PdfPreviews({ file, onReady, onError, children }: {
         if (!pdf.numPages) throw new PdfError("damaged");
         onReady(pdf.numPages);
         // Render serially at thumbnail size to bound simultaneous canvas memory.
-        for (let number = 1; number <= pdf.numPages; number++) {
+        for (let number = 1; renderPages && number <= pdf.numPages; number++) {
           if (stopped) return;
           const page = await pdf.getPage(number);
           if (stopped) return;
@@ -70,7 +76,8 @@ export function PdfPreviews({ file, onReady, onError, children }: {
           if (!blob) throw new PdfError("failed");
           const url = URL.createObjectURL(blob);
           urls.push(url);
-          setThumbnails((current) => [...current, { page: number, url }]);
+          rendered.push({ page: number, url });
+          setPreview({ generation, thumbnails: [...rendered] });
         }
         await loading.destroy();
         loading = undefined;
@@ -86,8 +93,9 @@ export function PdfPreviews({ file, onReady, onError, children }: {
       void loading?.destroy();
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [file, onReady, onError]);
+  }, [file, onReady, onError, renderPages, generation]);
 
+  if (!renderPages) return null;
   if (children) return children(thumbnails);
 
   return (

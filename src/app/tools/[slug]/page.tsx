@@ -5,6 +5,8 @@ import { ToolShell } from "@/components/tool-shell";
 import { MergePdfTool } from "@/components/merge-pdf-tool";
 import { PageGridTool } from "@/components/page-grid-tool";
 import { PageRangeTool } from "@/components/page-range-tool";
+import { PageNumbersTool } from "@/components/page-numbers-tool";
+import { WatermarkTool } from "@/components/watermark-tool";
 import { tools } from "@/lib/tools";
 import { PrivacyPill } from "@/components/privacy-pill";
 import { ToolCard } from "@/components/tool-grid";
@@ -55,7 +57,11 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
                   ? "Choose one PDF and enter ranges. Download a separate PDF for each part, all on your device."
                   : tool.options === "page-grid"
                     ? "Choose one PDF, edit its pages, and save a new copy. Everything runs on your device."
-                    : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
+                    : tool.options === "page-numbers"
+                      ? "Choose one PDF, set the starting number and position, and save a numbered copy on your device."
+                      : tool.options === "watermark"
+                        ? "Choose one PDF, preview a text watermark on selected pages, and save it on your device."
+                        : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
               : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
         </div>
@@ -66,7 +72,11 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
               ? <PageRangeTool key={tool.slug} tool={tool} />
               : tool.options === "page-grid"
                 ? <PageGridTool key={tool.slug} tool={tool} />
-                : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
+                : tool.options === "page-numbers"
+                  ? <PageNumbersTool key={tool.slug} tool={tool} />
+                  : tool.options === "watermark"
+                    ? <WatermarkTool key={tool.slug} tool={tool} />
+                    : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
         </div>
       </section>
       <section className="more-tools section-space" aria-labelledby="more-tools-title">
