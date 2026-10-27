@@ -98,6 +98,24 @@ or ticking it off; failed, skipped, or blocked checks leave it unfinished. CI ru
 The add-pdf-tool skill uses the same Vitest suite and shared fictional fixtures so future tools extend this baseline.
 This catches regressions before completion; the cost is running the full check set for each task.
 
+**End-to-end refinement (2026-10-27):** Add Playwright with Chromium and the existing fictional fixtures.
+Use visitor-visible links, labels, messages, and decoded thumbnails with real pdf.js previews and the real worker.
+Test the home grid at 1280×720 and 1366×768, every header tool link, and the shared shell on Merge PDF.
+Locally, build with `npm run build:webpack`, then run `npm run test:e2e`; Playwright starts an isolated
+production server and refuses to reuse an existing server. `PLAYWRIGHT_BASE_URL` instead targets a public
+deployment and disables the local server. Browser execution remains unverified because macOS denied Chromium
+startup in this session, including the elevated retry; this records the chosen setup, not a passing browser run.
+
+On pull requests only, CI's `e2e` job depends on successful `checks`, checks out the PR head SHA, and polls
+GitHub deployments for that same SHA for up to 20 minutes. Accept the latest non-production Preview deployment
+from `vercel[bot]` only when its current status succeeds and supplies an HTTPS `environment_url`.
+Fail on deployment failure, error, inactivity, or timeout; do not reuse older successful statuses or branch URLs.
+Use GitHub's automatic token with read-only contents and deployments permissions. Public previews need no
+repository secrets, Vercel token, or protection bypass. Retain reports, failure screenshots, and traces for
+seven days. Unit tests cover the polling behavior; the hosted job still requires a PR run after the user pushes.
+This adds a development dependency, a Chromium download, CI runner time, and short-lived report storage.
+No hosting service or paid processing is introduced. See `tests/e2e/README.md` for commands and troubleshooting.
+
 ## 4. Give each tool a fixed registry slug
 
 Status: Accepted. Recorded: 2026-10-27.

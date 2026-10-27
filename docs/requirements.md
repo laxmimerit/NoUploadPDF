@@ -22,6 +22,11 @@ The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.sv
 The favicon passed its live-site browser-tab check on 2026-10-27.
 Vitest covers registry contracts, PDF validation and worker jobs, and recovery messages using fictional fixtures.
 CI runs unit tests, lint, type checking, and a build.
+Playwright is configured for Chromium visitor tests using the shared fixtures: first-screen tool discovery,
+all header tool links, twelve report thumbnails, the not-built state with Download disabled, and non-PDF input.
+On pull requests, a new e2e job follows successful checks and waits for the PR head commit's public Vercel
+preview through GitHub deployment statuses. Local browser execution is not yet verified: macOS denied Chromium
+startup on 2026-10-27, including the elevated retry. The e2e task remains unfinished until the tests pass.
 Vercel preview integration was verified through PR #8 on 2026-10-27.
 Branch protection remains unverified.
 

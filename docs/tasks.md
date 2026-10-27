@@ -24,6 +24,31 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [ ] **Add Chromium visitor tests and test pull requests on public Vercel previews.**
+  - Deliverable: Playwright tests using `tests/fixtures`, a local production-server configuration, and a PR-only
+    CI job that follows successful checks, waits for the exact head commit's Vercel deployment, and tests its URL.
+  - Done: All required checks and the Chromium visitor tests pass against a local production build.
+    Cover all tools without scrolling, all header tool links, twelve decoded report thumbnails, the not-built
+    message with Download disabled, and the not-a-PDF message. Validate preview matching and CI configuration.
+  - Progress (2026-10-27): Added 15 Chromium cases, production/preview configuration, fixture usage notes,
+    report/trace retention, and the e2e job with read-only GitHub deployment access and no repository secrets.
+    Ten new unit cases cover head-SHA matching, unrelated/production deployments, pending states, current
+    status selection, failure/error/inactivity, missing URLs, timeout, and HTTPS validation.
+    All 48 unit tests, lint, type checking, and `npm run build:webpack` pass in a clean temporary checkout copy,
+    used because dependency installation in the original checkout hit old file permission errors.
+    Playwright discovers all 15 cases. CI YAML parsing and dependency, SHA, URL, and permission checks pass.
+    Browser execution is blocked before page navigation: macOS denies Chromium's Mach port registration,
+    both inside the sandbox and on the elevated retry. No browser test passed; this task remains unfinished.
+    The hosted preview job also needs verification on GitHub after the user pushes. No Git state was changed.
+  - Retry (2026-10-27): Ran the checks in the original checkout with Playwright installed.
+    All 48 unit tests, lint, type checking, and the webpack production build pass here.
+    Old build-cache and test-report cleanup returned EPERM, so this run used fresh output directories
+    under `.next`; restored `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` exactly afterward.
+    Requested execution outside the sandbox for the production build and Chromium test run.
+    The production server started, but all 15 browser cases failed before navigation because Chromium's
+    MachPortRendezvousServer registration was still denied (1100) in the agent execution environment.
+    The e2e task remains unfinished. No staging, branch, commit, or push operations were performed.
+
 - [x] **Make unit tests part of the required workflow.**
   - Deliverable: Require all four checks to pass in `AGENTS.md` and the shared done criteria.
     Run Vitest before the CI build and update the add-pdf-tool skill to use the shared fixtures.
