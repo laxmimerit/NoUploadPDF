@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Use `npm run build:webpack` when checking the build locally in the sandbox.
 
-Check pages only in your in-app browser; don't use Chrome or Computer Use.
+Never use Chrome or Computer Use; Codex's in-app browser is fine for checking pages.
 
 ## About NoUploadPDF
 
