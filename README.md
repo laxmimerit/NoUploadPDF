@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Codex development plugin
+
+To install the `add-pdf-tool` skill from this repository's marketplace, run:
+
+```bash
+codex plugin marketplace add laxmimerit/NoUploadPDF && codex plugin add nouploadpdf-dev@nouploadpdf
+```
+
+The repository must be accessible to your Git credentials. Start a new Codex session in a NoUploadPDF
+checkout, then explicitly invoke the skill with `$add-pdf-tool` and a tool name. The original repo-local
+skill remains in `.agents/skills/add-pdf-tool`; keep the plugin copy in sync when updating it.
+
 ## Getting Started
 
 First, run the development server:

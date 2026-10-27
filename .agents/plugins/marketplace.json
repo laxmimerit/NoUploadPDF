@@ -1,0 +1,20 @@
+{
+  "name": "nouploadpdf",
+  "interface": {
+    "displayName": "NoUploadPDF"
+  },
+  "plugins": [
+    {
+      "name": "nouploadpdf-dev",
+      "source": {
+        "source": "local",
+        "path": "./plugins/nouploadpdf-dev"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

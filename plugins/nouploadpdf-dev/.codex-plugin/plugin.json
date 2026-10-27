@@ -1,0 +1,12 @@
+{
+  "name": "nouploadpdf-dev",
+  "version": "0.1.0",
+  "description": "Development skills for the NoUploadPDF project.",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "NoUploadPDF Dev",
+    "shortDescription": "Build browser-only PDF tools for NoUploadPDF",
+    "developerName": "NoUploadPDF",
+    "category": "Developer Tools"
+  }
+}
