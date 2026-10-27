@@ -57,7 +57,7 @@ export function ToolNavigation({ groups }: { groups: ToolGroup[] }) {
             <ul className="navigation-dropdown" hidden={!expanded} id={panelId}>
               {tools.map((tool) => (
                 <li key={tool.slug}>
-                  <Link href={`/tool/${tool.slug}`} onClick={() => setOpenGroup(null)}>
+                  <Link href={`/tools/${tool.slug}`} onClick={() => setOpenGroup(null)}>
                     {tool.name}
                   </Link>
                 </li>
