@@ -250,7 +250,10 @@ export function ToolShell({
       if (current !== generation.current) return;
       const ready: Download[] = [];
       for (const output of resultOutputs(result)) {
-        const url = URL.createObjectURL(new Blob([output.data], { type: output.mimeType }));
+        // When compress can't make it smaller, offer the visitor's own original bytes.
+        const keepOriginal = tool === "compress-pdf" && output.data.byteLength >= files[0].file.size;
+        const data = keepOriginal ? inputs[0].data : output.data;
+        const url = URL.createObjectURL(new Blob([data], { type: output.mimeType }));
         resultUrls.current.push(url);
         ready.push({ url, name: output.name, size: output.data.byteLength });
       }
