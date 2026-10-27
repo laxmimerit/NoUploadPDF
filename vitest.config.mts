@@ -8,5 +8,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    // The Sign PDF export tests render whole pages and need more than 5 s on CI runners.
+    testTimeout: 30000,
   },
 });
