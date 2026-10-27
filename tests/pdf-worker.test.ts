@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PDFDocument } from "@cantoo/pdf-lib";
 import { PdfError } from "../src/lib/pdf-engine/errors";
 import type { PdfInput, PdfJob, PdfReply } from "../src/lib/pdf-engine/protocol";
 import { tools } from "../src/lib/tools";
@@ -8,7 +9,7 @@ describe("PDF worker jobs", () => {
   let replies: PdfReply[];
   let dispatch: (event: { data: PdfJob }) => Promise<void>;
 
-  function job(files: PdfInput[], id = "fixture-job", tool = "merge-pdf"): PdfJob {
+  function job(files: PdfInput[], id = "fixture-job", tool = "split-pdf"): PdfJob {
     return { type: "job", id, tool, files, options: {} };
   }
 
@@ -47,15 +48,57 @@ describe("PDF worker jobs", () => {
     expectError(request.id, code);
     expect(request.files).toEqual([]);
 
-    await dispatch({ data: job([await readFixture("invoice.pdf")], "retry") });
-    expectError("retry", "not-built");
+    await dispatch({ data: job([
+      await readFixture("invoice.pdf"), await readFixture("report.pdf"),
+    ], "retry", "merge-pdf") });
+    const result = replies.find((reply) => reply.id === "retry" && reply.type === "result");
+    expect(result?.type).toBe("result");
+    if (result?.type !== "result") throw new Error("Expected a retry result");
+    expect((await PDFDocument.load(result.result.data)).getPageCount()).toBe(13);
   });
 
-  it("keeps every registered tool unavailable until an operation exists", async () => {
-    for (const tool of tools) {
+  it("keeps unfinished tools unavailable until an operation exists", async () => {
+    for (const tool of tools.filter((tool) => !tool.available)) {
       await dispatch({ data: job([await readFixture("invoice.pdf")], tool.slug, tool.slug) });
       expectError(tool.slug, "not-built");
     }
+  });
+
+  it("merges through the job protocol and releases input buffers", async () => {
+    const request = job([
+      await readFixture("merge-two.pdf"), await readFixture("merge-three.pdf"),
+    ], "merge", "merge-pdf");
+    await dispatch({ data: request });
+    const result = replies.find((reply) => reply.type === "result");
+    expect(result?.type).toBe("result");
+    if (result?.type !== "result") throw new Error("Expected a merged result");
+    expect(result.result.name).toBe("merge-two-merged.pdf");
+    expect((await PDFDocument.load(result.result.data)).getPageCount()).toBe(5);
+    const progress = replies.filter((reply) => reply.type === "progress").map((reply) => reply.value);
+    expect(progress[0]).toBe(0);
+    expect(progress.at(-1)).toBe(100);
+    expect(progress).toEqual([...progress].sort((a, b) => a - b));
+    expect(request.files).toEqual([]);
+  });
+
+  it("reports a damaged merge input without a partial result", async () => {
+    const request = job([
+      await readFixture("invoice.pdf"), await readFixture("damaged.pdf"),
+    ], "damaged-merge", "merge-pdf");
+    await dispatch({ data: request });
+    expectError(request.id, "damaged");
+    expect(request.files).toEqual([]);
+  });
+
+  it("rejects a single merge file and unsupported options", async () => {
+    await dispatch({ data: job([await readFixture("invoice.pdf")], "single", "merge-pdf") });
+    expectError("single", "too-few-files");
+    const request = job([
+      await readFixture("invoice.pdf"), await readFixture("report.pdf"),
+    ], "options", "merge-pdf");
+    request.options = { reverse: true };
+    await dispatch({ data: request });
+    expectError(request.id, "invalid-options");
   });
 
   it("rejects an empty selection without progress", async () => {

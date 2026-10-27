@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ToolShell } from "@/components/tool-shell";
+import { MergePdfTool } from "@/components/merge-pdf-tool";
 import { tools } from "@/lib/tools";
 
 export function generateStaticParams() {
@@ -48,13 +49,18 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             {tool.name}
           </h1>
           <p className="mt-4 text-base leading-7 text-stone-600">{tool.description}</p>
-          <p className="mt-6 inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
+          {!tool.available && <p
+            className="mt-6 inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
             Coming soon
-          </p>
+          </p>}
           <p className="mt-4 text-sm leading-6 text-stone-500">
-            Preview your PDFs on your device. This tool is being built and cannot create a result yet.
+            {tool.available
+              ? "Choose PDFs, set their order, and download one merged file. Your files stay on your device."
+              : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
-          <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />
+          {tool.slug === "merge-pdf"
+            ? <MergePdfTool key={tool.slug} tool={tool} />
+            : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
         </section>
         <p className="mt-6 text-center text-xs leading-5 text-stone-500">
           NoUploadPDF · Private PDF tools. Your files stay on your device.

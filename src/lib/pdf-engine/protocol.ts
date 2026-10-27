@@ -16,6 +16,8 @@ export type PdfErrorCode =
   | "password"
   | "not-built"
   | "empty"
+  | "invalid-options"
+  | "too-few-files"
   | "busy"
   | "cancelled"
   | "failed";

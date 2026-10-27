@@ -17,9 +17,9 @@ export default function AboutPage() {
           without uploading them.
         </p>
         <p>
-          Today, you can browse the tools and visit their pages. All tools are marked “Coming soon”;
-          you can choose PDFs and preview every page on your device. PDF processing is not available yet.
-          Your files are never uploaded.
+          Merge PDF is ready: choose multiple PDFs, set their order, and download one merged file.
+          The other tools are marked “Coming soon”; you can choose PDFs and preview every page on your device.
+          Your files are never uploaded, including during merging.
         </p>
       </div>
       <Link className="mt-8 inline-block font-medium text-teal-800 underline underline-offset-4" href="/">

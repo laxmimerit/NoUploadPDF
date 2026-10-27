@@ -5,6 +5,7 @@ import { PdfPreviews } from "@/components/pdf-previews";
 import { PdfError } from "@/lib/pdf-engine/errors";
 import type { PdfOptions } from "@/lib/pdf-engine/protocol";
 import { createPdfEngine, type PdfEngine } from "@/lib/pdf-worker-client";
+import { tools } from "@/lib/tools";
 
 type SelectedFile = { id: string; file: File; pages?: number; error?: string };
 type Status = "idle" | "ready" | "processing" | "success" | "error";
@@ -16,10 +17,13 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function FileRow({ entry, onDetails, onRemove, disabled }: {
+function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled }: {
   entry: SelectedFile;
   onDetails: (id: string, details: { pages?: number; error?: string }) => void;
   onRemove: (id: string) => void;
+  onMove?: (id: string, direction: -1 | 1) => void;
+  index: number;
+  total: number;
   disabled: boolean;
 }) {
   const ready = useCallback((pages: number) => onDetails(entry.id, { pages }), [entry.id, onDetails]);
@@ -29,7 +33,9 @@ function FileRow({ entry, onDetails, onRemove, disabled }: {
     <li className="rounded-xl border border-stone-200 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="break-all text-sm font-semibold text-stone-800">{entry.file.name}</p>
+          <p className="break-all text-sm font-semibold text-stone-800">
+            {onMove && `${index + 1}. `}{entry.file.name}
+          </p>
           <p className="mt-1 text-xs text-stone-500">
             {formatSize(entry.file.size)} · {entry.pages === undefined
               ? entry.error ? "Cannot read pages" : "Reading pages…"
@@ -41,6 +47,12 @@ function FileRow({ entry, onDetails, onRemove, disabled }: {
           Remove
         </button>
       </div>
+      {onMove && <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" className="shell-button" disabled={disabled || index === 0}
+          aria-label={`Move ${entry.file.name} up`} onClick={() => onMove(entry.id, -1)}>Move up</button>
+        <button type="button" className="shell-button" disabled={disabled || index === total - 1}
+          aria-label={`Move ${entry.file.name} down`} onClick={() => onMove(entry.id, 1)}>Move down</button>
+      </div>}
       {entry.error && <p role="alert" className="mt-3 text-sm text-red-800">{entry.error}</p>}
       <PdfPreviews file={entry.file} onReady={ready} onError={error} />
     </li>
@@ -55,6 +67,8 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
   children?: ReactNode;
   engineFactory?: () => PdfEngine;
 }) {
+  const config = tools.find((entry) => entry.slug === tool);
+  const minimumFiles = config?.minimumFiles ?? 1;
   const [files, setFiles] = useState<SelectedFile[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [progress, setProgress] = useState(0);
@@ -120,6 +134,21 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
     setMessage("Choose PDFs or review the previews below.");
   }
 
+  function move(id: string, direction: -1 | 1) {
+    if (busy.current) return;
+    const index = files.findIndex((entry) => entry.id === id);
+    const next = index + direction;
+    if (index < 0 || next < 0 || next >= files.length) return;
+    const reordered = [...files];
+    [reordered[index], reordered[next]] = [reordered[next], reordered[index]];
+    setFiles(reordered);
+    clearResult();
+    setError(undefined);
+    setProgress(0);
+    setStatus("ready");
+    setMessage(`${files[index].file.name} moved to position ${next + 1}. Merge again to use this order.`);
+  }
+
   function reset() {
     generation.current++;
     engine.current?.dispose();
@@ -137,7 +166,8 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
   }
 
   async function run() {
-    if (busy.current || !files.length || files.some((entry) => entry.error)) return;
+    if (busy.current || files.length < minimumFiles
+      || files.some((entry) => entry.error || entry.pages === undefined)) return;
     busy.current = true;
     const current = ++generation.current;
     clearResult();
@@ -194,7 +224,9 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
         }}>
         <p className="text-sm font-semibold text-stone-800">Drop PDFs here</p>
         <p id="pdf-input-help" className="mt-1 text-xs leading-5 text-stone-500">
-          Or choose files below. Previews work today; PDF tools are coming soon.
+          {config?.available
+            ? "Or choose files below. Files merge in the order shown; you can change it before processing."
+            : "Or choose files below. Previews work today; this PDF tool is coming soon."}
         </p>
         <label className="mt-4 inline-block text-sm font-medium text-teal-800" htmlFor="pdf-files">
           Choose PDF files
@@ -213,8 +245,9 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
       {files.length > 0 && <div>
         <h2 className="mb-3 text-sm font-semibold">Selected files ({files.length})</h2>
         <ul className="space-y-3">
-          {files.map((entry) => <FileRow key={entry.id} entry={entry} onDetails={details}
-            onRemove={remove} disabled={processing} />)}
+          {files.map((entry, index) => <FileRow key={entry.id} entry={entry} onDetails={details}
+            onRemove={remove} onMove={config?.reorderFiles ? move : undefined}
+            index={index} total={files.length} disabled={processing} />)}
         </ul>
       </div>}
 
@@ -222,6 +255,10 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
         <legend className="px-1 text-sm font-semibold">Tool options</legend>
         {children ?? <p className="text-sm text-stone-500">Options will appear when this tool is built.</p>}
       </fieldset>
+
+      {config?.available && files.length < minimumFiles && <p className="text-sm text-stone-600">
+        Choose at least {minimumFiles} PDFs to merge.
+      </p>}
 
       <div aria-busy={processing}>
         <p role="status" className="text-sm leading-6 text-stone-600">{message}</p>
@@ -232,8 +269,9 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
 
       <div className="flex flex-wrap gap-3">
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
-          disabled={processing || !files.length || files.some((entry) => entry.error || entry.pages === undefined)}>
-          {processing ? "Checking PDFs…" : status === "error" ? "Try again" : "Process PDFs"}
+          disabled={processing || files.length < minimumFiles
+            || files.some((entry) => entry.error || entry.pages === undefined)}>
+          {processing ? "Processing PDFs…" : status === "error" ? "Try again" : "Process PDFs"}
         </button>
         {download
           ? <a className="shell-button shell-primary" href={download.url} download={download.name}>Download</a>

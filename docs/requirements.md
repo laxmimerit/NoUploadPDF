@@ -10,20 +10,26 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 ## Current state
 
 The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
-Each page shows its registry name and description and is marked "Coming soon".
+Each page shows its registry name and description. Merge PDF is implemented; the other ten tools are "Coming soon".
 All eleven pages share file selection, a file list with size and page count, local pdf.js page thumbnails,
 options, progress, errors, download handling, and reset. The worker foundation validates PDFs and accepts
-jobs with a tool, files, and options. No PDF operation is implemented; valid jobs report that the tool
-is not built yet. Download stays disabled until an operation supplies a result.
+jobs with a tool, files, and options. Merge PDF combines two or more files in the displayed order, with Move up
+and Move down controls. The result uses the first file's name, such as `report-merged.pdf`.
+Damaged, locked, and non-PDF files show recovery messages. Other tools still report that they are not built.
+Download stays disabled until an operation supplies a result, and changing the selection or order clears it.
 The home page uses a compact introduction and grouped tool grid. A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
-About explains local previews and the browser-only design, and states that PDF processing is not available yet.
+About explains local previews, browser-only merging, and the other tools' unfinished state.
 The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
 The favicon passed its live-site browser-tab check on 2026-10-27.
 Vitest covers registry contracts, PDF validation and worker jobs, and recovery messages using fictional fixtures.
 CI runs unit tests, lint, type checking, and a build.
 Playwright is configured for Chromium visitor tests using the shared fixtures: first-screen tool discovery,
-all header tool links, twelve report thumbnails, the not-built state with Download disabled, and non-PDF input.
+all header tool links, twelve report thumbnails, the not-built state on Split PDF, non-PDF input,
+five-page merge downloads in both file orders, damaged-file recovery, reset, keyboard ordering, narrow layout,
+and network checks during merging. The new Playwright merge cases await execution; the corresponding merge
+flows passed manual in-app browser checks against a local production build, including reopened downloads
+in both orders, damaged-file recovery, protection errors, keyboard controls, reset, and narrow layout.
 On pull requests, a new e2e job follows successful checks and waits for the PR head commit's public Vercel
 preview through GitHub deployment statuses. Local browser execution is not yet verified: macOS denied Chromium
 startup on 2026-10-27, including the elevated retry. The e2e task remains unfinished until the tests pass.

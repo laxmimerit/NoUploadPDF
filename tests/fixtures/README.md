@@ -6,8 +6,10 @@ The script uses the existing `@cantoo/pdf-lib` dependency and does not access th
 
 | File | Expected behavior |
 | --- | --- |
-| `invoice.pdf` | One-page invoice. Validation returns 1; a job returns `not-built`. |
-| `report.pdf` | Twelve labeled report pages. Validation returns 12; a job returns `not-built`. |
+| `invoice.pdf` | One-page invoice. Validation returns 1. |
+| `report.pdf` | Twelve labeled report pages. Validation returns 12. |
+| `merge-two.pdf` | Two labeled pages for checking merged content and order. |
+| `merge-three.pdf` | Three labeled pages for checking merged content and order. |
 | `damaged.pdf` | PDF header followed by a truncated catalog object. Returns `damaged`. |
 | `password-protected.pdf` | One-page invoice encrypted with AES-256. Returns `password`. |
 | `renamed-text.pdf` | Plain text saved with a PDF extension. Returns `not-pdf`. |
@@ -20,4 +22,6 @@ so regenerating the locked file changes its bytes while preserving its content a
 Run `npm test` once or `npm run test:watch` while editing.
 Tests call our registry, validation, worker handler, and error helpers. Only the worker's message port is
 stubbed; PDF parsing uses the installed library. These are Node unit tests, not browser worker, transfer,
-preview rendering, or end-to-end tests. No PDF tool operation is implemented yet.
+preview rendering, or end-to-end tests. Merge PDF jobs combine two or more valid files;
+unfinished tools still return `not-built`. Merge output tests use pdf.js to read each page's visible text
+independently from the editing library, including after reversing the file order.

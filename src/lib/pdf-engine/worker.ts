@@ -1,4 +1,5 @@
 import { PdfError } from "./errors";
+import { mergePdf } from "./merge-pdf";
 import type { PdfJob, PdfReply, PdfResult } from "./protocol";
 import { validatePdf } from "./validate-pdf";
 
@@ -8,9 +9,9 @@ const port = globalThis as unknown as {
   postMessage: (reply: PdfReply, transfer?: Transferable[]) => void;
 };
 
-// Future tools each get their own operation file and an entry here.
+// Each tool gets its own operation file and an entry here.
 type Operation = (job: PdfJob, progress: (value: number, message: string) => void) => Promise<PdfResult>;
-const operations = new Map<string, Operation>();
+const operations = new Map<string, Operation>([["merge-pdf", mergePdf]]);
 let running = false;
 
 port.onmessage = async ({ data: job }) => {

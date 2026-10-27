@@ -12,8 +12,11 @@ npm run test:e2e
 Playwright starts the production server at `http://127.0.0.1:3100` and stops it after the tests.
 It refuses to reuse an existing server so a development server cannot accidentally pass as a production check.
 The home-page tests use 1280×720 and 1366×768 laptop viewports. Header tests visit every registry tool.
-The shared-shell tests use `report.pdf` and `renamed-text.pdf` from `tests/fixtures`, with real previews
-and the real browser worker. No routes, PDF rendering, or processing responses are mocked.
+The shared-shell tests use `report.pdf` on the unfinished Split PDF page for the not-built state,
+and `renamed-text.pdf` on Merge PDF for invalid input. Merge tests use labeled two- and three-page fixtures,
+reopen downloads with pdf.js, reverse file order with the keyboard, and check damaged-file recovery,
+reset, desktop/narrow layouts, and requests during selection, processing, and download.
+They use real previews and the real browser worker. No routes, rendering, or processing responses are mocked.
 Scope error and status assertions to the named tool workspace. Next.js also adds an alert for route
 announcements outside that region, so a page-wide alert locator is ambiguous.
 

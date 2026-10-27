@@ -60,6 +60,13 @@ This avoids accidental repeats without reading or hashing file contents. Files w
 are treated as duplicates even if their contents differ. A selection containing only duplicates preserves
 the existing result and error state.
 
+**Merge refinement (2026-10-27):** Registry configuration marks implemented tools and controls minimum file
+counts and file ordering. Merge PDF requires two or more PDFs and copies every page in the displayed file order.
+Accessible Move up and Move down buttons change that order; changing the selection or order clears the old result.
+The download uses the first file's base name plus `-merged.pdf` (for example, `report-merged.pdf`).
+Merge needs no extra options; unsupported job options and too few files produce recovery errors.
+The cost is keeping file order, result invalidation, and registry availability consistent across the shared shell.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -101,11 +108,13 @@ Deployment limits may delay work, and preview availability depends on the Vercel
 The workflow must remain within the free Hobby hosting constraint.
 
 **Unit-test refinement (2026-10-27):** Use Vitest in Node for registry contracts, engine validation and worker
-jobs, and exact recovery messages. Keep five small fictional files in `tests/fixtures`, regenerated with
+jobs, and exact recovery messages. Keep small fictional files in `tests/fixtures`, regenerated with
 `npm run fixtures:generate` using the existing PDF library. Test our validation and job behavior against real
 file bytes; stub only the worker message port. Validation returns the page count it already reads, while jobs
-for all tools still return `not-built`. These tests do not replace browser checks for previews, worker buffer
-transfers, interaction, or privacy. Vitest 4 supports the project's existing Node 20 type definitions and Node 24
+for unfinished tools return `not-built`. Merge tests also reopen output with pdf.js and check visible text
+in both file orders using two new labeled fixtures (seven fixtures total). These tests do not replace browser
+checks for previews, worker buffer transfers, interaction, or privacy.
+Vitest 4 supports the project's existing Node 20 type definitions and Node 24
 runtime without a type-definition upgrade. It adds development dependencies only.
 
 **Completion rule (2026-10-27):** Run `npm test`, `npm run lint`, `npm run typecheck`, and
@@ -184,7 +193,7 @@ only to read and draw page previews. Install both through npm and serve pdf.js w
 and decoder assets from this app's own origin, without a CDN or document upload.
 The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
 The package preparation script runs before development and both build commands; generated assets are ignored
-by Git and ESLint. No tool operation is registered yet, so validated jobs return the not-built message.
+by Git and ESLint. Merge PDF now has a registered operation; unfinished tools return the not-built message.
 
 **Why:** The original [`pdf-lib` has had no release since 2021](https://github.com/Hopding/pdf-lib/releases).
 Cantoo maintains a compatible fork that works in a Web Worker. Keeping modifications in that worker preserves
