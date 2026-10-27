@@ -65,8 +65,9 @@ describe("PDF worker jobs", () => {
     expect((await PDFDocument.load(resultOutputs(result.result)[0].data)).getPageCount()).toBe(13);
   });
 
-  it("keeps tools without implementations unavailable while Sign PDF awaits visitor verification", async () => {
-    for (const tool of tools.filter((tool) => !tool.available && tool.slug !== "sign-pdf")) {
+  it("keeps tools without implementations unavailable while other tools await verification", async () => {
+    const pending = ["sign-pdf", "images-to-pdf", "pdf-to-images"];
+    for (const tool of tools.filter((tool) => !tool.available && !pending.includes(tool.slug))) {
       await dispatch({ data: job([await readFixture("invoice.pdf")], tool.slug, tool.slug) });
       expectError(tool.slug, "not-built");
     }

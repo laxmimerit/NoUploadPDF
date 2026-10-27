@@ -450,18 +450,30 @@ For every tool task (6–16), also:
     The checks and build workaround recorded for task 9 also pass for this implementation.
     PR, CI, and Vercel preview review are also pending.
 
-- [ ] **11. Implement Images to PDF.**
+- [x] **11. Implement Images to PDF.**
   - Depends on: Tasks 4–5.
   - Deliverable: Combine supported photos or images into one PDF in the chosen order, without OCR.
   - Done: Convert three labeled JPEG/PNG photos, including portrait and landscape images.
     Output has three readable pages in the selected order with no stretching or unintended cropping.
     Reordering photos changes the output order. Apply the shared tool done criteria.
+  - Progress (2026-10-28): Added JPEG/PNG selection, local previews, ordering and a worker operation.
+    Focused tests reopen three mixed-orientation image pages, render their colors and check the selected order;
+    invalid image data is rejected. Shared-shell tests also cover invalid image recovery, ordering, download
+    invalidation, and reset. The converter is available. As directed for this task, browser, lint, and build
+    checks run in CI; those checks have not been verified locally. Focused unit tests and type checking pass.
 
-- [ ] **12. Implement PDF to images.**
+- [x] **12. Implement PDF to images.**
   - Depends on: Tasks 4–5.
   - Deliverable: Export selected PDF pages as downloadable image files.
   - Done: Export all pages of a three-page fixture and get three readable images with identifiable page filenames.
     Export only page 2 and get one image matching that page. Apply the shared tool done criteria.
+  - Progress (2026-10-28): Added selected-page PNG rendering in the worker, a PDF-named ZIP for multiple pages,
+    and a single PNG for one page. Focused tests inspect ZIP entries, decode the selected image and reject invalid
+    ranges. A PDF text rendering test passes, but Node reports its standard-font asset unavailable and falls back;
+    browser font fidelity remains unverified. Shared-shell tests also cover range correction, download, and reset.
+    Browser download, interaction
+    and network checks run in CI, as directed for this task, and have not been verified locally.
+    Focused unit tests and type checking pass. Both converters have a new CI visitor test.
 
 - [x] **13. Implement Page numbers.**
   - Depends on: Tasks 4–5.

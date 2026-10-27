@@ -29,6 +29,7 @@ Read `docs/requirements.md`, `docs/decisions.md`, and `docs/tasks.md` at the sta
 Lint and the production build run in CI; don't run them locally unless asked.
 Don't open the browser to check your own work unless the prompt asks for it.
 Don't look up docs on the web for a task the repo already shows how to do.
+Done criteria that need a browser, lint or the production build are checked in CI; locally a task is done when its unit tests and typecheck pass.
 
 Run every check and require all of them to pass before saying a task is done or ticking it off.
 If any check fails, is skipped, or is blocked, report it and keep the task unfinished.

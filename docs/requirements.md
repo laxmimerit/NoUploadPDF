@@ -12,7 +12,7 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
 Each page shows its registry name and description.
 Merge PDF, Split PDF, Extract pages, Rotate PDF, Reorder & delete, Page numbers, and Watermark PDF
-have implementations; the other four tools remain marked "Coming soon" and report that processing is not built yet.
+and both image converters have implementations; Sign PDF and Compress PDF remain marked "Coming soon".
 Merge PDF combines two or more files in the displayed order, with Move up and Move down controls.
 The result uses the first file's name, such as `report-merged.pdf`.
 Split PDF and Extract pages accept one PDF and page ranges such as `1-3, 7, 10-12`.
@@ -47,7 +47,7 @@ Reset and unmount release all result URLs. Download stays disabled until an oper
 The home page follows `DESIGN.md` with a spacious hero, working merge panel, and searchable tool grid.
 A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
-About explains local previews, browser-only processing, the seven implemented tools, and the unfinished tools.
+About explains local previews, browser-only processing, the nine implemented tools, and the unfinished tools.
 The shared logo and only favicon (`src/app/icon.svg`) use the design’s Locked page geometry.
 Light and dark themes share layout and privacy green; a saved choice overrides the system preference.
 Fonts are hosted locally. The app does not support offline operation yet.
@@ -91,6 +91,9 @@ In the signed copy, form fields become fixed appearances and the signature is a 
 existing marks. Unsupported form appearances must show correction advice instead of losing content.
 Saving waits until the selected page's preview and proportional signature placement are ready.
 Meera's notes remain images; converting them does not recognize or transcribe handwriting.
+Images to PDF accepts JPEG and PNG files in the chosen order and retains their proportions.
+PDF to images exports selected pages as PNG files; multiple pages download in a PDF-named ZIP,
+and a single selected page downloads as one PNG.
 
 ## Functional requirements
 
@@ -105,7 +108,7 @@ Pages stay marked "Coming soon" until their implementation and done criteria pas
 The home page follows `DESIGN.md` with a privacy-led hero, working merge drop zone, browse and privacy anchors,
 fact strip, searchable category-filtered registry cards, one dark privacy band, and FAQs.
 All eleven tools must be directly linked in the scrollable grid. There is no first-screen tool-fit requirement.
-Show seven implemented tools and four coming soon. Do not claim offline support or unfinished operations work today.
+Show nine implemented tools and two coming soon. Do not claim offline support or unfinished operations work today.
 Check 1280×720, 1366×768, and 390×844 in light and dark without horizontal overflow.
 
 The top of every page has the logo, registry-driven group dropdowns, About, privacy pill, and theme toggle.
@@ -139,8 +142,8 @@ Skip files whose name and size match a file already selected, including repeats 
 Announce skipped files in the status line, for example: "invoice.pdf is already in the list."
 Input errors must be understandable and allow visitors to correct their selection and retry.
 The foundation currently accepts PDFs on every page, including Images to PDF; image input belongs to task 11.
-Show a thumbnail for every page using pdf.js, which is used only for previews at this stage.
-Use `@cantoo/pdf-lib` for PDF validation and future changes inside the shared Web Worker.
+Show a thumbnail for every page using pdf.js, which also renders PDF-to-image exports in the worker.
+Use `@cantoo/pdf-lib` for PDF validation and modification inside the shared Web Worker.
 Jobs carry the tool slug, file buffers, and options; replies carry progress, a result, or a readable error.
 Run one job at a time and transfer buffers unless the caller still needs them.
 Keep browser File objects for preview and retry, reading fresh buffers for transfer instead of copying buffers.

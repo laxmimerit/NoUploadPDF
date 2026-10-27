@@ -1,3 +1,5 @@
+import { imagesToPdf } from "./images-to-pdf";
+import { pdfToImages } from "./pdf-to-images";
 import { pageNumbers } from "./page-numbers";
 import { watermarkPdf } from "./watermark-pdf";
 import { signPdf } from "./sign-pdf";
@@ -20,6 +22,8 @@ const port = globalThis as unknown as {
 // Each tool gets its own operation file and an entry here.
 type Operation = (job: PdfJob, progress: (value: number, message: string) => void) => Promise<PdfResult>;
 const operations = new Map<string, Operation>([
+  ["images-to-pdf", imagesToPdf],
+  ["pdf-to-images", pdfToImages],
   ["merge-pdf", mergePdf],
   ["rotate-pdf", rotatePdf],
   ["reorder-delete", reorderDelete],
@@ -44,8 +48,8 @@ port.onmessage = async ({ data: job }) => {
   };
   try {
     if (!job.files.length) throw new PdfError("empty");
-    progress(0, "Checking your PDFs…");
-    for (let index = 0; index < job.files.length; index++) {
+    progress(0, job.tool === "images-to-pdf" ? "Checking your images…" : "Checking your PDFs…");
+    for (let index = 0; job.tool !== "images-to-pdf" && index < job.files.length; index++) {
       await validatePdf(job.files[index]);
       progress(Math.round(((index + 1) / job.files.length) * 20), "PDFs checked on your device.");
     }

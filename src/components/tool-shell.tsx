@@ -25,8 +25,9 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, renderPreviews }: {
+function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, renderPreviews, imageInput }: {
   renderPreviews?: (props: PreviewProps) => ReactNode;
+  imageInput?: boolean;
   entry: SelectedFile;
   onDetails: (id: string, details: { pages?: number; error?: string }) => void;
   onRemove: (id: string) => void;
@@ -42,7 +43,7 @@ function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, r
     <li className="file-row">
       <div className="file-row-heading">
         <span className="file-index">{String(index + 1).padStart(2, "0")}</span>
-        <span className="file-badge">PDF</span>
+        <span className="file-badge">{imageInput ? "IMAGE" : "PDF"}</span>
         <div className="file-details">
           <p className="file-name" title={entry.file.name}>
             {entry.file.name}
@@ -97,10 +98,11 @@ export function ToolShell({
   available ??= config?.available ?? false;
   maxFiles ??= config?.maxFiles;
   const minimumFiles = config?.minimumFiles ?? 1;
+  const imageInput = tool === "images-to-pdf";
   const [files, setFiles] = useState<SelectedFile[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState("Choose PDFs to preview their pages.");
+  const [message, setMessage] = useState(imageInput ? "Choose JPEG or PNG images to preview." : "Choose PDFs to preview their pages.");
   const [error, setError] = useState<string>();
   const [downloads, setDownloads] = useState<Download[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -185,7 +187,7 @@ export function ToolShell({
     setError(undefined);
     setProgress(0);
     setStatus("ready");
-    setMessage("Choose PDFs or review the previews below.");
+    setMessage(imageInput ? "Choose images or review the previews below." : "Choose PDFs or review the previews below.");
   }
 
   function move(id: string, direction: -1 | 1) {
@@ -200,7 +202,7 @@ export function ToolShell({
     setError(undefined);
     setProgress(0);
     setStatus("ready");
-    setMessage(`${files[index].file.name} moved to position ${next + 1}. Merge again to use this order.`);
+    setMessage(`${files[index].file.name} moved to position ${next + 1}. Process again to use this order.`);
   }
 
   function reset() {
@@ -216,7 +218,7 @@ export function ToolShell({
     setError(undefined);
     setDragging(false);
     onReset?.();
-    setMessage("Files cleared. Choose PDFs to start again.");
+    setMessage(imageInput ? "Files cleared. Choose images to start again." : "Files cleared. Choose PDFs to start again.");
     if (input.current) input.current.value = "";
     input.current?.focus();
   }
@@ -230,7 +232,7 @@ export function ToolShell({
     setError(undefined);
     setProgress(0);
     setStatus("processing");
-    setMessage("Reading your PDFs on this device…");
+    setMessage(imageInput ? "Reading your images on this device…" : "Reading your PDFs on this device…");
     try {
       // Keep File objects for previews and retries, but transfer each fresh buffer without copying it.
       const inputs = [];
@@ -284,10 +286,12 @@ export function ToolShell({
           choose(Array.from(event.dataTransfer.files));
         }}>
         <span className="drop-plus" aria-hidden="true">+</span>
-        <p className="drop-title">{maxFiles === 1 ? "Drop one PDF here" : "Drop PDFs here"}</p>
+        <p className="drop-title">{imageInput ? "Drop images here" : maxFiles === 1 ? "Drop one PDF here" : "Drop PDFs here"}</p>
         <p className="drop-hint">or click to choose from your device</p>
         <p id="pdf-input-help" className="drop-help">
-          {config?.options === "signature" && !available
+          {imageInput ? "Choose JPEG or PNG images and arrange them in the order you want."
+            : tool === "pdf-to-images" ? "Choose one PDF and select the pages to save as images."
+            : config?.options === "signature" && !available
             ? "Sign PDF is still being verified. Choose one PDF to try drawing, typing, or uploading a signature."
             : available
             ? config?.reorderFiles
@@ -303,8 +307,8 @@ export function ToolShell({
                     : "Choose a PDF and enter page ranges."
             : "Previews work today; this PDF tool is coming soon."}
         </p>
-        <label className="sr-only" htmlFor="pdf-files">Choose PDF files</label>
-        <input ref={input} id="pdf-files" type="file" accept="application/pdf,.pdf" multiple={maxFiles !== 1}
+        <label className="sr-only" htmlFor="pdf-files">{imageInput ? "Choose image files" : "Choose PDF files"}</label>
+        <input ref={input} id="pdf-files" type="file" accept={imageInput ? "image/jpeg,image/png,.jpg,.jpeg,.png" : "application/pdf,.pdf"} multiple={maxFiles !== 1}
           aria-describedby="pdf-input-help" disabled={processing} className="drop-input"
           onChange={(event) => {
             choose(Array.from(event.currentTarget.files ?? []));
@@ -317,7 +321,7 @@ export function ToolShell({
         <ul className="space-y-3">
           {files.map((entry, index) => <FileRow key={entry.id} entry={entry} onDetails={details}
             onRemove={remove} onMove={config?.reorderFiles ? move : undefined}
-            index={index} total={files.length} disabled={processing} renderPreviews={renderPreviews} />)}
+            index={index} total={files.length} disabled={processing} renderPreviews={renderPreviews} imageInput={imageInput} />)}
         </ul>
       </div>}
 
@@ -348,7 +352,7 @@ export function ToolShell({
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
           disabled={processing || !actionReady || files.length < minimumFiles
             || files.some((entry) => entry.error || entry.pages === undefined)}>
-          {processing ? "Processing PDFs…" : status === "error" ? "Try again" : config?.actionLabel ?? "Process PDFs"}
+          {processing ? imageInput ? "Processing images…" : "Processing PDFs…" : status === "error" ? "Try again" : config?.actionLabel ?? "Process PDFs"}
         </button>
         {downloads.length
           ? downloads.map((download) => (

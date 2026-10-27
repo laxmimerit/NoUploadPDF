@@ -9,7 +9,11 @@ describe("tool registry", () => {
     expect(tools.find((tool) => tool.slug === "sign-pdf"))
       .toMatchObject({ options: "signature", maxFiles: 1, actionLabel: "Save signed PDF" });
     expect(tools.find((tool) => tool.slug === "sign-pdf")?.available).not.toBe(true);
-    expect(tools.filter((tool) => tool.available)).toHaveLength(7);
+    expect(tools.find((tool) => tool.slug === "images-to-pdf"))
+      .toMatchObject({ available: true, reorderFiles: true });
+    expect(tools.find((tool) => tool.slug === "pdf-to-images"))
+      .toMatchObject({ available: true, maxFiles: 1 });
+    expect(tools.filter((tool) => tool.available)).toHaveLength(9);
   });
   it("preserves the eleven public route slugs and their groups", () => {
     expect(tools.map(({ slug, group }) => [slug, group])).toEqual([

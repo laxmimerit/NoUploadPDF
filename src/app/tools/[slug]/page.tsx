@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ConverterTool } from "@/components/converter-tool";
 import { ToolShell } from "@/components/tool-shell";
 import { MergePdfTool } from "@/components/merge-pdf-tool";
 import { PageGridTool } from "@/components/page-grid-tool";
@@ -51,7 +52,11 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             {!tool.available && <span className="coming-badge">Coming soon</span>}
           </div>
           <p className="tool-explanation">
-            {tool.slug === "sign-pdf" && !tool.available
+            {tool.slug === "images-to-pdf"
+              ? "Choose JPEG or PNG images, arrange them, and save one PDF on your device."
+              : tool.slug === "pdf-to-images"
+              ? "Save selected PDF pages as PNG images. Multiple pages download together in one ZIP."
+              : tool.slug === "sign-pdf" && !tool.available
               ? "Sign PDF is still being verified. You can try the local signature editor below."
               : tool.available
               ? tool.slug === "merge-pdf"
@@ -71,7 +76,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
           </p>
         </div>
         <div className="tool-panel">
-          {tool.slug === "merge-pdf"
+          {tool.slug === "images-to-pdf" || tool.slug === "pdf-to-images"
+            ? <ConverterTool key={tool.slug} tool={tool} />
+            : tool.slug === "merge-pdf"
             ? <MergePdfTool key={tool.slug} tool={tool} />
             : tool.options === "page-ranges"
               ? <PageRangeTool key={tool.slug} tool={tool} />

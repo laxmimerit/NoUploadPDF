@@ -316,7 +316,7 @@ Status: Accepted. Recorded: 2026-10-27.
 
 **Decision:** Use [`@cantoo/pdf-lib`](https://github.com/cantoo-scribe/pdf-lib) inside the shared engine
 Web Worker for validation and future PDF changes. Use Mozilla's [pdf.js](https://mozilla.github.io/pdf.js/)
-only to read and draw page previews. Install both through npm and serve pdf.js worker, fonts, character maps,
+to draw page previews and export page images. Install both through npm and serve pdf.js worker, fonts, character maps,
 and decoder assets from this app's own origin, without a CDN or document upload.
 The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
 The package preparation script runs before development and both build commands; generated assets are ignored
@@ -335,6 +335,13 @@ while job buffers are separately transferred to the engine. Documents and thumbn
 Previews render serially at bounded thumbnail resolution and release parser and canvas resources afterward.
 Generated pdf.js assets must match the installed package version. These dependencies use modern browser APIs;
 unsupported browsers receive a recovery error. No server processing or paid service is introduced.
+
+**Converter refinement (2026-10-28):** PDF to images also uses pdf.js to render selected pages in the
+existing worker, using worker-local canvases and locally served pdf.js assets. Multiple PNGs are packed into
+one ZIP with fflate; a single page is returned as a PNG. Images to PDF decodes JPEG and PNG images in the
+worker, applies browser image orientation, and embeds each image on a proportional page. These operations
+are available; browser, lint, and build checks run in CI under the user’s current direction. The extra raster and ZIP
+buffers increase memory use, so large jobs may require smaller batches.
 
 ## 7. Keep reusable test and review agents in the project
 

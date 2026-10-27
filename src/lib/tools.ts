@@ -81,6 +81,9 @@ export const tools: Tool[] = [
   },
   {
     slug: "images-to-pdf",
+    available: true,
+    reorderFiles: true,
+    actionLabel: "Create PDF",
     name: "Images to PDF",
     description: "Turn your images into a single PDF.",
     icon: "image-to-pdf",
@@ -88,6 +91,9 @@ export const tools: Tool[] = [
   },
   {
     slug: "pdf-to-images",
+    available: true,
+    maxFiles: 1,
+    actionLabel: "Create images",
     name: "PDF to images",
     description: "Save PDF pages as image files.",
     icon: "pdf-to-image",

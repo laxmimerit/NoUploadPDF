@@ -160,3 +160,86 @@ test("a text file with a PDF extension shows the not-a-PDF message", async ({ pa
   await expect(page.getByRole("button", { name: "Process PDFs", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeDisabled();
 });
+
+test("image converters download ordered pages and selected PNGs without uploading files", async ({ page }) => {
+  const { createCanvas, loadImage } = await import("@napi-rs/canvas");
+  const { PDFDocument } = await import("@cantoo/pdf-lib");
+  const { unzipSync } = await import("fflate");
+  await page.goto("/tools/images-to-pdf");
+  const origin = new URL(page.url()).origin;
+  const unexpected: string[] = [];
+  page.on("request", (request) => {
+    if (!request.url().startsWith("http")) return;
+    if (new URL(request.url()).origin !== origin || request.method() !== "GET" || request.postData()) {
+      unexpected.push(request.url());
+    }
+  });
+  const imageWorkspace = page.getByRole("region", { name: "Images to PDF workspace" });
+  const photos = [
+    { name: "portrait.png", width: 80, height: 120, color: "red", mimeType: "image/png" },
+    { name: "landscape.jpg", width: 160, height: 90, color: "blue", mimeType: "image/jpeg" },
+    { name: "square.png", width: 100, height: 100, color: "green", mimeType: "image/png" },
+  ].map(({ name, width, height, color, mimeType }) => {
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext("2d");
+    context.fillStyle = color;
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = "white";
+    context.font = "12px sans-serif";
+    context.fillText(name, 8, 28);
+    return { name, mimeType, buffer: name.endsWith(".jpg") ? canvas.toBuffer("image/jpeg") : canvas.toBuffer("image/png") };
+  });
+  await imageWorkspace.getByLabel("Choose image files").setInputFiles(photos);
+  await expect(imageWorkspace.getByRole("button", { name: "Create PDF" })).toBeEnabled();
+  const move = imageWorkspace.getByRole("button", { name: "Move landscape.jpg up" });
+  await move.focus();
+  await page.keyboard.press("Enter");
+  await imageWorkspace.getByRole("button", { name: "Create PDF" }).click();
+  const pdfDownload = page.waitForEvent("download");
+  await imageWorkspace.getByRole("link", { name: "Download" }).click();
+  const pdfFile = await pdfDownload;
+  expect(pdfFile.suggestedFilename()).toBe("landscape.pdf");
+  const pdfPath = await pdfFile.path();
+  if (!pdfPath) throw new Error("Missing converted PDF");
+  const output = await PDFDocument.load(await readFile(pdfPath));
+  expect(output.getPages().map((entry) => [entry.getWidth(), entry.getHeight()]))
+    .toEqual([[160, 90], [80, 120], [100, 100]]);
+  await imageWorkspace.getByRole("button", { name: "Start again" }).click();
+  await expect(imageWorkspace.getByRole("listitem")).toHaveCount(0);
+
+  await page.goto("/tools/pdf-to-images");
+  const pdfWorkspace = page.getByRole("region", { name: "PDF to images workspace" });
+  await pdfWorkspace.getByLabel("Choose PDF files").setInputFiles(fixture("merge-three.pdf"));
+  await expect(pdfWorkspace.getByRole("button", { name: "Create images" })).toBeEnabled();
+  const ranges = pdfWorkspace.getByLabel("Pages to export");
+  await ranges.fill("4");
+  await pdfWorkspace.getByRole("button", { name: "Create images" }).click();
+  await expect(pdfWorkspace.getByRole("alert")).toContainText("this PDF has 3 pages");
+  await ranges.fill("");
+  await pdfWorkspace.getByRole("button", { name: "Create images" }).click();
+  const zipDownload = page.waitForEvent("download");
+  await pdfWorkspace.getByRole("link", { name: "Download" }).click();
+  const zipFile = await zipDownload;
+  expect(zipFile.suggestedFilename()).toBe("merge-three.zip");
+  const zipPath = await zipFile.path();
+  if (!zipPath) throw new Error("Missing ZIP");
+  const entries = unzipSync(await readFile(zipPath));
+  expect(Object.keys(entries)).toEqual(["merge-three-page-1.png", "merge-three-page-2.png", "merge-three-page-3.png"]);
+  for (const bytes of Object.values(entries)) {
+    const image = await loadImage(Buffer.from(bytes));
+    expect(image.width).toBeGreaterThan(0);
+    expect(image.height).toBeGreaterThan(0);
+  }
+  await ranges.fill("2");
+  await pdfWorkspace.getByRole("button", { name: "Create images" }).click();
+  const pngDownload = page.waitForEvent("download");
+  await pdfWorkspace.getByRole("link", { name: "Download" }).click();
+  const pngFile = await pngDownload;
+  expect(pngFile.suggestedFilename()).toBe("merge-three-page-2.png");
+  const pngPath = await pngFile.path();
+  if (!pngPath) throw new Error("Missing PNG");
+  expect(await readFile(pngPath)).toEqual(Buffer.from(entries["merge-three-page-2.png"]));
+  await pdfWorkspace.getByRole("button", { name: "Start again" }).click();
+  await expect(pdfWorkspace.getByLabel("Pages to export")).toHaveValue("");
+  expect(unexpected).toEqual([]);
+});
