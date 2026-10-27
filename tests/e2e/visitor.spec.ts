@@ -6,24 +6,37 @@ import { pageTexts } from "../pdf-output";
 
 const fixture = (name: string) => path.resolve("tests/fixtures", name);
 
-for (const viewport of [{ width: 1280, height: 720 }, { width: 1366, height: 768 }]) {
-  test(`every home-page tool fits without scrolling at ${viewport.width}×${viewport.height}`, async ({ page }) => {
-    await page.setViewportSize(viewport);
-    await page.goto("/");
-
-    const main = page.getByRole("main");
-    await expect(main.getByRole("heading", { level: 1 })).toHaveText("PDF tools. No uploads.");
-    const links = main.getByRole("link");
-    await expect(links).toHaveCount(tools.length);
-    for (const tool of tools) {
-      const availability = tool.available ? " Ready" : "";
-      const link = main.getByRole("link", { name: `${tool.name}${availability} ${tool.description}`, exact: true });
-      await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute("href", `/tools/${tool.slug}`);
-      await expect(link).toBeInViewport({ ratio: 1 });
-    }
-    expect(await page.evaluate(() => window.scrollY)).toBe(0);
-  });
+for (const viewport of [
+  { width: 1280, height: 720 }, { width: 1366, height: 768 }, { width: 390, height: 844 },
+]) {
+  for (const theme of ["light", "dark"] as const) {
+    test(`home tool discovery in ${theme} at ${viewport.width}×${viewport.height}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.emulateMedia({ colorScheme: theme });
+      await page.goto("/");
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      const main = page.getByRole("main");
+      await expect(main.getByRole("heading", { level: 1 }))
+        .toHaveText("Your PDFs never leave your device.");
+      await expect(main.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
+      const browse = main.getByRole("link", { name: "Browse 11 tools", exact: true });
+      await expect(browse).toBeInViewport({ ratio: 1 });
+      await browse.click();
+      const toolbox = main.getByRole("region", { name: "Choose a tool", exact: true });
+      await expect(toolbox.getByRole("link")).toHaveCount(tools.length);
+      for (const tool of tools) {
+        const link = toolbox.getByRole("link", { name: tool.name, exact: true });
+        await link.scrollIntoViewIfNeeded();
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute("href", `/tools/${tool.slug}`);
+        await expect(link).toContainText(tool.description);
+        await expect(link).toContainText(tool.available ? "Ready" : "Coming soon");
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await main.getByRole("link", { name: "How it stays private", exact: true }).click();
+      await expect(main.getByRole("heading", { name: /The work happens in your browser/ })).toBeInViewport();
+    });
+  }
 }
 
 for (const tool of tools) {

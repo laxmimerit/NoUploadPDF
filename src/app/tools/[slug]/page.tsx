@@ -5,6 +5,8 @@ import { ToolShell } from "@/components/tool-shell";
 import { MergePdfTool } from "@/components/merge-pdf-tool";
 import { PageRangeTool } from "@/components/page-range-tool";
 import { tools } from "@/lib/tools";
+import { PrivacyPill } from "@/components/privacy-pill";
+import { ToolCard } from "@/components/tool-grid";
 
 export function generateStaticParams() {
   return tools.map(({ slug }) => ({ slug }));
@@ -32,45 +34,44 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
   const tool = await getTool(params);
 
   return (
-    <main id="main-content" className="px-5 py-8 text-stone-900 sm:px-8 sm:py-12">
-      <div className="mx-auto max-w-3xl">
-        <Link
-          href="/"
-          className="rounded text-sm font-medium text-teal-800 underline-offset-4 hover:underline
-            focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-800"
-        >
-          ← All PDF tools
-        </Link>
-        <section
-          aria-labelledby="tool-name"
-          className="mt-8 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:mt-12 sm:p-10"
-        >
-          <p className="text-xs font-semibold uppercase tracking-widest text-teal-800">{tool.group}</p>
-          <h1 id="tool-name" className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            {tool.name}
-          </h1>
-          <p className="mt-4 text-base leading-7 text-stone-600">{tool.description}</p>
-          {!tool.available && <p
-            className="mt-6 inline-block rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
-            Coming soon
-          </p>}
-          <p className="mt-4 text-sm leading-6 text-stone-500">
+    <main id="main-content" className="tool-page container">
+      <nav aria-label="Breadcrumb" className="breadcrumb">
+        <Link href="/">All PDF tools</Link><span aria-hidden="true">/</span><span>{tool.name}</span>
+      </nav>
+      <section aria-labelledby="tool-name">
+        <div className="tool-page-heading">
+          <p className="eyebrow">{tool.group}</p>
+          <h1 id="tool-name">{tool.name}</h1>
+          <p className="hero-lead">{tool.description}</p>
+          <div className="tool-page-badges"><PrivacyPill>Files stay on this device</PrivacyPill>
+            {!tool.available && <span className="coming-badge">Coming soon</span>}
+          </div>
+          <p className="tool-explanation">
             {tool.available
               ? tool.slug === "merge-pdf"
                 ? "Choose PDFs, set their order, and download one merged file. Your files stay on your device."
-                : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
+                : tool.slug === "split-pdf"
+                  ? "Choose one PDF and enter ranges. Download a separate PDF for each part, all on your device."
+                  : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
               : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
+        </div>
+        <div className="tool-panel">
           {tool.slug === "merge-pdf"
             ? <MergePdfTool key={tool.slug} tool={tool} />
             : tool.options === "page-ranges"
               ? <PageRangeTool key={tool.slug} tool={tool} />
               : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
-        </section>
-        <p className="mt-6 text-center text-xs leading-5 text-stone-500">
-          NoUploadPDF · Private PDF tools. Your files stay on your device.
-        </p>
-      </div>
+        </div>
+      </section>
+      <section className="more-tools section-space" aria-labelledby="more-tools-title">
+        <div className="section-heading"><h2 id="more-tools-title">More tools</h2>
+          <Link href="/#tools">Browse all tools <span aria-hidden="true">→</span></Link></div>
+        <ul className="tool-grid">{tools.filter((entry) => entry.available && entry.slug !== tool.slug)
+          .slice(0, 3).map((entry) => (
+          <ToolCard key={entry.slug} tool={entry} />
+        ))}</ul>
+      </section>
     </main>
   );
 }

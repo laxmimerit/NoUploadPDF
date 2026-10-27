@@ -31,28 +31,34 @@ function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled }:
   const error = useCallback((message: string) => onDetails(entry.id, { error: message }), [entry.id, onDetails]);
 
   return (
-    <li className="rounded-xl border border-stone-200 p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="break-all text-sm font-semibold text-stone-800">
-            {onMove && `${index + 1}. `}{entry.file.name}
+    <li className="file-row">
+      <div className="file-row-heading">
+        <span className="file-index">{String(index + 1).padStart(2, "0")}</span>
+        <span className="file-badge">PDF</span>
+        <div className="file-details">
+          <p className="file-name" title={entry.file.name}>
+            {entry.file.name}
           </p>
-          <p className="mt-1 text-xs text-stone-500">
+          <p className="file-meta">
             {formatSize(entry.file.size)} · {entry.pages === undefined
               ? entry.error ? "Cannot read pages" : "Reading pages…"
               : `${entry.pages} ${entry.pages === 1 ? "page" : "pages"}`}
           </p>
         </div>
-        <button type="button" className="shell-button shrink-0" disabled={disabled}
+        <button type="button" className="shell-button file-action" disabled={disabled}
           aria-label={`Remove ${entry.file.name}`} onClick={() => onRemove(entry.id)}>
-          Remove
+          <span aria-hidden="true">×</span>
         </button>
       </div>
-      {onMove && <div className="mt-3 flex flex-wrap gap-2">
-        <button type="button" className="shell-button" disabled={disabled || index === 0}
-          aria-label={`Move ${entry.file.name} up`} onClick={() => onMove(entry.id, -1)}>Move up</button>
-        <button type="button" className="shell-button" disabled={disabled || index === total - 1}
-          aria-label={`Move ${entry.file.name} down`} onClick={() => onMove(entry.id, 1)}>Move down</button>
+      {onMove && <div className="file-order">
+        <button type="button" className="shell-button file-action" disabled={disabled || index === 0}
+          aria-label={`Move ${entry.file.name} up`} onClick={() => onMove(entry.id, -1)}>
+          <span aria-hidden="true">↑</span>
+        </button>
+        <button type="button" className="shell-button file-action" disabled={disabled || index === total - 1}
+          aria-label={`Move ${entry.file.name} down`} onClick={() => onMove(entry.id, 1)}>
+          <span aria-hidden="true">↓</span>
+        </button>
       </div>}
       {entry.error && <p role="alert" className="mt-3 text-sm text-red-800">{entry.error}</p>}
       <PdfPreviews file={entry.file} onReady={ready} onError={error} />
@@ -62,12 +68,14 @@ function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled }:
 
 // Tool implementations supply their own options UI and values; the lifecycle stays here.
 export function ToolShell({
-  tool, toolName, available, maxFiles, options = {}, children, onReset, engineFactory = createPdfEngine,
+  tool, toolName, available, maxFiles, compact = false, options = {}, children, onReset,
+  engineFactory = createPdfEngine,
 }: {
   tool: string;
   toolName: string;
   available?: boolean;
   maxFiles?: number;
+  compact?: boolean;
   options?: PdfOptions;
   children?: ReactNode;
   onReset?: () => void;
@@ -222,7 +230,7 @@ export function ToolShell({
       setDownloads(ready);
       setProgress(100);
       setStatus("success");
-      setMessage("Your result is ready. Download it, or start again to clear your files.");
+      setMessage("Done. Nothing was uploaded. Download your result, or start again to clear your files.");
     } catch (failure) {
       if (current !== generation.current) return;
       clearResult();
@@ -235,9 +243,9 @@ export function ToolShell({
   }
 
   return (
-    <section aria-label={`${toolName} workspace`} className="mt-7 space-y-5">
-      <div className={`rounded-xl border-2 border-dashed p-6 text-center ${dragging
-        ? "border-teal-800 bg-teal-50" : "border-stone-300 bg-stone-50"}`}
+    <section aria-label={`${toolName} workspace`} className={`tool-workspace ${compact ? "compact-workspace" : ""}`}
+      data-empty={files.length === 0}>
+      <div className={`drop-zone ${dragging ? "is-dragging" : ""}`}
         onDragOver={(event) => {
           event.preventDefault();
           if (!busy.current) setDragging(true);
@@ -250,22 +258,19 @@ export function ToolShell({
           setDragging(false);
           choose(Array.from(event.dataTransfer.files));
         }}>
-        <p className="text-sm font-semibold text-stone-800">{maxFiles === 1 ? "Drop one PDF here" : "Drop PDFs here"}</p>
-        <p id="pdf-input-help" className="mt-1 text-xs leading-5 text-stone-500">
+        <span className="drop-plus" aria-hidden="true">+</span>
+        <p className="drop-title">{maxFiles === 1 ? "Drop one PDF here" : "Drop PDFs here"}</p>
+        <p className="drop-hint">or click to choose from your device</p>
+        <p id="pdf-input-help" className="drop-help">
           {available
             ? config?.reorderFiles
-              ? "Or choose files below. Files merge in the order shown; you can change it before processing."
-              : "Choose a PDF, enter page ranges, and process it on your device."
-            : "Or choose files below. Previews work today; this PDF tool is coming soon."}
+              ? "Files merge in the order shown. You can change it before processing."
+              : "Choose a PDF and enter page ranges."
+            : "Previews work today; this PDF tool is coming soon."}
         </p>
-        <label className="mt-4 inline-block text-sm font-medium text-teal-800" htmlFor="pdf-files">
-          Choose PDF files
-        </label>
+        <label className="sr-only" htmlFor="pdf-files">Choose PDF files</label>
         <input ref={input} id="pdf-files" type="file" accept="application/pdf,.pdf" multiple={maxFiles !== 1}
-          aria-describedby="pdf-input-help" disabled={processing}
-          className="mt-2 block w-full min-w-0 text-xs text-stone-600 file:mr-3 file:cursor-pointer
-            file:rounded-lg file:border-0 file:bg-teal-800 file:px-4 file:py-3 file:font-semibold file:text-white
-            focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-800"
+          aria-describedby="pdf-input-help" disabled={processing} className="drop-input"
           onChange={(event) => {
             choose(Array.from(event.currentTarget.files ?? []));
             event.currentTarget.value = "";
@@ -281,7 +286,7 @@ export function ToolShell({
         </ul>
       </div>}
 
-      <fieldset disabled={processing} className="min-w-0 rounded-xl border border-stone-200 p-4"
+      <fieldset disabled={processing} className="tool-options min-w-0"
         onChange={() => {
           clearResult();
           setError(undefined);
@@ -297,14 +302,14 @@ export function ToolShell({
         Choose at least {minimumFiles} PDFs to merge.
       </p>}
 
-      <div aria-busy={processing}>
+      <div aria-busy={processing} className="workspace-status">
         <p role="status" className="text-sm leading-6 text-stone-600">{message}</p>
         <label htmlFor="pdf-progress" className="mt-2 block text-xs text-stone-500">Progress: {progress}%</label>
-        <progress id="pdf-progress" value={progress} max={100} className="mt-2 h-2 w-full accent-teal-800" />
+        <progress id="pdf-progress" value={progress} max={100} className="mt-2 h-2 w-full" />
       </div>
       {error && <p role="alert" className="rounded-lg bg-red-50 p-4 text-sm leading-6 text-red-800">{error}</p>}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="workspace-actions">
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
           disabled={processing || files.length < minimumFiles
             || files.some((entry) => entry.error || entry.pages === undefined)}>
@@ -312,7 +317,7 @@ export function ToolShell({
         </button>
         {downloads.length
           ? downloads.map((download) => (
-            <a key={download.url} className="shell-button shell-primary max-w-full break-all"
+            <a key={download.url} className="shell-button shell-success max-w-full break-all"
               href={download.url} download={download.name}>
               {downloads.length === 1 ? "Download" : `Download ${download.name}`}
             </a>

@@ -174,26 +174,50 @@ Any future intentional URL change needs an explicit migration and redirect for t
 With Cache Components enabled, a registry check in `src/proxy.ts` rejects unknown tool paths before streaming
 starts, so they return HTTP 404 instead of a streamed 200 response containing not-found UI.
 
-## 5. Put tool discovery in the first screen and navigation on every page
+## 5. Use the DESIGN.md home layout and shared navigation in both themes
 
-Status: Accepted. Recorded: 2026-10-27.
+Status: Accepted. Recorded: 2026-10-27. Updated: 2026-10-27.
 
-**Question:** How should visitors understand the site and find its tools immediately?
+**Question:** How should visitors understand the privacy promise and discover the tools?
 
-**Decision:** Use a compact home-page introduction with every tool visible and directly linked without scrolling.
-Put a shared menu at the top of every page with one registry-driven dropdown per tool group and an About link.
-Deliver this work before the shared tool shell.
+**Decision:** Follow [DESIGN.md](../DESIGN.md): a spacious privacy-led hero with a working Merge PDF panel,
+a fact strip, a searchable and category-filtered tool grid, a privacy explanation, and FAQs.
+The home page may scroll on desktop and mobile. The hero includes a direct “Browse 11 tools” anchor.
+This replaces the earlier requirement that every tool fit in a laptop's initial viewport.
+Keep a sticky shared header with registry-driven category dropdowns and About. On mobile, use a menu sheet
+with category accordions. Tool names, descriptions, availability, fixed routes, and processing output names
+remain defined by the real app, even where the design's sample content differs.
 
-**Why:** The current large hero fills the first screen and pushes tools below it, leaving visitors unsure what
-the site does. Immediate tool visibility and consistent navigation make the site's purpose and choices clear.
+Use the design's warm paper, ink, privacy green, Locked page logo, locally hosted Instrument Sans and
+JetBrains Mono, flat bordered surfaces, and matching dark neutrals. The first visit follows the system theme;
+manual choices persist locally. Apply the theme before paint and keep the toggle usable if storage is blocked.
+No document data is stored by the theme setting.
 
-**What it costs:** The first-screen requirement limits space for hero content and tool-card detail.
-Dropdowns need keyboard and touch support.
+**Why:** The larger layout explains the product's privacy model and gives tool discovery more readable space.
+The user explicitly chose this design over the compact first-screen grid on 2026-10-27.
+Shared navigation still makes every registry tool directly reachable from every page.
 
-**Refinement (2026-10-27):** Fit the complete grouped grid in a laptop's first screen; narrow screens may scroll
-to keep links readable. Use a short headline and one supporting line. Put the logo and name on the left of the
-shared header, followed by dropdowns whose groups and tools are derived from the registry, then About.
-About must distinguish the browser-only design from today's state: all tools are still coming soon.
+**What it costs:** Seeing all cards requires scrolling. Filters and mobile navigation add interactive states
+and accessibility checks. Local fonts add asset weight but avoid runtime requests to a font provider.
+
+**Truthful content:** Only Merge PDF, Split PDF, and Extract pages are ready; the other eight retain “Coming soon”.
+PDF previews still work on unfinished pages. Split downloads separate PDFs, not a ZIP. Merge retains the first
+file's base name plus `-merged.pdf`. Offline operation is not supported: loading the app and assets needs internet.
+The design's offline fact and FAQ answer must not be used. Privacy green marks privacy, local processing,
+and success; normal primary actions use ink.
+
+**Navigation lifecycle refinement (2026-10-27):** Keep one page mounted at a time. A pathname-keyed
+boundary in the root layout removes the previous route's Activity cache, including hidden home-card badges
+and old PDF workspaces. Navigating to a different path starts fresh, including browser back/forward;
+hash links within the current page preserve its filters and selected files. Header, footer, and theme remain
+outside the boundary. This avoids stale document/result DOM and keeps tool availability specific to the
+current page. The cost is losing page-local state when returning to a different path. Existing header visitor
+assertions remain unchanged; only the design's replaced first-screen discovery checks need different expectations.
+
+**Verification:** Replace the old first-screen tool-fit test with checks for the hero and browse anchor,
+all eleven registry links and availability labels in the scrollable grid, the privacy anchor, and no horizontal
+overflow at 1280×720, 1366×768, and 390×844 in light and dark. Retain the existing tool and worker regressions.
+Check filtering, theme persistence, category dismissal, mobile menu, and keyboard focus separately.
 
 ## 6. Use Cantoo's PDF library for changes and pdf.js for previews
 

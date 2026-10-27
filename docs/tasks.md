@@ -24,6 +24,49 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [x] **Remove retained page content after navigation.**
+  - Deliverable: Fix the site so all eleven unchanged header-menu visitor assertions find zero “Coming soon”
+    badges on ready tool pages and exactly one on unfinished tool pages, including hidden DOM matches.
+    Preserve same-page hash navigation and the shared header/theme.
+  - Done: Reproduce the 8/9-count regression, verify all eleven real header flows in the in-app browser,
+    and pass all four required checks. Do not weaken existing visitor assertions.
+  - Completion (2026-10-27): Added a pathname-keyed content boundary above the router's retained Activities.
+    Old page DOM and workspaces unmount when the path changes; same-page hash links retain local state.
+    Without the fix, eleven new regression cases reproduce the exact 8/9 counts; with it, they pass.
+    A twelfth case verifies same-page filter preservation. All 144 unit tests, lint, type checking,
+    and `npm run build:webpack` pass. The build used `.next/navigation-fix-final`; restored the temporary
+    `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` changes exactly afterward.
+    Production in-app browser checks used the unchanged page-wide exact-text locator for all eleven header
+    flows: three counts of 0 and eight counts of 1, correct URLs/headings, and visible workspaces.
+    Also checked tool-to-tool navigation, Back, and same-page hash/filter preservation; no console errors.
+    All existing visitor tests after home discovery remain unchanged. The full Chromium runner was not
+    used under the repository's no-Chrome rule, and the separate e2e task remains unfinished.
+
+- [x] **Restyle the whole site to DESIGN.md in light and dark.**
+  - Deliverable: Shared design tokens, local fonts, logo/favicon, header and mobile sheet, saved theme,
+    spacious home with a real merge panel, filtered tool grid, truthful facts/FAQ, About, and all tool workspaces.
+    Preserve real registry tools, fixed routes, filenames, preview/processing/recovery/download behavior.
+    Replace decision 5's first-screen grid rule and its visitor test with scrollable discovery in both themes.
+  - Done: All four required checks pass. Inspect desktop and 390×844 layouts in light/dark, navigation,
+    filtering, theme persistence, and a working tool. No offline or unfinished-tool claims.
+  - Completion (2026-10-27): Restyled Home, About, all eleven tool pages, shared shell, header/footer,
+    and the 404 page. Added local fonts with licenses, light/dark tokens, saved/system theme, a mobile menu,
+    registry filters/search, privacy facts/FAQ, and a real merge workspace in the hero. Updated decision 5,
+    the requirements, and only the superseded home discovery cases in the existing visitor suite.
+    All 126 existing unit tests remain unchanged and pass; six new interaction cases bring the total to 132.
+    `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build:webpack` all pass.
+    Production builds used `.next/design-complete-verification` after ordinary and elevated cache cleanup
+    failed with the known EPERM. Restored `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` exactly.
+    In-app browser checks covered 1280×720, 1366×768, and 390×844 in light/dark; no horizontal overflow.
+    Checked all eleven header routes, filters/search, mobile menu closing, saved theme, About, offline FAQ,
+    and a real HTTP 404. Merged fixtures through the full tool and hero; verified the real output names,
+    reset focus, and five reopened page labels in reversed file order. Split rendered twelve thumbnails,
+    rejected a reversed range, recovered with valid ranges, and offered two separately named PDF downloads.
+    Browser console inspection found no warnings or errors. Saved light/dark screenshots.
+    Playwright discovers all 24 visitor cases; its Chromium suite was not run under the no-Chrome rule.
+    The separate e2e task remains unfinished. PR, CI, and Vercel preview review remain pending.
+
+
 - [x] **Integrate the Merge PDF and Split/Extract worktree branches.**
   - Completion (2026-10-27): Merged `codex/s11-merge-pdf` into `codex/s11-page-tools` first;
     resolved the final `codex/s11-split-extract` merge and left it uncommitted for review.
@@ -51,7 +94,7 @@ For every tool task (6–16), also:
   - Deliverable: Playwright tests using `tests/fixtures`, a local production-server configuration, and a PR-only
     CI job that follows successful checks, waits for the exact head commit's Vercel deployment, and tests its URL.
   - Done: All required checks and the Chromium visitor tests pass against a local production build.
-    Cover all tools without scrolling, all header tool links, twelve decoded report thumbnails, the not-built
+    Cover all tools in the scrollable grid in light and dark, all header tool links, twelve decoded report thumbnails, the not-built
     message with Download disabled, and the not-a-PDF message. Validate preview matching and CI configuration.
   - Progress (2026-10-27): Added 15 Chromium cases, production/preview configuration, fixture usage notes,
     report/trace retention, and the e2e job with read-only GitHub deployment access and no repository secrets.
@@ -138,6 +181,8 @@ For every tool task (6–16), also:
     Vercel preview. An unknown tool URL showed the 404 page. Task 2's done criteria pass.
 
 - [x] **3. Make the home page clear in the first screen and add shared navigation.**
+  - Superseded (2026-10-27): Decision 5 now follows `DESIGN.md`. The home page may scroll; the old
+    first-screen fit criteria below record the original task only. See the restyle task for current criteria.
   - Depends on: Task 2.
   - Deliverable: A compact introduction explaining free, browser-only PDF tools with no uploads, with every
     registry tool visible and directly linked in a laptop's initial viewport without scrolling. Keep the grid

@@ -11,7 +11,10 @@ npm run test:e2e
 
 Playwright starts the production server at `http://127.0.0.1:3100` and stops it after the tests.
 It refuses to reuse an existing server so a development server cannot accidentally pass as a production check.
-The home-page tests use 1280×720 and 1366×768 laptop viewports. Header tests visit every registry tool.
+The home-page tests use 1280×720, 1366×768, and 390×844 in both themes. They check the privacy-led hero,
+browse anchor, every registry tool in the scrollable grid with accurate availability, the privacy anchor,
+and no horizontal overflow. Decision 5 replaces the former first-screen tool-fit rule.
+Header tests visit every registry tool.
 The shared-shell tests use `report.pdf` on the unfinished Rotate PDF page for the not-built state,
 and `renamed-text.pdf` on Merge PDF for invalid input. Merge tests use labeled two- and three-page fixtures,
 reopen downloads with pdf.js, reverse file order with the keyboard, and check damaged-file recovery,

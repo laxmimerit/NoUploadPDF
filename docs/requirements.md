@@ -24,14 +24,16 @@ options, progress, errors, download handling, and reset. Damaged, locked, and no
 Jobs accept a tool, files, and options; results can contain one PDF or several PDFs.
 Each output has its own download link and object URL. Changing options, files, or file order clears old results.
 Reset and unmount release all result URLs. Download stays disabled until an operation supplies a result.
-The home page uses a compact introduction and grouped tool grid. A shared header on every page contains
+The home page follows `DESIGN.md` with a spacious hero, working merge panel, and searchable tool grid.
+A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
 About explains local previews, browser-only processing, the three available tools, and the unfinished tools.
-The favicon uses a teal PDF page with a white lock, supplied by `src/app/icon.svg` as the site's only icon.
-The favicon passed its live-site browser-tab check on 2026-10-27.
+The shared logo and only favicon (`src/app/icon.svg`) use the design’s Locked page geometry.
+Light and dark themes share layout and privacy green; a saved choice overrides the system preference.
+Fonts are hosted locally. The app does not support offline operation yet.
 Vitest covers registry contracts, PDF validation and worker jobs, and recovery messages using fictional fixtures.
 CI runs unit tests, lint, type checking, and a build.
-Playwright is configured for Chromium visitor tests using the shared fixtures: first-screen tool discovery,
+Playwright is configured for Chromium visitor tests using the shared fixtures: scrollable tool discovery in both themes,
 all header tool links, twelve report thumbnails, the not-built state on Rotate PDF, non-PDF input,
 five-page merge downloads in both file orders, damaged-file recovery, reset, keyboard ordering, narrow layout,
 network checks during merging, and both range tools' retry/download/reset flows.
@@ -66,17 +68,21 @@ Pages stay marked "Coming soon" until their implementation and done criteria pas
 
 ### Home page and site navigation
 
-The home page must explain what NoUploadPDF does within the first screen: free PDF tools designed to process
-files in the browser without uploading them. Keep current availability clear while processing is being built.
-Every tool must be visible and directly linked in the initial viewport of a laptop, without scrolling.
-Use a short headline and one supporting line above the grouped tool grid. Narrow screens may scroll vertically.
+The home page follows `DESIGN.md` with a privacy-led hero, working merge drop zone, browse and privacy anchors,
+fact strip, searchable category-filtered registry cards, one dark privacy band, and FAQs.
+All eleven tools must be directly linked in the scrollable grid. There is no first-screen tool-fit requirement.
+Show three ready tools and eight coming soon. Do not claim offline support or unfinished operations work today.
+Check 1280×720, 1366×768, and 390×844 in light and dark without horizontal overflow.
 
-The top of every page must have the logo and name on the left, followed by one dropdown per registry tool group.
-Derive both the groups and their tools from the registry; never maintain a separate list.
-Each dropdown links to every tool in that group using its fixed slug.
-The menu also links to a short About page at `/about`, which explains the site's purpose and browser-only privacy
-promise without claiming unfinished functionality works today.
-Dropdowns must work with keyboard, pointer, and touch input, including on narrow screens.
+The top of every page has the logo, registry-driven group dropdowns, About, privacy pill, and theme toggle.
+Derive groups and tools from the registry, linking to fixed slugs. Only one dropdown opens at a time;
+outside clicks and Escape dismiss it. Keep keyboard, pointer, and touch navigation usable.
+Keep only the current route's page content mounted. Path changes remove previous pages and PDF workspaces;
+returning to a different path starts fresh. Same-page hash links preserve local state. The shared header,
+footer, and theme remain mounted.
+At 760px and below, show a full-height mobile sheet with category accordions under the header.
+Selecting a link closes the sheet. The theme follows the system initially and saves a manual preference.
+About explains the privacy promise and current availability, including that internet is required to load assets.
 
 ### Tools and shared shell
 
@@ -123,11 +129,11 @@ Browser memory and device capacity limit job sizes; failures must offer a useful
 
 ## Visual identity
 
-The primary accent is Tailwind `teal-800`: `oklch(43.7% 0.078 188.216)`.
-It comes from the shared logo and PDF wordmark in `src/components/site-header.tsx` and the home-page tool icons;
-the value is defined in the installed Tailwind theme.
-Use this accent for the planned favicon: a PDF page with a lock, legible at browser-tab sizes.
-Use neutral colors as needed for contrast; introduce no second favicon accent.
+Follow [DESIGN.md](../DESIGN.md) for warm paper (#f7f6f3), ink (#17171a), privacy green (#007d50),
+locally hosted Instrument Sans and JetBrains Mono, borders, spacing, and light/dark CSS tokens.
+Use green for privacy, local processing, and success; primary actions use ink and downloads use green.
+The Locked page SVG serves as both shared logo and favicon at the existing file path.
+Keep text readable in both themes, keyboard focus visible, and tap targets at least 40px (44px for navigation).
 
 ## Out of scope
 
