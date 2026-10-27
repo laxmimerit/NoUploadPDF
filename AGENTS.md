@@ -10,6 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Use `npm run build:webpack` when checking the build locally in the sandbox.
 
+Check pages only in your in-app browser; don't use Chrome or Computer Use.
+
 ## About NoUploadPDF
 
 NoUploadPDF provides PDF tools that run in the browser. Files are never uploaded.
