@@ -7,6 +7,8 @@ Tick a task off only when its done criteria pass, and report the checks performe
 ## Shared done criteria
 
 For every implementation task, run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build:webpack`.
+Every check must pass before saying the task is done or ticking it off.
+If a check fails, is skipped, or is blocked, report it and keep the task unfinished.
 Use the pull request, CI, and Vercel preview workflow from decision 3.
 Read the relevant installed Next.js guide before writing framework code.
 
@@ -21,6 +23,15 @@ For every tool task (6–16), also:
 - Remove "Coming soon" for that tool only when its done criteria pass; keep other unfinished tools marked.
 
 ## Checklist
+
+- [x] **Make unit tests part of the required workflow.**
+  - Deliverable: Require all four checks to pass in `AGENTS.md` and the shared done criteria.
+    Run Vitest before the CI build and update the add-pdf-tool skill to use the shared fixtures.
+  - Done: Run all four checks, validate the updated skill, and confirm CI runs tests before the build.
+  - Completion (2026-10-27): All 38 Vitest tests, lint, and type checking pass in the checkout.
+    The webpack production build passes in the clean temporary copy used for fixture-test verification,
+    avoiding the original checkout's old cache permissions issue. The updated skill passes its validator.
+    Parsed the CI workflow and confirmed unit tests run before the build and failures stop the job.
 
 - [x] **Add fixture-based unit tests before implementing the PDF tools.**
   - Deliverable: Vitest setup, five fictional fixtures, and a script to regenerate them.

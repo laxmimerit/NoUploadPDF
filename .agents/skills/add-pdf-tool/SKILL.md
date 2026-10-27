@@ -33,9 +33,16 @@ Work from the repository root. Implement the named registry tool through a downl
   `src/lib/pdf-worker-client.ts` and transfer result buffers back. Preserve cancellation, stale-reply guards,
   and object-URL cleanup. Show plain errors through `PdfError` in `errors.ts`, including invalid options
   through `protocol.ts`'s error codes, with a useful correction and retry path.
-- Add a unit test beside the operation using a small, known PDF fixture, generated locally where practical.
-  Reopen output and assert the task's observable result, unchanged content where relevant, and invalid options.
-  Check `package.json` for test support; if still absent, add a minimal repeatable test command and run it.
+- Add Vitest unit tests under `tests/` with names ending in `.test.ts`, as discovered by `vitest.config.mts`.
+  Import test helpers from `vitest` and reuse `readFixture` from `tests/fixtures.ts`.
+  Read `tests/fixtures/README.md`: `invoice.pdf` has one page, `report.pdf` has twelve, and `damaged.pdf`,
+  `password-protected.pdf`, and `renamed-text.pdf` exercise damaged, password, and non-PDF errors.
+  Regenerate fixtures with `npm run fixtures:generate` when needed; extend the generator with made-up content
+  if the tool needs another known fixture. Never use real documents as test data.
+- Test our operation and job behavior with the fixture bytes. Reopen output and assert the task's observable
+  result, unchanged content where relevant, invalid options, and useful errors for unsupported or broken input.
+  Keep assertions about our behavior rather than PDF-library internals. Update `tests/pdf-worker.test.ts` so
+  the implemented tool has success coverage and only unfinished tools are expected to return `not-built`.
 
 ## Verify and finish
 
@@ -43,7 +50,9 @@ Work from the repository root. Implement the named registry tool through a downl
   check invalid input/options, retry, processing, download, reset, keyboard access, and narrow layout.
   Inspect network activity during selection, processing, and download for transmitted document data.
 - Check pages only in Codex's in-app browser. Never use Chrome or Computer Use.
-- Run the unit test, `npm run lint`, `npm run typecheck`, and `npm run build:webpack` before saying done.
+- Run the full Vitest suite with `npm test`, then `npm run lint`, `npm run typecheck`, and `npm run build:webpack`.
+  Every check must pass before saying done or ticking off the task. Report failed, skipped, or blocked checks
+  and keep the task unfinished until they pass. CI must run unit tests before its build.
 - Remove “Coming soon” only for the completed tool. Update its page and shell copy; keep site-wide copy
   truthful in `src/app/page.tsx`, `src/app/about/page.tsx`, and `src/app/layout.tsx`.
   Update current state in `docs/requirements.md`, tick only the matching task after its criteria pass,

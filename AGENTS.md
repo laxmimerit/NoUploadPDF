@@ -23,9 +23,13 @@ Read `docs/requirements.md`, `docs/decisions.md`, and `docs/tasks.md` at the sta
 
 ## Check our work
 
+- `npm test`
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build:webpack`
+
+Run every check and require all of them to pass before saying a task is done or ticking it off.
+If any check fails, is skipped, or is blocked, report it and keep the task unfinished.
 
 ## Code style
 

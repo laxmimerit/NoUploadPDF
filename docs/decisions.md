@@ -83,6 +83,12 @@ for all tools still return `not-built`. These tests do not replace browser check
 transfers, interaction, or privacy. Vitest 4 supports the project's existing Node 20 type definitions and Node 24
 runtime without a type-definition upgrade. It adds development dependencies only.
 
+**Completion rule (2026-10-27):** Run `npm test`, `npm run lint`, `npm run typecheck`, and
+`npm run build:webpack` for every implementation task. All four checks must pass before calling a task done
+or ticking it off; failed, skipped, or blocked checks leave it unfinished. CI runs unit tests before the build.
+The add-pdf-tool skill uses the same Vitest suite and shared fictional fixtures so future tools extend this baseline.
+This catches regressions before completion; the cost is running the full check set for each task.
+
 ## 4. Give each tool a fixed registry slug
 
 Status: Accepted. Recorded: 2026-10-27.
