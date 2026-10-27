@@ -553,10 +553,16 @@ For every tool task (6–16), also:
     Sign PDF retains Coming soon with truthful verification-pending copy. Task 15 remains unfinished until
     its broader browser, downloaded-output and privacy criteria pass.
 
-- [ ] **16. Implement Compress PDF.**
+- [x] **16. Implement Compress PDF.**
   - Depends on: Tasks 4–5.
   - Deliverable: Attempt local file-size reduction and report original and resulting byte sizes honestly.
   - Done: A compressible fixture produces a smaller readable PDF with the same page count and order.
     Inspect text and images in reopened output for unacceptable quality loss.
     An already optimized fixture reports no reduction when appropriate; never claim savings for a larger result.
     Apply the shared tool done criteria.
+  - Local completion (2026-10-28): Added Clean up mode with original and resulting byte sizes and an
+    unchanged-original fallback, including for signed PDFs. Focused tests reopen smaller results, check page
+    text, order, geometry and image data, test errors and retries, and cover download and reset. Seven focused
+    test files (56 tests) and type checking pass. Browser, privacy network, lint and production build checks
+    are deferred to CI under the current project instructions. PR and Vercel preview review remain pending.
+    Scan mode is the next compression enhancement; see decision 8.

@@ -1,3 +1,4 @@
+import { compressPdf } from "./compress-pdf";
 import { imagesToPdf } from "./images-to-pdf";
 import { pdfToImages } from "./pdf-to-images";
 import { pageNumbers } from "./page-numbers";
@@ -22,6 +23,7 @@ const port = globalThis as unknown as {
 // Each tool gets its own operation file and an entry here.
 type Operation = (job: PdfJob, progress: (value: number, message: string) => void) => Promise<PdfResult>;
 const operations = new Map<string, Operation>([
+  ["compress-pdf", compressPdf],
   ["images-to-pdf", imagesToPdf],
   ["pdf-to-images", pdfToImages],
   ["merge-pdf", mergePdf],

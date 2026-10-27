@@ -13,7 +13,7 @@ describe("PDF worker jobs", () => {
   let dispatch: (event: { data: PdfJob }) => Promise<void>;
   let transferred: Transferable[][];
 
-  function job(files: PdfInput[], id = "fixture-job", tool = "compress-pdf"): PdfJob {
+  function job(files: PdfInput[], id = "fixture-job", tool = "unfinished-tool"): PdfJob {
     return { type: "job", id, tool, files, options: {} };
   }
 
@@ -71,6 +71,24 @@ describe("PDF worker jobs", () => {
       await dispatch({ data: job([await readFixture("invoice.pdf")], tool.slug, tool.slug) });
       expectError(tool.slug, "not-built");
     }
+  });
+
+  it("cleans up a PDF through the job protocol and transfers the result", async () => {
+    const source = await readFixture("report.pdf");
+    const document = await PDFDocument.load(source.data, { updateMetadata: false });
+    const uncompressed = await document.save({ useObjectStreams: false, updateFieldAppearances: false });
+    const input = { name: source.name, data: uncompressed.buffer as ArrayBuffer };
+    const expected = await pageTexts(input.data.slice(0));
+    const request = job([input], "compress", "compress-pdf");
+    request.options = { mode: "cleanup" };
+    await dispatch({ data: request });
+    const reply = replies.find((entry) => entry.id === "compress" && entry.type === "result");
+    if (reply?.type !== "result") throw new Error("Expected a compressed result");
+    const [output] = resultOutputs(reply.result);
+    expect(output.data.byteLength).toBeLessThan(uncompressed.byteLength);
+    expect(await pageTexts(output.data.slice(0))).toEqual(expected);
+    expect(transferred).toEqual([[output.data]]);
+    expect(request.files).toEqual([]);
   });
 
   it("merges through the job protocol and releases input buffers", async () => {

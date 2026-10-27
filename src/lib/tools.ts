@@ -21,7 +21,7 @@ export type Tool = {
   available?: boolean;
   minimumFiles?: number;
   reorderFiles?: boolean;
-  options?: "page-ranges" | "page-grid" | "page-numbers" | "watermark" | "signature";
+  options?: "page-ranges" | "page-grid" | "page-numbers" | "watermark" | "signature" | "compress";
   actionLabel?: string;
   maxFiles?: number;
 };
@@ -133,6 +133,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "compress-pdf",
+    available: true,
+    options: "compress",
+    maxFiles: 1,
+    actionLabel: "Clean up PDF",
     name: "Compress PDF",
     description: "Make a PDF smaller and easier to share.",
     icon: "compress",

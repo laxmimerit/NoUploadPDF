@@ -13,7 +13,7 @@ describe("tool registry", () => {
       .toMatchObject({ available: true, reorderFiles: true });
     expect(tools.find((tool) => tool.slug === "pdf-to-images"))
       .toMatchObject({ available: true, maxFiles: 1 });
-    expect(tools.filter((tool) => tool.available)).toHaveLength(9);
+    expect(tools.filter((tool) => tool.available)).toHaveLength(10);
   });
   it("preserves the eleven public route slugs and their groups", () => {
     expect(tools.map(({ slug, group }) => [slug, group])).toEqual([

@@ -37,8 +37,7 @@ export default function AboutPage() {
           <li key={tool.slug}><Link href={`/tools/${tool.slug}`}><span>{tool.name}</span>
             <span>{tool.description}</span><span aria-hidden="true">↗</span></Link></li>
         ))}</ul>
-        <p>The other {tools.filter((tool) => !tool.available).length} tools are coming soon.
-          You can preview PDFs on their pages, but they cannot create a result yet.
+        <p>Sign PDF is still being verified. You can try its local signature editor.
           Split PDF downloads separate PDFs, with one link for each part.</p>
         <Link href="/#tools" className="shell-button shell-primary">Explore all tools
           <span aria-hidden="true">→</span></Link>

@@ -12,7 +12,7 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
 Each page shows its registry name and description.
 Merge PDF, Split PDF, Extract pages, Rotate PDF, Reorder & delete, Page numbers, and Watermark PDF
-and both image converters have implementations; Sign PDF and Compress PDF remain marked "Coming soon".
+both image converters, and Compress PDF have implementations; Sign PDF remains marked "Coming soon".
 Merge PDF combines two or more files in the displayed order, with Move up and Move down controls.
 The result uses the first file's name, such as `report-merged.pdf`.
 Split PDF and Extract pages accept one PDF and page ranges such as `1-3, 7, 10-12`.
@@ -42,12 +42,14 @@ downloaded-file, and network verification remain pending. Tasks 9–10 stay unch
 All eleven pages share file selection, a file list with size and page count, local pdf.js page thumbnails,
 options, progress, errors, download handling, and reset. Damaged, locked, and non-PDF files show recovery messages.
 Jobs accept a tool, files, and options; results can contain one PDF or several PDFs.
+Compress PDF Clean up rewrites the document without reducing image quality, shows before and after byte sizes,
+and offers the original if the result is not smaller. Signed PDFs are kept unchanged.
 Each output has its own download link and object URL. Changing options, files, or file order clears old results.
 Reset and unmount release all result URLs. Download stays disabled until an operation supplies a result.
 The home page follows `DESIGN.md` with a spacious hero, working merge panel, and searchable tool grid.
 A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
-About explains local previews, browser-only processing, the nine implemented tools, and the unfinished tools.
+About explains local previews, browser-only processing, the ten available tools, and the unfinished tool.
 The shared logo and only favicon (`src/app/icon.svg`) use the design’s Locked page geometry.
 Light and dark themes share layout and privacy green; a saved choice overrides the system preference.
 Fonts are hosted locally. The app does not support offline operation yet.
@@ -58,7 +60,7 @@ Project agents live in `.codex/agents/`: `test_writer` authors tests and fiction
 effort and omit a model override. They inherit the parent model and permissions when no spawn/default
 model override is supplied. These are reusable definitions, not continuously running agents.
 Playwright is configured for Chromium visitor tests using the shared fixtures: scrollable tool discovery in both themes,
-all header tool links, twelve report thumbnails, the not-built state on Compress PDF, non-PDF input,
+all header tool links, twelve report thumbnails, the Compress PDF result, non-PDF input,
 five-page merge downloads in both file orders, damaged-file recovery, reset, keyboard ordering, narrow layout,
 network checks during merging, both range tools' retry/download/reset flows,
 both page-grid tools' edit/download/reset flows, and numbering/watermark preview/download/reset flows.
@@ -108,7 +110,7 @@ Pages stay marked "Coming soon" until their implementation and done criteria pas
 The home page follows `DESIGN.md` with a privacy-led hero, working merge drop zone, browse and privacy anchors,
 fact strip, searchable category-filtered registry cards, one dark privacy band, and FAQs.
 All eleven tools must be directly linked in the scrollable grid. There is no first-screen tool-fit requirement.
-Show nine implemented tools and two coming soon. Do not claim offline support or unfinished operations work today.
+Show ten available tools and one coming soon. Do not claim offline support or unfinished operations work today.
 Check 1280×720, 1366×768, and 390×844 in light and dark without horizontal overflow.
 
 The top of every page has the logo, registry-driven group dropdowns, About, privacy pill, and theme toggle.

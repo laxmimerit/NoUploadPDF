@@ -17,7 +17,7 @@ export type PreviewProps = {
 
 type SelectedFile = { id: string; file: File; pages?: number; error?: string };
 type Status = "idle" | "ready" | "processing" | "success" | "error";
-type Download = { url: string; name: string };
+type Download = { url: string; name: string; size: number };
 
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -252,12 +252,14 @@ export function ToolShell({
       for (const output of resultOutputs(result)) {
         const url = URL.createObjectURL(new Blob([output.data], { type: output.mimeType }));
         resultUrls.current.push(url);
-        ready.push({ url, name: output.name });
+        ready.push({ url, name: output.name, size: output.data.byteLength });
       }
       setDownloads(ready);
       setProgress(100);
       setStatus("success");
-      setMessage("Done. Nothing was uploaded. Download your result, or start again to clear your files.");
+      setMessage(tool === "compress-pdf" && ready[0].size >= files[0].file.size
+        ? "No size reduction was possible. Download your original PDF."
+        : "Done. Nothing was uploaded. Download your result, or start again to clear your files.");
     } catch (failure) {
       if (current !== generation.current) return;
       clearResult();
@@ -291,6 +293,7 @@ export function ToolShell({
         <p id="pdf-input-help" className="drop-help">
           {imageInput ? "Choose JPEG or PNG images and arrange them in the order you want."
             : tool === "pdf-to-images" ? "Choose one PDF and select the pages to save as images."
+            : config?.options === "compress" ? "Choose one PDF to clean up on your device."
             : config?.options === "signature" && !available
             ? "Sign PDF is still being verified. Choose one PDF to try drawing, typing, or uploading a signature."
             : available
@@ -346,6 +349,9 @@ export function ToolShell({
         <label htmlFor="pdf-progress" className="mt-2 block text-xs text-stone-500">Progress: {progress}%</label>
         <progress id="pdf-progress" value={progress} max={100} className="mt-2 h-2 w-full" />
       </div>
+      {tool === "compress-pdf" && downloads.length > 0 && <p className="text-sm">
+        Before: {files[0].file.size.toLocaleString()} bytes · After: {downloads[0].size.toLocaleString()} bytes
+      </p>}
       {error && <p role="alert" className="rounded-lg bg-red-50 p-4 text-sm leading-6 text-red-800">{error}</p>}
 
       <div className="workspace-actions" data-sticky={config?.options === "page-grid" && files.length > 0}>

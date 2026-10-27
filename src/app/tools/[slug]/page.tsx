@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CompressTool } from "@/components/compress-tool";
 import { ConverterTool } from "@/components/converter-tool";
 import { ToolShell } from "@/components/tool-shell";
 import { MergePdfTool } from "@/components/merge-pdf-tool";
@@ -52,7 +53,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             {!tool.available && <span className="coming-badge">Coming soon</span>}
           </div>
           <p className="tool-explanation">
-            {tool.slug === "images-to-pdf"
+            {tool.slug === "compress-pdf"
+              ? "Clean up your PDF without changing its pages. Compare the sizes and download the smaller file."
+              : tool.slug === "images-to-pdf"
               ? "Choose JPEG or PNG images, arrange them, and save one PDF on your device."
               : tool.slug === "pdf-to-images"
               ? "Save selected PDF pages as PNG images. Multiple pages download together in one ZIP."
@@ -76,7 +79,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
           </p>
         </div>
         <div className="tool-panel">
-          {tool.slug === "images-to-pdf" || tool.slug === "pdf-to-images"
+          {tool.slug === "compress-pdf"
+            ? <CompressTool key={tool.slug} tool={tool} />
+            : tool.slug === "images-to-pdf" || tool.slug === "pdf-to-images"
             ? <ConverterTool key={tool.slug} tool={tool} />
             : tool.slug === "merge-pdf"
             ? <MergePdfTool key={tool.slug} tool={tool} />

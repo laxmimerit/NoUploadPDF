@@ -54,7 +54,7 @@ for (const tool of tools) {
   });
 }
 
-test("a twelve-page report renders every thumbnail and processing keeps Download disabled", async ({ page }) => {
+test("Compress PDF previews twelve pages and offers a result", async ({ page }) => {
   await page.goto("/tools/compress-pdf");
   // Next.js also has an alert for route announcements outside the tool workspace.
   const workspace = page.getByRole("region", { name: "Compress PDF workspace", exact: true });
@@ -73,17 +73,11 @@ test("a twelve-page report renders every thumbnail and processing keeps Download
     await expect(page.getByRole("img", { name: `report.pdf, page ${number}`, exact: true })).toHaveCount(1);
   }
   await expect(download).toBeDisabled();
-  await page.getByRole("button", { name: "Process PDFs", exact: true }).click();
-
-  await expect(workspace.getByRole("alert")).toHaveText(
-    "This tool is not built yet. You can preview your PDFs here; come back later to process them.",
-  );
-  await expect(workspace.getByRole("status")).toHaveText(
-    "No result was created. Your files are still available to preview.",
-  );
-  await expect(download).toBeDisabled();
-  await expect(page.getByRole("link", { name: "Download", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Try again", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Clean up PDF", exact: true }).click();
+  await expect(workspace.getByText(/Before: .* bytes · After: .* bytes/)).toBeVisible();
+  await expect(workspace.getByRole("link", { name: "Download", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Start again" }).click();
+  await expect(page.getByRole("button", { name: "Download", exact: true })).toBeDisabled();
 });
 
 for (const reverse of [false, true]) {
