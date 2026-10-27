@@ -12,7 +12,7 @@ npm run test:e2e
 Playwright starts the production server at `http://127.0.0.1:3100` and stops it after the tests.
 It refuses to reuse an existing server so a development server cannot accidentally pass as a production check.
 The home-page tests use 1280×720 and 1366×768 laptop viewports. Header tests visit every registry tool.
-The shared-shell tests use `report.pdf` on the unfinished Split PDF page for the not-built state,
+The shared-shell tests use `report.pdf` on the unfinished Rotate PDF page for the not-built state,
 and `renamed-text.pdf` on Merge PDF for invalid input. Merge tests use labeled two- and three-page fixtures,
 reopen downloads with pdf.js, reverse file order with the keyboard, and check damaged-file recovery,
 reset, desktop/narrow layouts, and requests during selection, processing, and download.
@@ -37,3 +37,8 @@ Failed or inactive deployments fail the job; it never uses an older success, a b
 The job uses GitHub's automatic read-only token to read deployments; no repository or Vercel secrets are required.
 Public previews need no protection bypass token. CI uploads reports and failure traces for seven days.
 The CI workflow itself can only be verified on GitHub after the change is pushed.
+
+Split PDF and Extract pages also have visitor tests for invalid range parts, retry, keyboard processing,
+multiple downloads, reopened output page counts, option changes, reset focus, and a 320px layout.
+They watch for requests with bodies during the workflow. The existing Merge PDF test retains coverage
+for merging and file ordering. The Rotate PDF test retains coverage for the not-built state.

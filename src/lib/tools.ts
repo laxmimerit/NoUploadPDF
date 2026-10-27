@@ -21,6 +21,8 @@ export type Tool = {
   available?: boolean;
   minimumFiles?: number;
   reorderFiles?: boolean;
+  options?: "page-ranges";
+  maxFiles?: number;
 };
 
 export const tools: Tool[] = [
@@ -36,6 +38,9 @@ export const tools: Tool[] = [
   },
   {
     slug: "split-pdf",
+    available: true,
+    options: "page-ranges",
+    maxFiles: 1,
     name: "Split PDF",
     description: "Separate a PDF into smaller files.",
     icon: "split",
@@ -43,6 +48,9 @@ export const tools: Tool[] = [
   },
   {
     slug: "extract-pages",
+    available: true,
+    options: "page-ranges",
+    maxFiles: 1,
     name: "Extract pages",
     description: "Save just the pages you need.",
     icon: "extract",

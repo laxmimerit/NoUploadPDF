@@ -24,6 +24,19 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [x] **Integrate the Merge PDF and Split/Extract worktree branches.**
+  - Completion (2026-10-27): Merged `codex/s11-merge-pdf` into `codex/s11-page-tools` first;
+    resolved the final `codex/s11-split-extract` merge and left it uncommitted for review.
+    Preserved merge ordering and the two-file minimum, single-file range tools, and all result downloads.
+    Fixed duplicate error definitions, single-output typing, and tests that still treated Split as unfinished.
+    All 126 unit tests, lint, type checking, and `npm run build:webpack` pass. A worker regression test
+    merges labeled fixtures, splits the result into two and three pages, and extracts pages 2 and 4;
+    pdf.js verifies the output text and order. Production HTTP checks confirm all three tool workspaces,
+    their options and file limits, three ready tools on Home, an unfinished tool, and an unknown-tool 404.
+    The normal build and elevated retry failed on an old cache's EPERM. A fresh output directory at
+    `.next/page-tools-integration` passed; restored all three temporary configuration files exactly.
+    Playwright discovers all 20 cases. Browser tests were not run; the existing e2e task remains unfinished.
+
 - [x] **Skip duplicate files in the shared shell.**
   - Deliverable: Skip files with the same name and size and announce skipped names in the status line.
     Apply the same behavior to the file picker, dropped files, and repeats within one selection.
@@ -221,17 +234,37 @@ For every tool task (6–16), also:
     and the webpack build (fresh output `.next/merge-final-verification`; temporary configuration restored).
     PR, CI, and Vercel preview review remain required before merge.
 
-- [ ] **7. Implement Split PDF.**
+- [x] **7. Implement Split PDF.**
   - Depends on: Tasks 4–5.
   - Deliverable: Split a PDF into separate PDFs using chosen page ranges.
   - Done: Split a labeled five-page fixture at ranges 1–2 and 3–5; outputs contain two and three matching pages.
     Reject reversed and out-of-range boundaries. Apply the shared tool done criteria.
+  - Completion (2026-10-27): Added one local worker operation, shared range validation, single-file options,
+    and separate PDF download links. Downloaded and reopened the five-page fixture split at `1-2, 3-5`;
+    pdf.js read the matching two and three page labels. Also downloaded `1-3, 7, 10-12` from the report
+    and verified all three files' text and page order. Browser checks covered zero/reversed ranges,
+    correction and retry, processing, downloads, keyboard reset, and 320×700 layout without overflow.
+    The browser resource inventory showed only local app assets and route reads; processing code contains
+    no network calls. All 110 unit tests, lint, type checking, and the webpack build pass.
+    A fresh build directory under `.next` resolved the old output cleanup EPERM, which also occurred on
+    an outside-sandbox retry; restored `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` afterward.
+    Home cards still fit at 1280×720 and 1366×768. PR, CI, and Vercel preview review remain pending.
 
-- [ ] **8. Implement Extract pages.**
+- [x] **8. Implement Extract pages.**
   - Depends on: Tasks 4–5.
   - Deliverable: Save selected pages as one new PDF.
   - Done: Extract pages 2 and 4 from a labeled five-page fixture; output contains exactly those pages in source order.
     Reject empty and out-of-range selections. Apply the shared tool done criteria.
+  - Completion (2026-10-27): Added the extraction worker operation and shared range options.
+    Downloaded `4, 2, 2` from the five-page fixture and reopened it with pdf.js: exactly pages 2 and 4,
+    in source order, with original text intact. Unit tests also verify `1-3, 7, 10-12`, repeated/overlapping
+    pages, empty/malformed/reversed/out-of-range selections, one-page PDFs, and unsupported inputs.
+    In-app browser checks covered damaged/non-PDF errors, replacing the file and successfully retrying
+    without reload, keyboard processing, reset, option-change cleanup, and the 320×700 layout.
+    The checks and build-directory workaround recorded for task 7 also pass for this implementation.
+    Added two Playwright visitor cases and updated availability assertions; all 17 cases are discovered.
+    The standalone Chromium suite was not run: page checks used the skill-required in-app browser.
+    The existing Chromium e2e task stays unfinished. PR, CI, and Vercel preview review remain pending.
 
 - [ ] **9. Implement Rotate PDF.**
   - Depends on: Tasks 4–5.

@@ -1,21 +1,23 @@
 import type { PdfErrorCode } from "./protocol";
 
+const passwordRecoveryMessage = "This PDF is locked with a password. Choose a copy without password protection.";
+
 const messages: Record<PdfErrorCode, string> = {
   "not-pdf": "This file is not a PDF. Choose a PDF file and try again.",
   damaged: "This PDF is damaged or cannot be read. Export a fresh copy and choose it again.",
-  password: "This PDF is locked with a password. Choose a copy without password protection.",
+  password: passwordRecoveryMessage,
   "not-built": "This tool is not built yet. You can preview your PDFs here; come back later to process them.",
   empty: "Choose at least one PDF, then try again.",
-  "invalid-options": "These options cannot be used. Choose Start again, select your PDFs, and try again.",
   "too-few-files": "Choose at least two PDFs to merge, then try again.",
   busy: "A job is already running. Wait for it to finish, or choose Start again.",
   cancelled: "The job was stopped. Choose your PDFs to start again.",
+  "invalid-options": "Check the tool options, correct them, and try again.",
   failed: "The PDF could not be processed. Try fewer or smaller files, or choose Start again.",
 };
 
 export class PdfError extends Error {
-  constructor(public readonly code: PdfErrorCode) {
-    super(messages[code]);
+  constructor(public readonly code: PdfErrorCode, detail?: string) {
+    super(code === "invalid-options" && detail ? detail : messages[code]);
     this.name = "PdfError";
   }
 }

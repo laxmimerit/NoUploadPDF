@@ -17,9 +17,9 @@ export default function AboutPage() {
           without uploading them.
         </p>
         <p>
-          Merge PDF is ready: choose multiple PDFs, set their order, and download one merged file.
-          The other tools are marked “Coming soon”; you can choose PDFs and preview every page on your device.
-          Your files are never uploaded, including during merging.
+          Merge PDF, Split PDF, and Extract pages are ready to use. Combine PDFs in your chosen order,
+          split one PDF into ranges, or save selected pages. The other tools are marked “Coming soon”;
+          you can preview PDFs on their pages. Your files are never uploaded.
         </p>
       </div>
       <Link className="mt-8 inline-block font-medium text-teal-800 underline underline-offset-4" href="/">

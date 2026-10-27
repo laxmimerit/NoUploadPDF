@@ -67,6 +67,19 @@ The download uses the first file's base name plus `-merged.pdf` (for example, `r
 Merge needs no extra options; unsupported job options and too few files produce recovery errors.
 The cost is keeping file order, result invalidation, and registry availability consistent across the shared shell.
 
+**Page-range tools refinement (2026-10-27):** Split PDF and Extract pages accept exactly one PDF.
+A shared parser accepts comma-separated whole page numbers and inclusive ranges, with page numbers starting at 1.
+Every part is checked before output creation. Invalid-option errors identify the part, explain the problem,
+and preserve their correction message across the worker boundary. Other error codes keep fixed recovery copy.
+Split produces one PDF per part, in input order; overlaps are allowed because outputs are separate files.
+Extract deduplicates selected pages and saves them in source order. Pages outside the selection are omitted.
+The registry owns availability, the options component choice, and the single-file limit.
+
+Results retain the single-output shape for existing callers and add a multiple-output variant for Split PDF.
+Every output buffer is transferred back, and the shell creates one download URL per PDF. Changing options,
+changing files, reset, and unmount release those URLs. Separate links avoid a ZIP dependency and let visitors
+choose which outputs to download; the cost is one download action per split PDF.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -194,7 +207,8 @@ only to read and draw page previews. Install both through npm and serve pdf.js w
 and decoder assets from this app's own origin, without a CDN or document upload.
 The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
 The package preparation script runs before development and both build commands; generated assets are ignored
-by Git and ESLint. Merge PDF now has a registered operation; unfinished tools return the not-built message.
+by Git and ESLint. Merge PDF, Split PDF, and Extract pages have registered worker operations.
+Unfinished tools return the not-built message.
 
 **Why:** The original [`pdf-lib` has had no release since 2021](https://github.com/Hopding/pdf-lib/releases).
 Cantoo maintains a compatible fork that works in a Web Worker. Keeping modifications in that worker preserves

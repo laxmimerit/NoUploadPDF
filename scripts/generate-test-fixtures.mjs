@@ -68,6 +68,11 @@ for (const [name, count] of [["merge-two", 2], ["merge-three", 3]]) {
   await writeFile(new URL(`${name}.pdf`, directory), await document.save({ useObjectStreams: false }));
 }
 
+const fivePages = await createDocument("Fictional five-page report");
+const firstFive = await fivePages.copyPages(report, [0, 1, 2, 3, 4]);
+firstFive.forEach((page) => fivePages.addPage(page));
+await writeFile(new URL("five-pages.pdf", directory), await fivePages.save({ useObjectStreams: false }));
+
 // Keep the PDF signature, but truncate an object so the file cannot be parsed.
 await writeFile(new URL("damaged.pdf", directory), "%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages\n");
 
@@ -78,4 +83,4 @@ await writeFile(new URL("password-protected.pdf", directory), await locked.save(
 await writeFile(new URL("renamed-text.pdf", directory),
   "This is a plain text test file with a .pdf extension. It is not a PDF.\n");
 
-console.log("Generated seven fictional fixtures in tests/fixtures.");
+console.log("Generated eight fictional fixtures in tests/fixtures.");

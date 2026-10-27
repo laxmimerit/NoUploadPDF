@@ -1,11 +1,11 @@
 import { PDFDocument } from "@cantoo/pdf-lib";
 import { PdfError, readablePdfError } from "./errors";
-import type { PdfJob, PdfResult } from "./protocol";
+import type { PdfJob, PdfOutput } from "./protocol";
 
 export async function mergePdf(
   job: PdfJob,
   progress: (value: number, message: string) => void,
-): Promise<PdfResult> {
+): Promise<PdfOutput> {
   if (job.files.length < 2) throw new PdfError("too-few-files");
   if (Object.keys(job.options).length) throw new PdfError("invalid-options");
   const merged = await PDFDocument.create();

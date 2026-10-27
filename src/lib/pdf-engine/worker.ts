@@ -1,6 +1,9 @@
 import { PdfError } from "./errors";
 import { mergePdf } from "./merge-pdf";
+import { extractPages } from "./extract-pages";
+import { resultOutputs } from "./protocol";
 import type { PdfJob, PdfReply, PdfResult } from "./protocol";
+import { splitPdf } from "./split-pdf";
 import { validatePdf } from "./validate-pdf";
 
 // This small port type avoids mixing the DOM and WebWorker TypeScript libraries.
@@ -11,7 +14,11 @@ const port = globalThis as unknown as {
 
 // Each tool gets its own operation file and an entry here.
 type Operation = (job: PdfJob, progress: (value: number, message: string) => void) => Promise<PdfResult>;
-const operations = new Map<string, Operation>([["merge-pdf", mergePdf]]);
+const operations = new Map<string, Operation>([
+  ["merge-pdf", mergePdf],
+  ["split-pdf", splitPdf],
+  ["extract-pages", extractPages],
+]);
 let running = false;
 
 port.onmessage = async ({ data: job }) => {
@@ -35,7 +42,7 @@ port.onmessage = async ({ data: job }) => {
     const operation = operations.get(job.tool);
     if (!operation) throw new PdfError("not-built");
     const result = await operation(job, progress);
-    port.postMessage({ type: "result", id: job.id, result }, [result.data]);
+    port.postMessage({ type: "result", id: job.id, result }, resultOutputs(result).map((output) => output.data));
   } catch (error) {
     const failure = error instanceof PdfError ? error : new PdfError("failed");
     port.postMessage({ type: "error", id: job.id, code: failure.code, message: failure.message });

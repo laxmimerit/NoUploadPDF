@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ToolShell } from "@/components/tool-shell";
 import { MergePdfTool } from "@/components/merge-pdf-tool";
+import { PageRangeTool } from "@/components/page-range-tool";
 import { tools } from "@/lib/tools";
 
 export function generateStaticParams() {
@@ -55,12 +56,16 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
           </p>}
           <p className="mt-4 text-sm leading-6 text-stone-500">
             {tool.available
-              ? "Choose PDFs, set their order, and download one merged file. Your files stay on your device."
+              ? tool.slug === "merge-pdf"
+                ? "Choose PDFs, set their order, and download one merged file. Your files stay on your device."
+                : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
               : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
           {tool.slug === "merge-pdf"
             ? <MergePdfTool key={tool.slug} tool={tool} />
-            : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
+            : tool.options === "page-ranges"
+              ? <PageRangeTool key={tool.slug} tool={tool} />
+              : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
         </section>
         <p className="mt-6 text-center text-xs leading-5 text-stone-500">
           NoUploadPDF · Private PDF tools. Your files stay on your device.

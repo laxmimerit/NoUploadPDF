@@ -16,7 +16,8 @@ for (const viewport of [{ width: 1280, height: 720 }, { width: 1366, height: 768
     const links = main.getByRole("link");
     await expect(links).toHaveCount(tools.length);
     for (const tool of tools) {
-      const link = main.getByRole("link", { name: `${tool.name} ${tool.description}`, exact: true });
+      const availability = tool.available ? " Ready" : "";
+      const link = main.getByRole("link", { name: `${tool.name}${availability} ${tool.description}`, exact: true });
       await expect(link).toBeVisible();
       await expect(link).toHaveAttribute("href", `/tools/${tool.slug}`);
       await expect(link).toBeInViewport({ ratio: 1 });
@@ -35,16 +36,15 @@ for (const tool of tools) {
     await expect(page).toHaveURL(`/tools/${tool.slug}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(tool.name);
     await expect(page.getByRole("main").getByText(tool.description, { exact: true })).toBeVisible();
-    if (tool.available) await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(0);
-    else await expect(page.getByText("Coming soon", { exact: true })).toBeVisible();
+    await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(tool.available ? 0 : 1);
     await expect(page.getByRole("region", { name: `${tool.name} workspace` })).toBeVisible();
   });
 }
 
 test("a twelve-page report renders every thumbnail and processing keeps Download disabled", async ({ page }) => {
-  await page.goto("/tools/split-pdf");
+  await page.goto("/tools/rotate-pdf");
   // Next.js also has an alert for route announcements outside the tool workspace.
-  const workspace = page.getByRole("region", { name: "Split PDF workspace", exact: true });
+  const workspace = page.getByRole("region", { name: "Rotate PDF workspace", exact: true });
   const download = page.getByRole("button", { name: "Download", exact: true });
   await expect(download).toBeDisabled();
   await page.getByLabel("Choose PDF files", { exact: true }).setInputFiles(fixture("report.pdf"));

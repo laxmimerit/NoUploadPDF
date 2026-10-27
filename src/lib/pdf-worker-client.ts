@@ -38,7 +38,7 @@ export function createPdfEngine(): PdfEngine {
             }
             active = undefined;
             if (reply.type === "result") resolve(reply.result);
-            else reject(new PdfError(reply.code));
+            else reject(new PdfError(reply.code, reply.message));
           };
           const fail = () => {
             const pending = active;
