@@ -18,9 +18,9 @@ if (event.stop_hook_active === true) {
   // Only the unit tests related to this turn's changed files; CI runs the full suite.
   const changed = [...new Set([...git(["diff", "--name-only", "HEAD"]).split("\n"),
     ...git(["ls-files", "--others", "--exclude-standard"]).split("\n")])]
-    .filter((file) => /\.(ts|tsx|mts|js|mjs)$/.test(file) && !file.startsWith(".codex/"));
-  const result = changed.length === 0 ? { status: 0 } : spawnSync("npx",
-    ["vitest", "related", "--run", "--reporter=dot", "--passWithNoTests", ...changed], {
+    .filter((file) => /\.(ts|tsx|mts|cts|js|mjs|cjs)$/.test(file) && !file.startsWith(".codex/"));
+  const result = changed.length === 0 ? { status: 0 } : spawnSync("npm",
+    ["run", "--silent", "test:related", "--", ...changed], {
       cwd: root,
       encoding: "utf8",
       timeout: 240_000,

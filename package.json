@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:related": "vitest related --run --reporter=dot --passWithNoTests",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "fixtures:generate": "node scripts/generate-test-fixtures.mjs",

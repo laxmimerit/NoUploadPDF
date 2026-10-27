@@ -18,7 +18,7 @@ describe("project Stop unit-test hook", () => {
     mkdirSync(join(directory, "nested"));
     copyFileSync(scriptPath, join(directory, ".codex/hooks/unit-tests.mjs"));
     writeFileSync(join(directory, "package.json"), JSON.stringify({
-      scripts: { test: "node --test unit.test.cjs" },
+      scripts: { "test:related": "node --test unit.test.cjs" },
     }));
     const initialized = spawnSync("git", ["init", "-q", directory], { encoding: "utf8" });
     expect(initialized.status).toBe(0);
@@ -49,7 +49,7 @@ describe("project Stop unit-test hook", () => {
     return JSON.parse(result.stdout);
   }
 
-  it("allows a passing npm test, including when Codex starts in a subdirectory with spaces", () => {
+  it("allows passing related tests, including when Codex starts in a subdirectory with spaces", () => {
     fixture(true);
     expect(stop()).toEqual({});
     expect(readFileSync(join(directory, "runs.txt"), "utf8")).toBe("run\n");
@@ -59,7 +59,7 @@ describe("project Stop unit-test hook", () => {
     fixture(false);
     const result = stop();
     expect(result.decision).toBe("block");
-    expect(result.reason).toContain("npm test failed");
+    expect(result.reason).toContain("related unit tests failed");
     expect(result.reason).toContain("hook fixture");
     expect(result.reason).toContain("keep the task unfinished");
   });
@@ -74,7 +74,12 @@ describe("project Stop unit-test hook", () => {
     expect(readFileSync(join(directory, "runs.txt"), "utf8")).toBe("run\nrun\n");
   });
 
-  it("blocks when npm cannot run the unit suite", () => {
+  it("passes without running tests when no code changed", () => {
+    expect(stop()).toEqual({});
+  });
+
+  it("blocks when npm cannot run the related tests", () => {
+    fixture(true);
     writeFileSync(join(directory, "package.json"), "{}");
     expect(stop().decision).toBe("block");
     expect(stop(true)).toEqual({});
