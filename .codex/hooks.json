@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/unit-tests.mjs\"",
+            "timeout": 300,
+            "statusMessage": "Running unit tests before finishing"
+          }
+        ]
+      }
+    ]
+  }
+}

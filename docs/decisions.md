@@ -164,6 +164,16 @@ or ticking it off; failed, skipped, or blocked checks leave it unfinished. CI ru
 The add-pdf-tool skill uses the same Vitest suite and shared fictional fixtures so future tools extend this baseline.
 This catches regressions before completion; the cost is running the full check set for each task.
 
+**Stop-hook refinement (2026-10-27):** The project hook in `.codex/hooks.json` runs `npm test` before
+Codex finishes a turn. A failing or unavailable suite returns a blocking decision with test diagnostics.
+The handler checks `stop_hook_active` first and skips a continued turn, so it can block at most once per turn.
+A fresh turn runs the suite again. This uses Codex's event flag rather than persistent marker files.
+The script resolves the project from its own location, so starting Codex in a subdirectory still tests the root.
+The test process has a 240-second limit inside the hook's 300-second limit, and failure feedback is capped
+at the last 12,000 characters. The cost is one additional unit-suite run per turn. The four-check completion
+rule still applies, including when a continued turn's tests remain failing. Project hooks require Codex's
+normal hook trust review before automatic execution; see [OpenAI's hook guide](https://learn.chatgpt.com/docs/hooks).
+
 **End-to-end refinement (2026-10-27):** Add Playwright with Chromium and the existing fictional fixtures.
 Use visitor-visible links, labels, messages, and decoded thumbnails with real pdf.js previews and the real worker.
 Test the home grid at 1280×720 and 1366×768, every header tool link, and the shared shell on Merge PDF.

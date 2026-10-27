@@ -24,6 +24,20 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [x] **Run unit tests before Codex finishes a turn.**
+  - Deliverable: A project Stop hook in `.codex/hooks.json` runs `npm test`, continues Codex on failure,
+    and blocks at most once per turn.
+  - Done: Exercise passing and failing test runs, confirm a continued turn cannot block again and a new
+    turn checks again, and pass all four required checks.
+  - Completion (2026-10-27): Added the Stop hook and a Node handler guarded by `stop_hook_active`.
+    Four integration cases execute the configured command with real passing/failing unit-test fixtures,
+    repeated continuations, a fresh turn, subdirectory/path-with-spaces execution, and an unavailable suite.
+    Also invoked the configured hook against the project's full passing suite; it returned `{}`.
+    All 166 unit tests, lint, type checking, and `npm run build:webpack` pass. Normal and elevated builds
+    hit the existing cache cleanup EPERM; fresh `.next/stop-hook-verification-20261027` output passed.
+    Restored temporary Next.js/TypeScript configuration exactly. Automatic execution still requires
+    Codex's normal review and trust of the new hook definition.
+
 - [x] **Keep page-grid Save and Download in view.**
   - Deliverable: Keep the existing action row visible while editing Rotate PDF and Reorder & delete,
     without changing the page grid or its controls.
