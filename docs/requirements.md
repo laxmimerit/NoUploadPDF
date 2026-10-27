@@ -184,3 +184,4 @@ Keep text readable in both themes, keyboard focus visible, and tap targets at le
 
 Server processing is outside the current architecture. Any later proposal for heavy jobs requires revisiting
 the browser-processing decision and the privacy promise before implementation.
+The [server processing and launch plan](server-processing-plan.md) is a proposal, not a current requirement.

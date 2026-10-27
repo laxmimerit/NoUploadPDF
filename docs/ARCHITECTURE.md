@@ -29,3 +29,5 @@ and builds.
 Vitest covers operations, worker messages, and UI behavior using fictional fixtures. Playwright tests
 visitor flows and privacy requests; CI runs checks and tests pull requests against a Vercel preview.
 Requirements, decisions, and outstanding verification live in the other files in `docs/`.
+The [server processing and launch plan](server-processing-plan.md) describes a possible future architecture;
+it does not change the current browser-only system.

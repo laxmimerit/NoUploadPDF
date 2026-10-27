@@ -398,3 +398,24 @@ from version 20 to the latest major, 26.
 
 **What it costs:** The deferred packages remain outdated until that work is done. Passing unit tests and
 type checking alone cannot establish browser behavior; CI must also check lint, the build, and visitor flows.
+
+## 10. Consider an explicit server path for heavy PDF jobs
+
+Status: Proposed. Recorded: 2026-10-28.
+
+**Question:** How could NoUploadPDF offer OCR, PDF to Word, and stronger compression when browser resources
+or available browser libraries are insufficient?
+
+**Proposal:** Offer these operations through a clearly disclosed, visitor-initiated upload to private storage,
+followed by a queued job on an isolated server worker, a private expiring download, and automatic deletion.
+Keep existing browser tools local and never silently fall back to server processing. See the
+[server processing and launch plan](server-processing-plan.md) for lifecycle, launch gates, and open questions.
+
+**Why:** Heavy processing can exceed browser capabilities, while these tools may be useful to visitors who
+understand and choose the upload. A queue and isolated workers make resource limits and recovery manageable.
+
+**What it costs:** Documents leave the device, processing introduces security and operational obligations,
+and storage, compute, traffic, and support add costs. Providers, prices, limits, and retention remain open.
+This conflicts with decision 1, the current privacy promise, and the free-Hobby-only hosting constraint.
+Acceptance requires an explicit revision of those commitments and appropriate product and legal copy before
+any server processing is enabled. Until then, decision 1 and the current requirements remain in force.
