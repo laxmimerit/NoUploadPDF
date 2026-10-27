@@ -107,6 +107,47 @@ describe("shared PDF page grid", () => {
     }
   });
 
+  it.each(["pointercancel", "lostpointercapture", "outside", "click"])(
+    "keeps the order after %s and permits a fresh pointer drag", (ending) => {
+      vi.stubGlobal("PointerEvent", class extends MouseEvent {
+        pointerId: number;
+        isPrimary = true;
+        constructor(type: string, init: PointerEventInit) {
+          super(type, init);
+          this.pointerId = init.pointerId ?? 1;
+        }
+      });
+      const { onChange } = setup();
+      const handle = screen.getByRole("button", { name: /^Drag page 4;/ });
+      const target = screen.getByRole("listitem", { name: "Page 2, position 2 of 4" });
+      Object.defineProperty(handle, "setPointerCapture", { value: vi.fn() });
+      const previousHitTest = Object.getOwnPropertyDescriptor(document, "elementFromPoint");
+      const hitTest = vi.fn<() => Element | null>(() => target);
+      Object.defineProperty(document, "elementFromPoint", { configurable: true, value: hitTest });
+      try {
+        onChange.mockClear();
+        fireEvent.pointerDown(handle, { pointerId: 7, button: 0, clientX: 100, clientY: 100 });
+        fireEvent.pointerMove(handle, { pointerId: 7, clientX: ending === "click" ? 102 : 150, clientY: 100 });
+        if (ending === "pointercancel") fireEvent.pointerCancel(handle, { pointerId: 7 });
+        if (ending === "lostpointercapture") fireEvent.lostPointerCapture(handle, { pointerId: 7 });
+        if (ending === "outside") hitTest.mockReturnValue(null);
+        fireEvent.pointerUp(handle, { pointerId: 7, clientX: 150, clientY: 100 });
+        expect(onChange).not.toHaveBeenCalled();
+        expect(target.dataset.dropTarget).toBe("false");
+        expect(screen.getByRole("listitem", { name: "Page 4, position 4 of 4" })).toBeDefined();
+
+        hitTest.mockReturnValue(target);
+        fireEvent.pointerDown(handle, { pointerId: 8, button: 0, clientX: 100, clientY: 100 });
+        fireEvent.pointerMove(handle, { pointerId: 8, clientX: 150, clientY: 100 });
+        fireEvent.pointerUp(handle, { pointerId: 8, clientX: 150, clientY: 100 });
+        expect(onChange.mock.lastCall?.[0].order).toEqual([1, 4, 2, 3]);
+      } finally {
+        if (previousHitTest) Object.defineProperty(document, "elementFromPoint", previousHitTest);
+        else Reflect.deleteProperty(document, "elementFromPoint");
+      }
+    },
+  );
+
   it("locks edits while processing and keeps controls labeled", () => {
     const { onChange } = setup(true, true);
     onChange.mockClear();
