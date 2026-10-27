@@ -87,12 +87,27 @@ export function ToolShell({ tool, toolName, options = {}, children, engineFactor
 
   function choose(selected: File[]) {
     if (busy.current || !selected.length) return;
+    const known = new Set(files.map(({ file }) => JSON.stringify([file.name, file.size])));
+    const additions: SelectedFile[] = [];
+    const duplicates = new Set<string>();
+    for (const file of selected) {
+      const key = JSON.stringify([file.name, file.size]);
+      if (known.has(key)) {
+        duplicates.add(file.name);
+      } else {
+        known.add(key);
+        additions.push({ id: crypto.randomUUID(), file });
+      }
+    }
+    setMessage(duplicates.size
+      ? Array.from(duplicates, (name) => `${name} is already in the list.`).join(" ")
+      : "Files stay on your device. Review the previews below.");
+    if (!additions.length) return;
     clearResult();
     setError(undefined);
     setProgress(0);
-    setFiles((current) => [...current, ...selected.map((file) => ({ id: crypto.randomUUID(), file }))]);
+    setFiles((current) => [...current, ...additions]);
     setStatus("ready");
-    setMessage("Files stay on your device. Review the previews below.");
   }
 
   function remove(id: string) {

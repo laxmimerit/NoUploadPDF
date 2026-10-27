@@ -23,9 +23,15 @@ Returning a preview link does not authorize opening it.
    first too. Reuse an existing work branch. Never commit on `main`, even for a follow-up fix.
 3. Fetch `origin/main` without merging or rewriting work. Stop if the fetch fails; do not use stale history.
    Run every check required by applicable `AGENTS.md` files, using scripts that actually exist in
-   `package.json`. Currently these are `npm run lint`, `npm run typecheck`, and `npm run build:webpack`.
+   `package.json`. Currently these are `npm test`, `npm run lint`, `npm run typecheck`, and
+   `npm run build:webpack`.
    Run applicable task-specific tests too. If a required script is missing, report the discrepancy and stop;
    do not silently skip it or invent a replacement. Fix failures within the task and rerun affected checks.
+   If Chromium cannot start in this Mac's agent sandbox before any page opens, report the startup error
+   and defer e2e execution to the required pull-request CI check. Existing evidence from the current session
+   is sufficient; do not repeat a confirmed startup failure. Every other required check and the guard must
+   still pass before committing. This exception does not cover failing browser assertions, server startup
+   failures, or other test failures. Do not report local e2e as passed or tick off its task while CI is pending.
 4. Stage the intended files explicitly. Review the staged diff without exposing credentials or emails.
    Run the bundled guard from the repository root:
 
@@ -37,6 +43,9 @@ Returning a preview link does not authorize opening it.
    It checks staged blobs and all commits in `origin/main..HEAD`, including intermediate and merged commits.
    It rejects `.env*` path components, private-key material, known token formats, literal credential assignments,
    coauthor trailers in files or messages, and author/committer emails different from local `user.email`.
+   Only the literal-credential rule exempts the exact paths `scripts/generate-test-fixtures.mjs` and
+   `tests/pdf-errors.test.ts`, which contain the fictional fixture password and locked-PDF error copy.
+   Every other rule still applies to both files; every other file is fully checked.
    It also verifies the effective identities for the next commit, including environment overrides.
    The scanner is heuristic for secrets; passing does not prove that arbitrary encoded secrets are absent.
    Diagnostics never print emails, secret values, paths, commit messages, or raw Git errors.
@@ -65,6 +74,8 @@ Returning a preview link does not authorize opening it.
    PR when updating it. Do not open browser pages just to create or inspect the PR when APIs/CLI suffice.
 3. Wait for CI and the Vercel preview for the pushed commit, using provider checks/deployment metadata.
    Verify their revision matches the pushed HEAD; do not reuse an older green run or preview.
+   When local e2e was deferred for the browser startup limitation, explicitly verify the required PR e2e
+   check passes for this commit. It remains required before merge.
    Poll at reasonable intervals and keep the user informed. Stop on failure, authentication/permission errors,
    or after 15 minutes pending; report the blocker and pending checks honestly. Do not create a monitor
    or retry deployments automatically. Fixes requiring new commits return to the commit checkpoint.

@@ -24,6 +24,16 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [x] **Skip duplicate files in the shared shell.**
+  - Deliverable: Skip files with the same name and size and announce skipped names in the status line.
+    Apply the same behavior to the file picker, dropped files, and repeats within one selection.
+  - Done: The existing test passes unchanged, along with all four required checks.
+  - Completion (2026-10-27): The shared selection handler checks exact name and byte size, skips repeats,
+    and announces skipped names. Selecting only duplicates preserves the current result and error state.
+    The original test is unchanged and passes. All 49 unit tests, lint, type checking, and the webpack build pass.
+    The build used a fresh output directory under `.next` to avoid the known old-cache permission error;
+    restored `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` exactly afterward. No Git commands were run.
+
 - [ ] **Add Chromium visitor tests and test pull requests on public Vercel previews.**
   - Deliverable: Playwright tests using `tests/fixtures`, a local production-server configuration, and a PR-only
     CI job that follows successful checks, waits for the exact head commit's Vercel deployment, and tests its URL.

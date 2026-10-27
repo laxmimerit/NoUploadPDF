@@ -81,6 +81,8 @@ Dropdowns must work with keyboard, pointer, and touch input, including on narrow
 | Compress PDF | Optimize | Reduce file size when possible and explain when no reduction is available. |
 
 The shared shell handles file selection, tool options, progress, errors, downloads, and reset.
+Skip files whose name and size match a file already selected, including repeats within one selection.
+Announce skipped files in the status line, for example: "invoice.pdf is already in the list."
 Input errors must be understandable and allow visitors to correct their selection and retry.
 The foundation currently accepts PDFs on every page, including Images to PDF; image input belongs to task 11.
 Show a thumbnail for every page using pdf.js, which is used only for previews at this stage.

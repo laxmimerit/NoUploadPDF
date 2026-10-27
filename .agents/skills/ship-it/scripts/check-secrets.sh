@@ -50,11 +50,20 @@ RULES = [
     ('authorization credential', re.compile(rb'\bBearer\s+[A-Za-z0-9_./+~=-]{8,}', re.I)),
 ]
 
+# These files contain the fictional locked-PDF fixture password and its visitor-facing error message.
+# Only the literal-credential rule is exempt; exact paths only, with every other rule still applied.
+LITERAL_CREDENTIAL_ALLOWLIST = {
+    b'scripts/generate-test-fixtures.mjs',
+    b'tests/pdf-errors.test.ts',
+}
 
-def scan(data, scope):
+
+def scan(data, scope, path=None):
     # Also inspect ASCII carried in UTF-16/32; do not skip binary blobs.
     candidates = [data, data.replace(b'\0', b'')] if b'\0' in data else [data]
     for category, pattern in RULES:
+        if category == 'literal credential' and path in LITERAL_CREDENTIAL_ALLOWLIST:
+            continue
         if any(pattern.search(candidate) for candidate in candidates):
             raise Rejected(f'{category} in {scope}.')
 
@@ -89,9 +98,11 @@ def scan_changes(raw, scope, seen):
             continue
         if new_mode == b'160000':
             raise Rejected(f'Unscannable submodule change in {scope}.')
-        if blob not in seen:
-            scan(git('cat-file', 'blob', blob.decode('ascii')), scope)
-            seen.add(blob)
+        # Identical bytes at another path must be checked under that path's exemption status.
+        cache_key = (blob, path in LITERAL_CREDENTIAL_ALLOWLIST)
+        if cache_key not in seen:
+            scan(git('cat-file', 'blob', blob.decode('ascii')), scope, path)
+            seen.add(cache_key)
 
 
 def main():

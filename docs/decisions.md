@@ -54,6 +54,12 @@ The client transfers fresh input buffers by default and offers an explicit retai
 that still need them. The shell retains browser File objects for previews and retry, rather than retaining
 job buffers. Reset and unmount terminate the worker, cancel previews, revoke object URLs, and discard stale replies.
 
+**File-selection refinement (2026-10-27):** The shell skips duplicate files by exact name and byte size,
+including repeats within a selection, and announces each skipped name in its status line.
+This avoids accidental repeats without reading or hashing file contents. Files with the same name and size
+are treated as duplicates even if their contents differ. A selection containing only duplicates preserves
+the existing result and error state.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -76,6 +82,16 @@ Vercel preview, then returns the preview link without opening it. Page checks us
 Merging remains the user's decision; this workflow does not authorize an automatic merge.
 The guard requires repository-local identity configuration and complete history, adds Python 3 as a local
 prerequisite, and uses heuristic secret detection rather than guaranteeing that every possible secret is found.
+The literal-credential rule exempts exactly `scripts/generate-test-fixtures.mjs` and `tests/pdf-errors.test.ts`
+for the fictional locked-PDF fixture password and visitor-facing error copy. All other rules still apply
+to these files, and every other file is fully checked, including identical content at another path.
+
+**Local e2e exception (2026-10-27):** When Chromium cannot start in this Mac's agent sandbox before page
+navigation, ship-it reports the limitation and defers e2e to the required pull-request CI check.
+Confirmed startup evidence from the current session may be reused. Unit tests, lint, type checking,
+the webpack build, and the secret/identity guard must still pass before committing.
+Browser assertion failures and other test failures still block shipping. The e2e task stays unfinished
+until its done criteria pass, and the PR e2e check must pass for the pushed commit before merge.
 
 **Why:** Pull requests preserve review context. CI catches automated failures.
 Previews let reviewers inspect the deployed behavior before it reaches the main site.
