@@ -13,11 +13,14 @@ describe("tool registry", () => {
       .toMatchObject({ available: true, reorderFiles: true });
     expect(tools.find((tool) => tool.slug === "pdf-to-images"))
       .toMatchObject({ available: true, maxFiles: 1 });
-    expect(tools.filter((tool) => tool.available)).toHaveLength(10);
+    expect(tools.find((tool) => tool.slug === "merge-number-compress"))
+      .toMatchObject({ available: true, minimumFiles: 2, reorderFiles: true, options: "compress" });
+    expect(tools.filter((tool) => tool.available)).toHaveLength(11);
   });
-  it("preserves the eleven public route slugs and their groups", () => {
+  it("preserves the twelve public route slugs and their groups", () => {
     expect(tools.map(({ slug, group }) => [slug, group])).toEqual([
       ["merge-pdf", "Organize"],
+      ["merge-number-compress", "Organize"],
       ["split-pdf", "Organize"],
       ["extract-pages", "Organize"],
       ["rotate-pdf", "Organize"],

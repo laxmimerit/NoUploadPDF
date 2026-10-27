@@ -53,7 +53,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             {!tool.available && <span className="coming-badge">Coming soon</span>}
           </div>
           <p className="tool-explanation">
-            {tool.slug === "compress-pdf"
+            {tool.slug === "merge-number-compress"
+              ? "Arrange your PDFs, then merge, number, and compress them in one run on your device."
+              : tool.slug === "compress-pdf"
               ? "Choose Clean up or Scan, compare the sizes, and download the smaller file."
               : tool.slug === "images-to-pdf"
               ? "Choose JPEG or PNG images, arrange them, and save one PDF on your device."
@@ -79,7 +81,7 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
           </p>
         </div>
         <div className="tool-panel">
-          {tool.slug === "compress-pdf"
+          {tool.slug === "compress-pdf" || tool.slug === "merge-number-compress"
             ? <CompressTool key={tool.slug} tool={tool} />
             : tool.slug === "images-to-pdf" || tool.slug === "pdf-to-images"
             ? <ConverterTool key={tool.slug} tool={tool} />

@@ -22,7 +22,10 @@ export type PdfErrorCode =
   | "cancelled"
   | "failed";
 
-export type PdfOutput = { name: string; mimeType: string; data: ArrayBuffer };
+export type PdfOutput = {
+  name: string; mimeType: string; data: ArrayBuffer;
+  compressionInputSize?: number;
+};
 export type PdfResult = PdfOutput | { outputs: PdfOutput[] };
 
 export function resultOutputs(result: PdfResult): PdfOutput[] {

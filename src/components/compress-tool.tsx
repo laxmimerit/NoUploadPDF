@@ -8,10 +8,13 @@ import type { Tool } from "@/lib/tools";
 export function CompressTool({ tool, engineFactory }: { tool: Tool; engineFactory?: () => PdfEngine }) {
   const [mode, setMode] = useState("cleanup");
   const [quality, setQuality] = useState("smaller");
+  const chain = tool.slug === "merge-number-compress";
   return (
     <ToolShell tool={tool.slug} toolName={tool.name}
       options={mode === "scan" ? { mode, quality } : { mode }} engineFactory={engineFactory}
       onReset={() => { setMode("cleanup"); setQuality("smaller"); }}>
+      {chain && <p className="text-sm">Choose at least two PDFs and arrange them in order. Every page is
+        numbered from 1 at the bottom centre before compression.</p>}
       <div className="text-tool-fields">
         <label htmlFor="compress-mode">Compression mode
           <select id="compress-mode" value={mode} onChange={(event) => setMode(event.target.value)}>
@@ -27,10 +30,13 @@ export function CompressTool({ tool, engineFactory }: { tool: Tool; engineFactor
         </label>}
       </div>
       {mode === "cleanup" ? <p className="text-sm"><strong>Clean up</strong> rewrites the PDF without reducing
-        image quality or changing pages. The original is offered if the result is not smaller.</p>
+        image quality or changing pages. {chain ? "The merged and numbered PDF" : "The original"} is offered
+        if the result is not smaller.</p>
         : <p className="text-sm"><strong>Scan</strong> turns each page into a smaller image. Image quality may
           decrease, and text will no longer be selectable or searchable. Links, forms and other interactive
-          content will be removed. Signed PDFs are kept unchanged. The original is offered if the result is not smaller.</p>}
+          content will be removed. {!chain && "Signed PDFs are kept unchanged. "}
+          {chain ? "The merged and numbered PDF" : "The original"}
+          {" "}is offered if the result is not smaller.</p>}
     </ToolShell>
   );
 }

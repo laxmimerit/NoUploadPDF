@@ -27,7 +27,7 @@ describe("tool discovery", () => {
   it("shows all real tools with accurate availability, and combines category and search filters", () => {
     render(createElement(ToolGrid));
     const toolbox = within(screen.getByRole("region", { name: "Choose a tool" }));
-    expect(toolbox.getAllByRole("link")).toHaveLength(11);
+    expect(toolbox.getAllByRole("link")).toHaveLength(12);
     expect(toolbox.getAllByText("Coming soon")).toHaveLength(1);
     for (const tool of tools) {
       expect(toolbox.getByRole("link", { name: tool.name }).getAttribute("href")).toBe(`/tools/${tool.slug}`);
@@ -40,7 +40,7 @@ describe("tool discovery", () => {
     fireEvent.change(toolbox.getByRole("searchbox"), { target: { value: "merge" } });
     expect(toolbox.queryAllByRole("link")).toHaveLength(0);
     expect(toolbox.getByRole("status").textContent).toContain("No tools match");
-    fireEvent.click(toolbox.getByRole("button", { name: "All 11" }));
+    fireEvent.click(toolbox.getByRole("button", { name: "All 12" }));
     expect(toolbox.getByRole("link", { name: "Merge PDF" })).toBeDefined();
   });
 });

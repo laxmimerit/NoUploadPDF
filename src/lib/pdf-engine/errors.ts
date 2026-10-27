@@ -17,7 +17,7 @@ const messages: Record<PdfErrorCode, string> = {
 
 export class PdfError extends Error {
   constructor(public readonly code: PdfErrorCode, detail?: string) {
-    super(code === "invalid-options" && detail ? detail : messages[code]);
+    super(detail ?? messages[code]);
     this.name = "PdfError";
   }
 }

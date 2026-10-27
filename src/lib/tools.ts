@@ -38,6 +38,18 @@ export const tools: Tool[] = [
     reorderFiles: true,
   },
   {
+    slug: "merge-number-compress",
+    name: "Merge, number & compress",
+    description: "Combine PDFs, add page numbers, and reduce the file size in one run.",
+    icon: "merge",
+    group: "Organize",
+    available: true,
+    minimumFiles: 2,
+    reorderFiles: true,
+    options: "compress",
+    actionLabel: "Process PDFs",
+  },
+  {
     slug: "split-pdf",
     available: true,
     options: "page-ranges",

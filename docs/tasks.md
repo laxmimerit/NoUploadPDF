@@ -24,6 +24,17 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [ ] **Merge, number, and compress PDFs in one run.**
+  - Deliverable: Reuse the three worker operations in order with compression mode and quality choices.
+    Show named step failures with no download and retain the numbered PDF when compression cannot reduce it.
+  - Done: Focused unit tests and type checking pass locally; CI verifies lint, production build, and browser
+    criteria. Review result PDFs and confirm a damaged middle input stops the run.
+  - Progress (2026-10-28): Added the chain and focused tests, including a damaged middle file, named failures,
+    retry, and a smaller rendered Scan result. The PDF reviewer reopened fictional results and found no
+    actionable issue. Twelve focused test files (99 tests) and type checking pass. The visitor test, CI lint,
+    production build, and preview review remain pending. Clean up returned the numbered fallback in the
+    fixtures tested; a smaller Clean up result has not been observed.
+
 - [ ] **Preserve visible filled form values in copied-page outputs.**
   - Found (2026-10-27): The parallel `pdf_reviewer` review of the five Organize tools reproduced
     existing content loss in Merge PDF, Split PDF, Extract pages, and Reorder & delete. A filled text

@@ -70,7 +70,7 @@ The cost is keeping file order, result invalidation, and registry availability c
 **Page-range tools refinement (2026-10-27):** Split PDF and Extract pages accept exactly one PDF.
 A shared parser accepts comma-separated whole page numbers and inclusive ranges, with page numbers starting at 1.
 Every part is checked before output creation. Invalid-option errors identify the part, explain the problem,
-and preserve their correction message across the worker boundary. Other error codes keep fixed recovery copy.
+and preserve their correction message across the worker boundary. Default error codes use fixed recovery copy.
 Split produces one PDF per part, in input order; overlaps are allowed because outputs are separate files.
 Extract deduplicates selected pages and saves them in source order. Pages outside the selection are omitted.
 The registry owns availability, the options component choice, and the single-file limit.
@@ -79,6 +79,12 @@ Results retain the single-output shape for existing callers and add a multiple-o
 Every output buffer is transferred back, and the shell creates one download URL per PDF. Changing options,
 changing files, reset, and unmount release those URLs. Separate links avoid a ZIP dependency and let visitors
 choose which outputs to download; the cost is one download action per split PDF.
+
+**Chain refinement (2026-10-28):** A single worker job composes Merge PDF, Page numbers, and Compress PDF.
+It uses numbering defaults and the existing compression modes, stops on the first failure, and carries the
+step name and recovery message across the worker boundary. Result metadata records the numbered input size
+for the compression comparison. This reuses existing operations at the cost of holding intermediate PDF bytes
+and processing each stage in sequence on the visitor's device.
 
 **Page-grid refinement (2026-10-27):** Rotate PDF and Reorder & delete share one thumbnail grid and the existing
 shell lifecycle. The shell accepts a client preview renderer and invalidates results when serialized options change,

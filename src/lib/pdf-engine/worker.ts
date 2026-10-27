@@ -8,6 +8,7 @@ import { PdfError } from "./errors";
 import { rotatePdf } from "./rotate-pdf";
 import { reorderDelete } from "./reorder-delete";
 import { mergePdf } from "./merge-pdf";
+import { mergeNumberCompress, stepError } from "./merge-number-compress";
 import { extractPages } from "./extract-pages";
 import { resultOutputs } from "./protocol";
 import type { PdfJob, PdfReply, PdfResult } from "./protocol";
@@ -27,6 +28,7 @@ const operations = new Map<string, Operation>([
   ["images-to-pdf", imagesToPdf],
   ["pdf-to-images", pdfToImages],
   ["merge-pdf", mergePdf],
+  ["merge-number-compress", mergeNumberCompress],
   ["rotate-pdf", rotatePdf],
   ["reorder-delete", reorderDelete],
   ["split-pdf", splitPdf],
@@ -49,10 +51,17 @@ port.onmessage = async ({ data: job }) => {
     port.postMessage({ type: "progress", id: job.id, value, message });
   };
   try {
-    if (!job.files.length) throw new PdfError("empty");
+    if (!job.files.length) {
+      const error = new PdfError("empty");
+      throw job.tool === "merge-number-compress" ? stepError("Merge PDF", error) : error;
+    }
     progress(0, job.tool === "images-to-pdf" ? "Checking your images…" : "Checking your PDFs…");
     for (let index = 0; job.tool !== "images-to-pdf" && index < job.files.length; index++) {
-      await validatePdf(job.files[index]);
+      try {
+        await validatePdf(job.files[index]);
+      } catch (error) {
+        throw job.tool === "merge-number-compress" ? stepError("Merge PDF", error) : error;
+      }
       progress(Math.round(((index + 1) / job.files.length) * 20), "PDFs checked on your device.");
     }
     const operation = operations.get(job.tool);

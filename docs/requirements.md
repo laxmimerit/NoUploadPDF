@@ -9,10 +9,10 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 
 ## Current state
 
-The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
+The home page links to twelve tool pages using fixed slugs from `src/lib/tools.ts`.
 Each page shows its registry name and description.
 Merge PDF, Split PDF, Extract pages, Rotate PDF, Reorder & delete, Page numbers, and Watermark PDF
-both image converters, and Compress PDF have implementations; Sign PDF remains marked "Coming soon".
+both image converters, Compress PDF, and Merge, number & compress have implementations; Sign PDF remains marked "Coming soon".
 Merge PDF combines two or more files in the displayed order, with Move up and Move down controls.
 The result uses the first file's name, such as `report-merged.pdf`.
 Split PDF and Extract pages accept one PDF and page ranges such as `1-3, 7, 10-12`.
@@ -39,19 +39,22 @@ keyboard controls, reset, 320px layouts in both themes, and a local request audi
 type checking, and the webpack build pass. Pull-request CI and Vercel preview review remain pending.
 For Rotate PDF and Reorder & delete, unit tests reopen results with Cantoo and pdf.js; browser visual,
 downloaded-file, and network verification remain pending. Tasks 9–10 stay unchecked until those checks pass.
-All eleven pages share file selection, a file list with size and page count, local pdf.js page thumbnails,
+All twelve pages share file selection, a file list with size and page count, local pdf.js page thumbnails,
 options, progress, errors, download handling, and reset. Damaged, locked, and non-PDF files show recovery messages.
 Jobs accept a tool, files, and options; results can contain one PDF or several PDFs.
 Compress PDF Clean up rewrites the document without reducing image quality, shows before and after byte sizes,
 and offers the original if the result is not smaller. Scan renders pages as smaller JPEG images with a choice
 of quality, warning that text will no longer be selectable or searchable and interactive content is removed.
 It also offers the original if the result is not smaller. Signed PDFs are kept unchanged in both modes.
+Merge, number & compress combines two or more PDFs in the displayed order, adds numbers starting at 1 at
+bottom centre, and applies the selected Compress PDF mode. It stops with a named error and no download if a
+step fails. If compression does not reduce the numbered PDF, it offers that PDF and compares sizes against it.
 Each output has its own download link and object URL. Changing options, files, or file order clears old results.
 Reset and unmount release all result URLs. Download stays disabled until an operation supplies a result.
 The home page follows `DESIGN.md` with a spacious hero, working merge panel, and searchable tool grid.
 A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
-About explains local previews, browser-only processing, the ten available tools, and the unfinished tool.
+About explains local previews, browser-only processing, the available tools, and the unfinished tool.
 The shared logo and only favicon (`src/app/icon.svg`) use the design’s Locked page geometry.
 Light and dark themes share layout and privacy green; a saved choice overrides the system preference.
 Fonts are hosted locally. The app does not support offline operation yet.
@@ -111,8 +114,8 @@ Pages stay marked "Coming soon" until their implementation and done criteria pas
 
 The home page follows `DESIGN.md` with a privacy-led hero, working merge drop zone, browse and privacy anchors,
 fact strip, searchable category-filtered registry cards, one dark privacy band, and FAQs.
-All eleven tools must be directly linked in the scrollable grid. There is no first-screen tool-fit requirement.
-Show ten available tools and one coming soon. Do not claim offline support or unfinished operations work today.
+All twelve tools must be directly linked in the scrollable grid. There is no first-screen tool-fit requirement.
+Show eleven available tools and one coming soon. Do not claim offline support or unfinished operations work today.
 Check 1280×720, 1366×768, and 390×844 in light and dark without horizontal overflow.
 
 The top of every page has the logo, registry-driven group dropdowns, About, privacy pill, and theme toggle.
@@ -130,6 +133,7 @@ About explains the privacy promise and current availability, including that inte
 | Tool | Group | Required behavior |
 | --- | --- | --- |
 | Merge PDF | Organize | Bring multiple PDFs together in one file, in the chosen order. |
+| Merge, number & compress | Organize | Merge ordered PDFs, number their pages, and compress the result in one run. |
 | Split PDF | Organize | Separate a PDF into smaller PDFs using chosen page ranges. |
 | Extract pages | Organize | Save selected pages from a PDF into a new PDF. |
 | Rotate PDF | Organize | Turn selected pages to the chosen orientation. |

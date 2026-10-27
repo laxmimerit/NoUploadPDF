@@ -19,7 +19,7 @@ for (const viewport of [
       await expect(main.getByRole("heading", { level: 1 }))
         .toHaveText("Your PDFs never leave your device.");
       await expect(main.getByRole("heading", { level: 1 })).toBeInViewport({ ratio: 1 });
-      const browse = main.getByRole("link", { name: "Browse 11 tools", exact: true });
+      const browse = main.getByRole("link", { name: "Browse 12 tools", exact: true });
       await expect(browse).toBeInViewport({ ratio: 1 });
       await browse.click();
       const toolbox = main.getByRole("region", { name: "Choose a tool", exact: true });
@@ -265,4 +265,57 @@ test("image converters download ordered pages and selected PNGs without uploadin
   await pdfWorkspace.getByRole("button", { name: "Start again" }).click();
   await expect(pdfWorkspace.getByLabel("Pages to export")).toHaveValue("");
   expect(unexpected).toEqual([]);
+});
+
+test("one drop creates one ordered, numbered chain output and damaged input stops at Merge PDF", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/tools/merge-number-compress");
+  const unexpectedRequests: string[] = [];
+  const origin = new URL(page.url()).origin;
+  page.on("request", (request) => {
+    if (!request.url().startsWith("http")) return;
+    if (new URL(request.url()).origin !== origin || request.method() !== "GET" || request.postData()) {
+      unexpectedRequests.push(request.url());
+    }
+  });
+  const workspace = page.getByRole("region", { name: "Merge, number & compress workspace", exact: true });
+  const files = await Promise.all(["merge-two.pdf", "merge-three.pdf"].map(async (name) => ({
+    name, bytes: Array.from(await readFile(fixture(name))),
+  })));
+  await workspace.locator(".drop-zone").dispatchEvent("drop", {
+    dataTransfer: await page.evaluateHandle((entries) => {
+      const data = new DataTransfer();
+      entries.forEach(({ name, bytes }) => data.items.add(new File([new Uint8Array(bytes)], name,
+        { type: "application/pdf" })));
+      return data;
+    }, files),
+  });
+  const move = workspace.getByRole("button", { name: "Move merge-three.pdf up", exact: true });
+  await move.focus();
+  await page.keyboard.press("Enter");
+  await expect(workspace.getByRole("status")).toContainText("moved to position 1");
+  await workspace.getByRole("button", { name: "Process PDFs", exact: true }).click();
+  const link = workspace.getByRole("link", { name: "Download", exact: true });
+  await expect(link).toBeVisible();
+  const pending = page.waitForEvent("download");
+  await link.click();
+  const downloaded = await (await pending).path();
+  if (!downloaded) throw new Error("Missing chain output");
+  const texts = await pageTexts(new Uint8Array(await readFile(downloaded)).buffer);
+  expect(texts).toHaveLength(5);
+  const expected = ["merge-three - page 1", "merge-three - page 2", "merge-three - page 3",
+    "merge-two - page 1", "merge-two - page 2"];
+  texts.forEach((text, index) => {
+    expect(text).toContain(expected[index]);
+    expect(text).toMatch(new RegExp(`(?:^|\\s)${index + 1}(?:$|\\s)`));
+  });
+  await workspace.getByRole("button", { name: "Start again" }).click();
+  await workspace.getByLabel("Choose PDF files", { exact: true }).setInputFiles([
+    fixture("merge-two.pdf"), fixture("damaged.pdf"), fixture("merge-three.pdf"),
+  ]);
+  await expect(workspace.getByRole("alert")).toContainText("Merge PDF:");
+  await expect(workspace.getByRole("button", { name: "Process PDFs", exact: true })).toBeDisabled();
+  await expect(workspace.getByRole("link", { name: "Download", exact: true })).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(unexpectedRequests).toEqual([]);
 });

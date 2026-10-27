@@ -17,7 +17,7 @@ export type PreviewProps = {
 
 type SelectedFile = { id: string; file: File; pages?: number; error?: string };
 type Status = "idle" | "ready" | "processing" | "success" | "error";
-type Download = { url: string; name: string; size: number };
+type Download = { url: string; name: string; size: number; compressionInputSize?: number };
 
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -25,9 +25,10 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, renderPreviews, imageInput }: {
+function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, renderPreviews, imageInput, chain }: {
   renderPreviews?: (props: PreviewProps) => ReactNode;
   imageInput?: boolean;
+  chain?: boolean;
   entry: SelectedFile;
   onDetails: (id: string, details: { pages?: number; error?: string }) => void;
   onRemove: (id: string) => void;
@@ -69,7 +70,8 @@ function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, r
           <span aria-hidden="true">↓</span>
         </button>
       </div>}
-      {entry.error && <p role="alert" className="mt-3 text-sm text-red-800">{entry.error}</p>}
+      {entry.error && <p role="alert" className="mt-3 text-sm text-red-800">
+        {chain ? `Merge PDF: ${entry.error}` : entry.error}</p>}
       {renderPreviews
         ? renderPreviews({ file: entry.file, onReady: ready, onError: error, disabled })
         : <PdfPreviews file={entry.file} onReady={ready} onError={error} />}
@@ -253,12 +255,15 @@ export function ToolShell({
         // The worker returns the original bytes when compression cannot reduce the size.
         const url = URL.createObjectURL(new Blob([output.data], { type: output.mimeType }));
         resultUrls.current.push(url);
-        ready.push({ url, name: output.name, size: output.data.byteLength });
+        ready.push({ url, name: output.name, size: output.data.byteLength,
+          compressionInputSize: output.compressionInputSize });
       }
       setDownloads(ready);
       setProgress(100);
       setStatus("success");
-      setMessage(tool === "compress-pdf" && ready[0].size >= files[0].file.size
+      setMessage(tool === "merge-number-compress" && ready[0].size >= (ready[0].compressionInputSize ?? Infinity)
+        ? "No size reduction was possible. Download your merged and numbered PDF."
+        : tool === "compress-pdf" && ready[0].size >= files[0].file.size
         ? "No size reduction was possible. Download your original PDF."
         : "Done. Nothing was uploaded. Download your result, or start again to clear your files.");
     } catch (failure) {
@@ -294,6 +299,7 @@ export function ToolShell({
         <p id="pdf-input-help" className="drop-help">
           {imageInput ? "Choose JPEG or PNG images and arrange them in the order you want."
             : tool === "pdf-to-images" ? "Choose one PDF and select the pages to save as images."
+            : tool === "merge-number-compress" ? "Choose PDFs to merge, number, and compress on your device."
             : config?.options === "compress" ? "Choose one PDF to compress on your device."
             : config?.options === "signature" && !available
             ? "Sign PDF is still being verified. Choose one PDF to try drawing, typing, or uploading a signature."
@@ -325,7 +331,8 @@ export function ToolShell({
         <ul className="space-y-3">
           {files.map((entry, index) => <FileRow key={entry.id} entry={entry} onDetails={details}
             onRemove={remove} onMove={config?.reorderFiles ? move : undefined}
-            index={index} total={files.length} disabled={processing} renderPreviews={renderPreviews} imageInput={imageInput} />)}
+            index={index} total={files.length} disabled={processing} renderPreviews={renderPreviews} imageInput={imageInput}
+            chain={tool === "merge-number-compress"} />)}
         </ul>
       </div>}
 
@@ -352,6 +359,10 @@ export function ToolShell({
       </div>
       {tool === "compress-pdf" && downloads.length > 0 && <p className="text-sm">
         Before: {files[0].file.size.toLocaleString()} bytes · After: {downloads[0].size.toLocaleString()} bytes
+      </p>}
+      {tool === "merge-number-compress" && downloads.length > 0 && <p className="text-sm">
+        Before compression: {downloads[0].compressionInputSize?.toLocaleString()} bytes ·
+        After: {downloads[0].size.toLocaleString()} bytes
       </p>}
       {error && <p role="alert" className="rounded-lg bg-red-50 p-4 text-sm leading-6 text-red-800">{error}</p>}
 

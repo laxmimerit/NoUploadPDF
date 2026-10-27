@@ -36,3 +36,23 @@ describe("PDF worker client", () => {
     engine.dispose();
   });
 });
+
+it.each(["damaged", "failed", "invalid-options"] as const)(
+  "preserves the named step for a %s worker error", async (code) => {
+    let receive!: (event: { data: PdfReply }) => void;
+    let posted!: PdfJob;
+    class WorkerPort {
+      set onmessage(handler: typeof receive) { receive = handler; }
+      postMessage(job: PdfJob) { posted = job; }
+      terminate() {}
+    }
+    vi.stubGlobal("Worker", WorkerPort);
+    const engine = createPdfEngine();
+    const result = engine.run({ tool: "merge-number-compress", files: [await readFixture("invoice.pdf")],
+      options: { mode: "cleanup" } }, () => {});
+    const caught = expect(result).rejects.toMatchObject({ code, message: "Merge PDF: Choose a fresh copy." });
+    receive({ data: { type: "error", id: posted.id, code, message: "Merge PDF: Choose a fresh copy." } });
+    await caught;
+    engine.dispose();
+  },
+);
