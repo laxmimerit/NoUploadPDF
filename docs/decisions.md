@@ -68,6 +68,15 @@ For local sandbox builds, use `npm run build:webpack`, as required by the repo i
 Vercel preview integration was verified through PR #8 on 2026-10-27, including deployed-page review.
 Branch protection has not been verified; this record sets the required workflow without claiming it is configured.
 
+**Shipping refinement (2026-10-27):** The repo-local `ship-it` skill is invoked only by name.
+It creates a short `codex/` branch when starting on `main`, runs the required local checks and its staged/history
+secret and identity guard, commits, then stops to show the commit and results. A subsequent explicit push
+instruction authorizes pushing and creating or updating the branch's PR. The skill waits for CI and the matching
+Vercel preview, then returns the preview link without opening it. Page checks use only the in-app browser.
+Merging remains the user's decision; this workflow does not authorize an automatic merge.
+The guard requires repository-local identity configuration and complete history, adds Python 3 as a local
+prerequisite, and uses heuristic secret detection rather than guaranteeing that every possible secret is found.
+
 **Why:** Pull requests preserve review context. CI catches automated failures.
 Previews let reviewers inspect the deployed behavior before it reaches the main site.
 
