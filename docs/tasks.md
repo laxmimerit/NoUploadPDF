@@ -24,6 +24,21 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [x] **Keep page-grid Save and Download in view.**
+  - Deliverable: Keep the existing action row visible while editing Rotate PDF and Reorder & delete,
+    without changing the page grid or its controls.
+  - Done: Verify the row while editing the first and middle pages of a 12-page PDF, save and download,
+    and check narrow and desktop layouts in both themes. Pass all four required checks.
+  - Completion (2026-10-27): Made the existing workspace action row sticky only when a page-grid tool has
+    a selected file. Preserved the page-grid component, card layout, controls, and download lifecycle.
+    Production in-app browser checks used the 12-page report on Rotate PDF and Reorder & delete: first-
+    and middle-page edits kept Save and Download visible, both tools saved and downloaded successfully,
+    and subsequent edits cleared the old download. Checked the commented 489×695 layout, Rotate PDF at
+    390×844, and both tools at 320×700 and 1280×720 in light/dark without horizontal overflow.
+    All 162 tests, lint, type checking, and `npm run build:webpack` pass. Existing Next.js cache cleanup
+    failed with EPERM, including an elevated retry; fresh `.next/sticky-actions-review-20261027` output
+    passed. Stopped the local server and restored temporary configuration exactly. Deployment is pending.
+
 - [ ] **Keep preview automation free of Vercel Toolbar requests.**
   - Deliverable: Opt out of Vercel's injected preview toolbar through its documented automation request header.
     Explain the same-page URL requests and retain every privacy audit and assertion unchanged.

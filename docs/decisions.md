@@ -101,6 +101,12 @@ Downloads use the source base name with `-rotated.pdf` or `-reordered.pdf`. The 
 and ensuring that preview deltas, source identities, and export order stay aligned. Reordering creates a new PDF
 from copied pages, retaining its source title but not promising preservation of document-level metadata or outlines.
 
+**Page-grid action visibility (2026-10-27):** Keep the existing workspace action row sticky at the viewport's
+bottom when Rotate PDF or Reorder & delete has a selected file. Preserve the grid, card controls, and processing
+lifecycle. Use the current theme surface and respect the device's bottom safe area. The row stays within its
+workspace and keeps its original place in document and keyboard order. This avoids scrolling past every page
+to save or download; the cost is reserving a strip of the editing viewport for the actions.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.

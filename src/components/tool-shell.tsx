@@ -335,7 +335,7 @@ export function ToolShell({
       </div>
       {error && <p role="alert" className="rounded-lg bg-red-50 p-4 text-sm leading-6 text-red-800">{error}</p>}
 
-      <div className="workspace-actions">
+      <div className="workspace-actions" data-sticky={config?.options === "page-grid" && files.length > 0}>
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
           disabled={processing || files.length < minimumFiles
             || files.some((entry) => entry.error || entry.pages === undefined)}>

@@ -27,6 +27,7 @@ The drag handle captures the pointer so scrolling during a drag does not lose th
 page edits. Both the UI and engine require at least one page. Turns add to existing source rotations, stay with
 pages when moved, and wrap after four quarter turns. Edits clear old downloads. Results use the source base name
 plus `-rotated.pdf` or `-reordered.pdf`. Both tools accept one PDF and run in the local worker.
+Their Save and Download action row stays visible at the bottom of the viewport while a PDF is open for editing.
 Unit tests reopen their results with Cantoo and pdf.js; browser visual, downloaded-file, and network verification
 are still pending. Tasks 9–10 remain unchecked until those checks pass.
 All eleven pages share file selection, a file list with size and page count, local pdf.js page thumbnails,

@@ -273,6 +273,15 @@ h3 { font-size: 18px; letter-spacing: -0.01em; }
 .workspace-status label, .workspace-status progress { font-family: var(--font-jetbrains), monospace; }
 progress { accent-color: var(--green); }
 .workspace-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.workspace-actions[data-sticky="true"] {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  padding-block: 12px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--divider);
+  background: var(--surface);
+  box-shadow: 0 -12px 24px -20px var(--hero-shadow);
+}
 .compact-workspace[data-empty="true"] > :not(.drop-zone) { display: none; }
 .compact-workspace .drop-zone { padding-block: 40px; }
 .compact-workspace .tool-options { display: none; }
