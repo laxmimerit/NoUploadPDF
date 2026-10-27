@@ -24,11 +24,11 @@ For every tool task (6–16), also:
 
 ## Checklist
 
-- [ ] **Merge, number, and compress PDFs in one run.**
+- [x] **Merge, number, and compress PDFs in one run.**
   - Deliverable: Reuse the three worker operations in order with compression mode and quality choices.
     Show named step failures with no download and retain the numbered PDF when compression cannot reduce it.
-  - Done: Focused unit tests and type checking pass locally; CI verifies lint, production build, and browser
-    criteria. Review result PDFs and confirm a damaged middle input stops the run.
+  - Done: Focused unit tests and type checking pass locally. Review result PDFs and confirm a damaged
+    middle input stops the run. CI verifies lint, production build, and browser criteria at release.
   - Progress (2026-10-28): Added the chain and focused tests, including a damaged middle file, named failures,
     retry, and a smaller rendered Scan result. The PDF reviewer reopened fictional results and found no
     actionable issue. Twelve focused test files (99 tests) and type checking pass. The visitor test, CI lint,
