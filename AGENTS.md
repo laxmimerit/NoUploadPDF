@@ -8,8 +8,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-Use `npm run build:webpack` when checking the build locally in the sandbox.
-
 Never use Chrome or Computer Use; Codex's in-app browser is fine for checking pages.
 
 ## About NoUploadPDF
@@ -26,9 +24,11 @@ Read `docs/requirements.md`, `docs/decisions.md`, and `docs/tasks.md` at the sta
 ## Check our work
 
 - Unit tests for the files you changed: `npx vitest run <test files> --reporter=dot`
-- `npm run lint --silent`
 - `npm run typecheck --silent`
-- `npm run build:webpack --silent`
+
+Lint and the production build run in CI; don't run them locally unless asked.
+Don't open the browser to check your own work unless the prompt asks for it.
+Don't look up docs on the web for a task the repo already shows how to do.
 
 Run every check and require all of them to pass before saying a task is done or ticking it off.
 If any check fails, is skipped, or is blocked, report it and keep the task unfinished.
@@ -36,7 +36,7 @@ If any check fails, is skipped, or is blocked, report it and keep the task unfin
 ## Keep output small
 
 - Run only the tests for the files you changed, with `npx vitest run <files> --reporter=dot`; CI runs the full suite.
-- Keep builds and installs quiet (`--silent`).
+- Keep installs quiet (`--silent`).
 - Never print whole files or long logs. Read line ranges with `rg -n` or `sed -n`, and show only the failing part of a log.
 - Take a browser screenshot only when checking something visual.
 
