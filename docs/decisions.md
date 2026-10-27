@@ -82,7 +82,8 @@ Vercel preview, then returns the preview link without opening it. Page checks us
 Merging remains the user's decision; this workflow does not authorize an automatic merge.
 The guard requires repository-local identity configuration and complete history, adds Python 3 as a local
 prerequisite, and uses heuristic secret detection rather than guaranteeing that every possible secret is found.
-The literal-credential rule exempts exactly `scripts/generate-test-fixtures.mjs` and `tests/pdf-errors.test.ts`
+The literal-credential rule exempts exactly `scripts/generate-test-fixtures.mjs`, `tests/pdf-errors.test.ts` and
+`src/lib/pdf-engine/errors.ts`
 for the fictional locked-PDF fixture password and visitor-facing error copy. All other rules still apply
 to these files, and every other file is fully checked, including identical content at another path.
 

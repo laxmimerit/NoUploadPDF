@@ -55,6 +55,7 @@ RULES = [
 LITERAL_CREDENTIAL_ALLOWLIST = {
     b'scripts/generate-test-fixtures.mjs',
     b'tests/pdf-errors.test.ts',
+    b'src/lib/pdf-engine/errors.ts',
 }
 
 

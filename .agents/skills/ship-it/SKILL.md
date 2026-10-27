@@ -43,9 +43,9 @@ Returning a preview link does not authorize opening it.
    It checks staged blobs and all commits in `origin/main..HEAD`, including intermediate and merged commits.
    It rejects `.env*` path components, private-key material, known token formats, literal credential assignments,
    coauthor trailers in files or messages, and author/committer emails different from local `user.email`.
-   Only the literal-credential rule exempts the exact paths `scripts/generate-test-fixtures.mjs` and
-   `tests/pdf-errors.test.ts`, which contain the fictional fixture password and locked-PDF error copy.
-   Every other rule still applies to both files; every other file is fully checked.
+   Only the literal-credential rule exempts the exact paths `scripts/generate-test-fixtures.mjs`,
+   `tests/pdf-errors.test.ts` and `src/lib/pdf-engine/errors.ts`, which contain the fictional fixture password and locked-PDF error copy.
+   Every other rule still applies to these files; every other file is fully checked.
    It also verifies the effective identities for the next commit, including environment overrides.
    The scanner is heuristic for secrets; passing does not prove that arbitrary encoded secrets are absent.
    Diagnostics never print emails, secret values, paths, commit messages, or raw Git errors.
