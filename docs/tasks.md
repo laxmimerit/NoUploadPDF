@@ -48,6 +48,16 @@ For every tool task (6–16), also:
     The production server started, but all 15 browser cases failed before navigation because Chromium's
     MachPortRendezvousServer registration was still denied (1100) in the agent execution environment.
     The e2e task remains unfinished. No staging, branch, commit, or push operations were performed.
+  - Alert locator fix (2026-10-27): The PR run reported that the two shared-shell tests matched both
+    the tool error and Next.js's route announcer. Confirmed the installed Next.js announcer adds
+    `role="alert"` in an open shadow root attached outside the workspace.
+    Scoped both error assertions and the processing status assertion to the named Merge PDF workspace.
+    Exact message assertions and strict matching remain in place. Documented the scoping rule in the e2e README.
+    All 48 unit tests, lint, type checking, and the webpack production build pass in this checkout.
+    Used fresh build/report output under `.next` to avoid the known old-cache cleanup errors;
+    restored the temporary configuration afterward. Requested an outside-sandbox Chromium run,
+    but all 15 cases were blocked at browser startup by Mach port registration denial (1100).
+    The fix awaits browser verification and this task remains unchecked. Git operations remain with the user.
 
 - [x] **Make unit tests part of the required workflow.**
   - Deliverable: Require all four checks to pass in `AGENTS.md` and the shared done criteria.

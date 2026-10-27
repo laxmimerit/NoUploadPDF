@@ -40,6 +40,8 @@ for (const tool of tools) {
 
 test("a twelve-page report renders every thumbnail and processing keeps Download disabled", async ({ page }) => {
   await page.goto("/tools/merge-pdf");
+  // Next.js also has an alert for route announcements outside the tool workspace.
+  const workspace = page.getByRole("region", { name: "Merge PDF workspace", exact: true });
   const download = page.getByRole("button", { name: "Download", exact: true });
   await expect(download).toBeDisabled();
   await page.getByLabel("Choose PDF files", { exact: true }).setInputFiles(fixture("report.pdf"));
@@ -57,10 +59,10 @@ test("a twelve-page report renders every thumbnail and processing keeps Download
   await expect(download).toBeDisabled();
   await page.getByRole("button", { name: "Process PDFs", exact: true }).click();
 
-  await expect(page.getByRole("alert")).toHaveText(
+  await expect(workspace.getByRole("alert")).toHaveText(
     "This tool is not built yet. You can preview your PDFs here; come back later to process them.",
   );
-  await expect(page.getByRole("status")).toHaveText(
+  await expect(workspace.getByRole("status")).toHaveText(
     "No result was created. Your files are still available to preview.",
   );
   await expect(download).toBeDisabled();
@@ -70,9 +72,10 @@ test("a twelve-page report renders every thumbnail and processing keeps Download
 
 test("a text file with a PDF extension shows the not-a-PDF message", async ({ page }) => {
   await page.goto("/tools/merge-pdf");
+  const workspace = page.getByRole("region", { name: "Merge PDF workspace", exact: true });
   await page.getByLabel("Choose PDF files", { exact: true }).setInputFiles(fixture("renamed-text.pdf"));
 
-  await expect(page.getByRole("alert")).toHaveText("This file is not a PDF. Choose a PDF file and try again.");
+  await expect(workspace.getByRole("alert")).toHaveText("This file is not a PDF. Choose a PDF file and try again.");
   await expect(page.getByRole("img")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Process PDFs", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeDisabled();
