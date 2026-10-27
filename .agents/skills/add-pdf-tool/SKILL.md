@@ -49,7 +49,7 @@ Work from the repository root. Implement the named registry tool through a downl
 - Apply the shared and tool-specific done criteria in `docs/tasks.md`. Reopen downloaded output;
   check invalid input/options, retry, processing, download, reset, keyboard access, and narrow layout.
   Inspect network activity during selection, processing, and download for transmitted document data.
-- Check pages only in Codex's in-app browser. Never use Chrome or Computer Use.
+- Never use Chrome or Computer Use; Codex's in-app browser is fine for checking pages.
 - Run the full Vitest suite with `npm test`, then `npm run lint`, `npm run typecheck`, and `npm run build:webpack`.
   Every check must pass before saying done or ticking off the task. Report failed, skipped, or blocked checks
   and keep the task unfinished until they pass. CI must run unit tests before its build.

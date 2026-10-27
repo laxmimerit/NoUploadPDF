@@ -9,7 +9,7 @@ description: >-
 
 Use only when the user calls this skill by name. Creating or editing this skill does not invoke it.
 Work from the repository root. Never commit on `main`, push without the user's explicit push instruction,
-or merge a pull request. Check pages only in Codex's in-app browser; never use Chrome or Computer Use.
+or merge a pull request. Never use Chrome or Computer Use; Codex's in-app browser is fine for checking pages.
 Returning a preview link does not authorize opening it.
 
 ## Check and commit
