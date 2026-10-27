@@ -57,6 +57,17 @@ for (let number = 1; number <= 12; number++) {
 }
 await writeFile(new URL("report.pdf", directory), await report.save({ useObjectStreams: false }));
 
+for (const [name, count] of [["merge-two", 2], ["merge-three", 3]]) {
+  const document = await createDocument(`Fictional ${name} document`);
+  const font = await document.embedFont(StandardFonts.Helvetica);
+  for (let number = 1; number <= count; number++) {
+    const page = document.addPage([595, 842]);
+    page.drawText(`${name} - page ${number}`, { x: 48, y: 780, size: 24, font });
+    page.drawText("Fictional merge fixture. No personal information.", { x: 48, y: 720, size: 12, font });
+  }
+  await writeFile(new URL(`${name}.pdf`, directory), await document.save({ useObjectStreams: false }));
+}
+
 // Keep the PDF signature, but truncate an object so the file cannot be parsed.
 await writeFile(new URL("damaged.pdf", directory), "%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages\n");
 
@@ -67,4 +78,4 @@ await writeFile(new URL("password-protected.pdf", directory), await locked.save(
 await writeFile(new URL("renamed-text.pdf", directory),
   "This is a plain text test file with a .pdf extension. It is not a PDF.\n");
 
-console.log("Generated five fictional fixtures in tests/fixtures.");
+console.log("Generated seven fictional fixtures in tests/fixtures.");

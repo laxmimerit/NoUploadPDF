@@ -192,11 +192,34 @@ For every tool task (6–16), also:
     Lint, type checking, and the webpack production build pass. No test runner or persistent test fixtures were added.
     PR, CI, and Vercel preview review remain required before merge.
 
-- [ ] **6. Implement Merge PDF.**
+- [x] **6. Implement Merge PDF.**
   - Depends on: Tasks 4–5.
   - Deliverable: Combine selected PDFs in the visitor's chosen file order.
   - Done: Merge labeled two-page and three-page fixtures; output has five pages in the chosen order.
     Reverse the file order and verify the output changes accordingly. Apply the shared tool done criteria.
+  - Progress (2026-10-27): Installed dependencies with `npm ci`. Added the worker operation, registry availability,
+    a two-file minimum, keyboard-accessible Move up/down controls, and first-file naming (`report-merged.pdf`).
+    Selection/order changes clear old downloads. Damaged-file errors allow removal, replacement, and retry.
+    Added two fictional labeled fixtures and reopened merge output with pdf.js: five matching pages in both
+    file orders. Tests cover output names, invalid options, too few files, worker success and cleanup,
+    broken input, recovery, fresh retry buffers, cancellation, stale replies, and reset focus.
+    All 80 unit tests, lint, type checking, and `npm run build:webpack` pass.
+    The normal build and elevated retry hit EPERM while removing `.next/types`; a fresh output directory at
+    `.next/merge-verification` passed. Restored `next.config.ts`, `tsconfig.json`, and `next-env.d.ts` exactly.
+    Playwright discovers 18 visitor cases, including three new merge cases; the automated Chromium suite
+    has not been executed and its separate task remains unchecked.
+  - Completion (2026-10-27): With the user's explicit permission, used only Computer Use's in-app browser
+    controls against the production build. Downloaded and independently reopened the five-page output in both
+    selected and reversed file order; all visible page labels match. Checked the `report-merged.pdf` name,
+    damaged-file removal and valid retry without reload, non-PDF and password-protected errors, processing
+    controls/progress, download invalidation after reordering, keyboard activation, and reset focus.
+    Checked desktop and narrow layout (browser-reported narrow viewport 354×767), with no horizontal overflow.
+    The request audit during selection, processing, and download recorded only GET requests for app assets
+    and route reads, all with empty bodies. Downloads used local blob URLs. Valid merging produced no console
+    warnings or errors. Saved success and narrow error screenshots. Stopped the temporary verification servers
+    and restored configuration and the browser viewport. A final rerun passed all 80 tests, lint, type checking,
+    and the webpack build (fresh output `.next/merge-final-verification`; temporary configuration restored).
+    PR, CI, and Vercel preview review remain required before merge.
 
 - [ ] **7. Implement Split PDF.**
   - Depends on: Tasks 4–5.

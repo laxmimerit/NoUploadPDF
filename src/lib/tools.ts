@@ -18,6 +18,9 @@ export type Tool = {
   description: string;
   icon: ToolIcon;
   group: "Organize" | "Convert" | "Edit" | "Optimize";
+  available?: boolean;
+  minimumFiles?: number;
+  reorderFiles?: boolean;
 };
 
 export const tools: Tool[] = [
@@ -27,6 +30,9 @@ export const tools: Tool[] = [
     description: "Bring multiple PDFs together in one file.",
     icon: "merge",
     group: "Organize",
+    available: true,
+    minimumFiles: 2,
+    reorderFiles: true,
   },
   {
     slug: "split-pdf",

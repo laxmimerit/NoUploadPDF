@@ -48,14 +48,16 @@ export default function Home() {
           PDF tools. No uploads.
         </h1>
         <p className="mt-2 text-sm leading-6 text-stone-600">
-          Free PDF tools built for your browser, with files kept on your device. Coming soon.
+          Free PDF tools for your browser, with files kept on your device. Merge PDF is ready; more tools are coming soon.
         </p>
       </section>
 
       <section aria-labelledby="toolbox-title">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 id="toolbox-title" className="text-sm font-semibold text-stone-900">Choose a tool</h2>
-          <p className="text-xs text-stone-500">{tools.length} tools · All coming soon</p>
+          <p className="text-xs text-stone-500">
+            {tools.length} tools · {tools.filter((tool) => tool.available).length} ready
+          </p>
         </div>
         <div className="space-y-3">
           {groupedTools.map(({ group, tools: entries }) => (

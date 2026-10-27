@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NoUploadPDF — Private PDF tools",
-  description: "Free PDF tools being built for your browser, without uploads. All tools are coming soon.",
+  description: "Merge PDFs in your browser without uploads. Free, private PDF tools, with more tools coming soon.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

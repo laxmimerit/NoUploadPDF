@@ -9,6 +9,8 @@ const expectedMessages = {
   password: "This PDF is locked with a password. Choose a copy without password protection.",
   "not-built": "This tool is not built yet. You can preview your PDFs here; come back later to process them.",
   empty: "Choose at least one PDF, then try again.",
+  "invalid-options": "These options cannot be used. Choose Start again, select your PDFs, and try again.",
+  "too-few-files": "Choose at least two PDFs to merge, then try again.",
   busy: "A job is already running. Wait for it to finish, or choose Start again.",
   cancelled: "The job was stopped. Choose your PDFs to start again.",
   failed: "The PDF could not be processed. Try fewer or smaller files, or choose Start again.",
