@@ -381,3 +381,20 @@ substantial savings. Do not use Ghostscript because its AGPL licence is unsuitab
 
 **What it costs:** Clean up may produce little or no reduction. Scan uses two image quality settings and removes selectable text and interactive content; it warns
 visitors before processing. Browser memory and processing limits still apply.
+
+## 9. Stage dependency upgrades
+
+Status: Accepted. Recorded: 2026-10-28.
+
+**Decision:** Try the React and React DOM 19.3.1 patch upgrades individually, with checks after each.
+Keep the other outdated direct dependencies at their current versions pending separate compatibility work.
+The React install attempt was blocked by npm cache permissions. An approved retry was also blocked when
+macOS denied removal of `node_modules/react/cjs`; both packages remain at 19.3.0.
+
+**Why:** The React patches are the lowest-risk candidates and Next.js accepts React 19.x. ESLint 10,
+TypeScript 7, and Vitest 5 have major-version changes that need their own migration and verification.
+Node type definitions should be evaluated against the project's Node 24 runtime rather than jumping
+from version 20 to the latest major, 26.
+
+**What it costs:** The deferred packages remain outdated until that work is done. Passing unit tests and
+type checking alone cannot establish browser behavior; CI must also check lint, the build, and visitor flows.
