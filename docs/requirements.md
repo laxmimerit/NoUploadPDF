@@ -53,6 +53,10 @@ Light and dark themes share layout and privacy green; a saved choice overrides t
 Fonts are hosted locally. The app does not support offline operation yet.
 Vitest covers registry contracts, PDF validation and worker jobs, and recovery messages using fictional fixtures.
 CI runs unit tests, lint, type checking, and a build.
+Project agents live in `.codex/agents/`: `test_writer` authors tests and fictional test fixtures only;
+`pdf_reviewer` reviews changes against this specification and never edits files. Both use high reasoning
+effort and omit a model override. They inherit the parent model and permissions when no spawn/default
+model override is supplied. These are reusable definitions, not continuously running agents.
 Playwright is configured for Chromium visitor tests using the shared fixtures: scrollable tool discovery in both themes,
 all header tool links, twelve report thumbnails, the not-built state on Compress PDF, non-PDF input,
 five-page merge downloads in both file orders, damaged-file recovery, reset, keyboard ordering, narrow layout,
@@ -79,6 +83,13 @@ Branch protection remains unverified.
 
 Ravi sends the downloaded file himself; the site does not send documents.
 Signing means placing a visible signature, without certificate-based digital signing.
+Sign PDF accepts drawing, a PNG/JPEG image, or typed text in a handwriting font served from this site.
+Typed signatures become transparent PNGs in the browser after the local font loads and use the same
+placement and export flow. Explain plainly that the result is a visible signature, not a digital signature.
+Preserve existing form appearance geometry, annotation order, hidden values and print visibility.
+In the signed copy, form fields become fixed appearances and the signature is a printable annotation above
+existing marks. Unsupported form appearances must show correction advice instead of losing content.
+Saving waits until the selected page's preview and proportional signature placement are ready.
 Meera's notes remain images; converting them does not recognize or transcribe handwriting.
 
 ## Functional requirements

@@ -1,5 +1,6 @@
 import { pageNumbers } from "./page-numbers";
 import { watermarkPdf } from "./watermark-pdf";
+import { signPdf } from "./sign-pdf";
 import { PdfError } from "./errors";
 import { rotatePdf } from "./rotate-pdf";
 import { reorderDelete } from "./reorder-delete";
@@ -26,6 +27,7 @@ const operations = new Map<string, Operation>([
   ["extract-pages", extractPages],
   ["page-numbers", pageNumbers],
   ["watermark-pdf", watermarkPdf],
+  ["sign-pdf", signPdf],
 ]);
 let running = false;
 

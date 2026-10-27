@@ -33,6 +33,20 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe("PDF preview replacement", () => {
+  it("renders the larger placement image requested by Sign PDF and releases it on unmount", async () => {
+    const viewport = vi.fn(({ scale } = { scale: 1 }) => ({ width: 600 * scale, height: 800 * scale }));
+    const loading = documentWithPages(1);
+    const document = await loading.promise;
+    document.getPage = async () => ({ getViewport: viewport,
+      render: () => ({ promise: Promise.resolve(), cancel: vi.fn() }), cleanup: vi.fn() });
+    pdfjs.getDocument.mockReturnValue(loading);
+    const view = render(createElement(PdfPreviews, { file: source(), onReady: ready, onError: error,
+      maxDimension: 960 }));
+    await waitFor(() => expect(screen.getAllByRole("img")).toHaveLength(1));
+    expect(viewport).toHaveBeenLastCalledWith({ scale: 1.2 });
+    view.unmount();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:preview-1");
+  });
   it("replaces thumbnails when a new File with the same name arrives", async () => {
     pdfjs.getDocument.mockReturnValueOnce(documentWithPages(3)).mockReturnValueOnce(documentWithPages(1));
     const view = render(createElement(PdfPreviews, { file: source(), onReady: ready, onError: error }));

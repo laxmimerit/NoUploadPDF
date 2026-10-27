@@ -79,7 +79,7 @@ function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, r
 // Tool implementations supply their own options UI and values; the lifecycle stays here.
 export function ToolShell({
   tool, toolName, available, maxFiles, compact = false, options = {}, children, onReset, renderPreviews,
-  engineFactory = createPdfEngine,
+  engineFactory = createPdfEngine, actionReady = true,
 }: {
   renderPreviews?: (props: PreviewProps) => ReactNode;
   tool: string;
@@ -91,6 +91,7 @@ export function ToolShell({
   children?: ReactNode;
   onReset?: () => void;
   engineFactory?: () => PdfEngine;
+  actionReady?: boolean;
 }) {
   const config = tools.find((entry) => entry.slug === tool);
   available ??= config?.available ?? false;
@@ -221,7 +222,7 @@ export function ToolShell({
   }
 
   async function run() {
-    if (busy.current || files.length < minimumFiles
+    if (busy.current || !actionReady || files.length < minimumFiles
       || files.some((entry) => entry.error || entry.pages === undefined)) return;
     busy.current = true;
     const current = ++generation.current;
@@ -286,7 +287,9 @@ export function ToolShell({
         <p className="drop-title">{maxFiles === 1 ? "Drop one PDF here" : "Drop PDFs here"}</p>
         <p className="drop-hint">or click to choose from your device</p>
         <p id="pdf-input-help" className="drop-help">
-          {available
+          {config?.options === "signature" && !available
+            ? "Sign PDF is still being verified. Choose one PDF to try drawing, typing, or uploading a signature."
+            : available
             ? config?.reorderFiles
               ? "Files merge in the order shown. You can change it before processing."
               : config?.options === "page-grid"
@@ -295,6 +298,8 @@ export function ToolShell({
                   ? "Choose one PDF, then set the starting number and position."
                   : config?.options === "watermark"
                     ? "Choose one PDF, then preview and configure your watermark."
+                    : config?.options === "signature"
+                      ? "Choose one PDF, then draw or upload a signature and place it on a page."
                     : "Choose a PDF and enter page ranges."
             : "Previews work today; this PDF tool is coming soon."}
         </p>
@@ -341,7 +346,7 @@ export function ToolShell({
 
       <div className="workspace-actions" data-sticky={config?.options === "page-grid" && files.length > 0}>
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
-          disabled={processing || files.length < minimumFiles
+          disabled={processing || !actionReady || files.length < minimumFiles
             || files.some((entry) => entry.error || entry.pages === undefined)}>
           {processing ? "Processing PDFs…" : status === "error" ? "Try again" : config?.actionLabel ?? "Process PDFs"}
         </button>

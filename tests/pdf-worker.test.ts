@@ -6,6 +6,7 @@ import { resultOutputs } from "../src/lib/pdf-engine/protocol";
 import { tools } from "../src/lib/tools";
 import { brokenFixtures, readFixture, validFixtures } from "./fixtures";
 import { pageTexts } from "./pdf-output";
+import { signature } from "./sign-fixtures";
 
 describe("PDF worker jobs", () => {
   let replies: PdfReply[];
@@ -64,8 +65,8 @@ describe("PDF worker jobs", () => {
     expect((await PDFDocument.load(resultOutputs(result.result)[0].data)).getPageCount()).toBe(13);
   });
 
-  it("keeps unfinished tools unavailable until an operation exists", async () => {
-    for (const tool of tools.filter((tool) => !tool.available)) {
+  it("keeps tools without implementations unavailable while Sign PDF awaits visitor verification", async () => {
+    for (const tool of tools.filter((tool) => !tool.available && tool.slug !== "sign-pdf")) {
       await dispatch({ data: job([await readFixture("invoice.pdf")], tool.slug, tool.slug) });
       expectError(tool.slug, "not-built");
     }
@@ -89,6 +90,31 @@ describe("PDF worker jobs", () => {
     expect(progress.at(-1)).toBe(100);
     expect(progress).toEqual([...progress].sort((a, b) => a - b));
     expect(request.files).toEqual([]);
+  });
+
+  it("signs the chosen page, reports recoverable errors, and transfers only the result", async () => {
+    for (const { name, code } of brokenFixtures) {
+      await dispatch({ data: job([await readFixture(name)], name, "sign-pdf") });
+      expectError(name, code);
+    }
+    const invalid = job([await readFixture("report.pdf")], "invalid-sign", "sign-pdf");
+    await dispatch({ data: invalid });
+    expect(replies.find((reply) => reply.id === invalid.id && reply.type === "error"))
+      .toMatchObject({ code: "invalid-options", message: expect.stringContaining("Draw a signature") });
+    const request = job([await readFixture("report.pdf")], "signed", "sign-pdf");
+    const sourceText = await pageTexts(request.files[0].data.slice(0));
+    request.options = { signature, page: 7, x: 0.1, y: 0.6, width: 0.3, height: 0.1 };
+    await dispatch({ data: request });
+    const reply = replies.find((entry) => entry.id === "signed" && entry.type === "result");
+    if (reply?.type !== "result") throw new Error("Expected signed output");
+    const [output] = resultOutputs(reply.result);
+    expect(output.name).toBe("report-signed.pdf");
+    expect(await pageTexts(output.data.slice(0))).toEqual(sourceText);
+    expect(transferred).toEqual([[output.data]]);
+    expect(request.files).toEqual([]);
+    const progress = replies.flatMap((entry) => entry.id === "signed" && entry.type === "progress" ? [entry.value] : []);
+    expect(progress.at(-1)).toBe(100);
+    expect(progress).toEqual([...progress].sort((a, b) => a - b));
   });
 
   it("reports a damaged merge input without a partial result", async () => {

@@ -5,14 +5,16 @@ import { hasPdfHeader, PdfError, readablePdfError } from "@/lib/pdf-engine/error
 
 export type Thumbnail = { page: number; url: string };
 
-export function PdfPreviews({ file, onReady, onError, children, renderPages = true }: {
+export function PdfPreviews({ file, onReady, onError, children, renderPages = true, maxDimension = 240 }: {
+  maxDimension?: number;
   renderPages?: boolean;
   children?: (thumbnails: Thumbnail[]) => ReactNode;
   file: File;
   onReady: (pages: number) => void;
   onError: (message: string) => void;
 }) {
-  const generation = useMemo(() => ({ file, onReady, onError, renderPages }), [file, onReady, onError, renderPages]);
+  const generation = useMemo(() => ({ file, onReady, onError, renderPages, maxDimension }),
+    [file, onReady, onError, renderPages, maxDimension]);
   const [preview, setPreview] = useState<{ generation: object; thumbnails: Thumbnail[] }>({
     generation, thumbnails: [],
   });
@@ -63,7 +65,7 @@ export function PdfPreviews({ file, onReady, onError, children, renderPages = tr
           const page = await pdf.getPage(number);
           if (stopped) return;
           const size = page.getViewport({ scale: 1 });
-          const viewport = page.getViewport({ scale: 240 / Math.max(size.width, size.height) });
+          const viewport = page.getViewport({ scale: maxDimension / Math.max(size.width, size.height) });
           const canvas = document.createElement("canvas");
           canvas.width = Math.ceil(viewport.width);
           canvas.height = Math.ceil(viewport.height);
@@ -93,7 +95,7 @@ export function PdfPreviews({ file, onReady, onError, children, renderPages = tr
       void loading?.destroy();
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [file, onReady, onError, renderPages, generation]);
+  }, [file, onReady, onError, renderPages, maxDimension, generation]);
 
   if (!renderPages) return null;
   if (children) return children(thumbnails);

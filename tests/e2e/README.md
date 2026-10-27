@@ -38,7 +38,10 @@ Local runs do not add this header. No request interception, allowlist, or privac
 The injected toolbar otherwise posts to `vercel.live/login/validate`. Its feedback script also sends a
 body-free `HEAD` to `location.href` with `x-vercel-draft-status: 1` to probe draft-mode status, which explains
 same-page URLs in the merge audit. That audit correctly rejects any non-GET request, even on the app's origin.
-Skipping the toolbar removes both sources of traffic while retaining the complete request audit.
+The same script also sends a body-free `OPTIONS /` to inspect `x-robots-tag` when deciding toolbar visibility.
+The saved PR #16 traces confirm HEAD requests with the draft-status header and HTTP 204 responses, and an
+OPTIONS fetch to `/`; neither contains a request body. Skipping the toolbar removes these requests while
+retaining the complete request audit.
 Reports go to `playwright-report`; failures retain screenshots and traces in `test-results`.
 Open a saved report with `npx playwright show-report`.
 

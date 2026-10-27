@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import { groupedTools, toolGroups, tools } from "../src/lib/tools";
 
 describe("tool registry", () => {
-  it("makes both overlay tools available with single-file configuration", () => {
+  it("makes verified overlay tools available and retains Sign PDF configuration pending verification", () => {
     for (const slug of ["page-numbers", "watermark-pdf"]) {
       expect(tools.find((tool) => tool.slug === slug)).toMatchObject({ available: true, maxFiles: 1 });
     }
+    expect(tools.find((tool) => tool.slug === "sign-pdf"))
+      .toMatchObject({ options: "signature", maxFiles: 1, actionLabel: "Save signed PDF" });
+    expect(tools.find((tool) => tool.slug === "sign-pdf")?.available).not.toBe(true);
     expect(tools.filter((tool) => tool.available)).toHaveLength(7);
   });
   it("preserves the eleven public route slugs and their groups", () => {

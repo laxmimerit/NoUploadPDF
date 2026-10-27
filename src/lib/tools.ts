@@ -21,7 +21,7 @@ export type Tool = {
   available?: boolean;
   minimumFiles?: number;
   reorderFiles?: boolean;
-  options?: "page-ranges" | "page-grid" | "page-numbers" | "watermark";
+  options?: "page-ranges" | "page-grid" | "page-numbers" | "watermark" | "signature";
   actionLabel?: string;
   maxFiles?: number;
 };
@@ -117,6 +117,9 @@ export const tools: Tool[] = [
   },
   {
     slug: "sign-pdf",
+    options: "signature",
+    maxFiles: 1,
+    actionLabel: "Save signed PDF",
     name: "Sign PDF",
     description: "Add your signature to a document.",
     icon: "sign",

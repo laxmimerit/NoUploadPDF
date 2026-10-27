@@ -24,6 +24,49 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [ ] **Preserve visible filled form values in copied-page outputs.**
+  - Found (2026-10-27): The parallel `pdf_reviewer` review of the five Organize tools reproduced
+    existing content loss in Merge PDF, Split PDF, Extract pages, and Reorder & delete. A filled text
+    widget with a value, no saved appearance, and `NeedAppearances=true` renders in the source but
+    becomes blank after copying into a new PDF. Rotate PDF retains the source document.
+  - Regression evidence (2026-10-27): `tests/organize-form-content.test.ts` renders fictional source
+    and output files locally. Source and Rotate assertions pass; four explicit `it.fails` assertions
+    document the copied-page defect. Setup and rendering errors fail normally. No production fix was made.
+  - Done: Preserve visible form values in all four copied-page operations. Reopen and render fictional
+    outputs with pdf.js, replace the known-failure assertions with ordinary passing regressions,
+    and pass all four required repository checks.
+
+- [x] **Add persistent project test and review agents.**
+  - Deliverable: `.codex/agents/test_writer.toml` and `.codex/agents/pdf_reviewer.toml` with high reasoning
+    effort and no model field. The test writer authors only tests and fictional test fixtures; the reviewer
+    checks changes against the specification and never edits files.
+  - Done: Parse both definitions as TOML, confirm required fields, role boundaries, high effort, and omitted
+    model overrides. Run the four required repository checks. Record discovery evidence separately from
+    live execution, and do not claim a custom agent has run unless it actually has.
+  - Progress (2026-10-27): Added both project-scoped definitions. TOML parsing confirms the required name,
+    description, and developer instructions, high reasoning effort, and no model field. Instructions restrict
+    the test writer to tests and fictional test fixtures and prohibit every reviewer edit or writing command.
+    The format and inherited-permission behavior match the current official subagent documentation.
+    All 205 unit tests, lint, type checking, and the webpack build pass. Used fresh output directories
+    `.next/custom-agents-types-20261027` and `.next/custom-agents-build-20261027` to avoid the known cache
+    cleanup error; restored temporary Next/TypeScript configuration exactly.
+    Runtime discovery remains unverified: `codex debug prompt-input` failed in the sandbox, and the elevated
+    retry failed while loading AGENTS.md with `sandbox-exec: sandbox_apply: Operation not permitted`.
+    No live custom agent was started. Keep this task unchecked pending discovery verification.
+  - Live invocation (2026-10-27): Started the named `pdf_reviewer` and `test_writer` roles concurrently
+    for the five Organize tools. Both returned their assigned work. The reviewer made no edits;
+    the test writer changed tests only. Rechecked both definitions with Python 3.13 TOML parsing:
+    required fields, high reasoning effort, and no model override all pass. This verifies live discovery
+    separately from the earlier failed debug command.
+  - Completion (2026-10-27): The test writer added 15 tests in three files. Focused checks report
+    16 passing assertions and four expected failures across 20 cases; the four expected failures expose
+    the unresolved form-content bug above, rather than certifying correct product behavior. The reviewer
+    inspected all additions and found no issues in the tests. Lint, type checking, and the webpack build
+    pass. Type checking first caught an options annotation in the new test; corrected it and reran.
+    Normal and elevated builds hit the existing cache cleanup EPERM; fresh output under
+    `.next/five-tools-review-final-1793121535884319000` passed. Restored Next.js/TypeScript configuration
+    exactly. Browser/download/network verification for tasks 9–10 remains pending; those tasks stay unchecked.
+
 - [x] **Run unit tests before Codex finishes a turn.**
   - Deliverable: A project Stop hook in `.codex/hooks.json` runs `npm test`, continues Codex on failure,
     and blocks at most once per turn.
@@ -59,7 +102,9 @@ For every tool task (6–16), also:
   - Progress (2026-10-27): Added preview-only context-wide `x-vercel-skip-toolbar: 1` in Playwright config.
     Official Vercel docs confirm the opt-out. The toolbar's public feedback script issues body-free HEAD
     requests to `location.href` with `x-vercel-draft-status: 1`; these are correctly flagged by the merge
-    audit's non-GET check. The external login-validation POST and same-page HEAD probes are prevented by
+    audit's non-GET check. Saved PR #16 traces confirm empty bodies and HTTP 204 for the HEAD requests.
+    The toolbar also issues a body-free `OPTIONS /` to inspect `x-robots-tag`, confirmed in its script and
+    traces. The external login-validation POST and same-origin probes are prevented by
     skipping toolbar injection. No tests, listeners, assertions, or request allowlists were changed.
     All 162 Vitest tests, lint, type checking, and `npm run build:webpack` pass. The build used fresh
     `.next/toolbar-automation-20261027` output; temporary configuration was restored exactly.
@@ -471,6 +516,30 @@ For every tool task (6–16), also:
   - Done: Sign a multi-page form; reopened output has the signature on the chosen page at the previewed position
     and size, while form content and other pages remain intact. Explain that this is a visible signature.
     Apply the shared tool done criteria.
+  - [x] Typed signature addition (2026-10-27): Added a typed-name input and a locally served Sacramento
+    handwriting font with its license. Text renders to a transparent PNG after the font loads, then uses
+    the existing placement/export flow. Added explicit visible-signature versus digital-signature copy.
+    Drawing, upload, and placement logic are unchanged. All 40 focused Sign PDF tests, lint, type checking,
+    and the webpack build pass. The normal and elevated builds hit the existing cache-cleanup EPERM;
+    fresh `.next/typed-signature-20261027` output passed, and temporary configuration was restored exactly.
+    Production in-app browser checks typed and saved a fictional signature. The downloaded report reopens
+    with pdf.js: 12 pages, all source text preserved, and one added signature image only on page 1.
+    Checked 390px light and 320px dark layouts without horizontal overflow and verified the served font
+    matches the bundled file. Task 15's broader done criteria remain pending; its parent stays unchecked.
+  - [x] Review and fix Sign PDF (2026-10-27): Invoked the named `pdf_reviewer` in its read-only role.
+    Fixed hidden-field exposure, changed saved-appearance geometry, signature layering, and saving before
+    selected-page placement is ready. Follow-up reviews also caught mixed annotation order, print-only
+    widgets, stale saved appearances under `NeedAppearances`, and the ambiguous Invisible flag.
+    Form widgets now become fixed Stamp appearances in their original annotation positions; the new
+    printable signature comes last. Unsupported appearances show correction advice. Save readiness matches
+    the exact current signature and placement options. The reviewer confirmed the preservation findings
+    were addressed; corrected its final copy finding about the still-usable, verification-pending editor.
+    All 105 related tests across nine files pass, including 50 focused Sign tests that reopen and render
+    outputs with pdf.js. Lint, type checking, and the webpack build pass. Normal and elevated builds hit
+    the existing cache-cleanup EPERM; fresh `.next/sign-review-final-20261027` output passed, and temporary
+    Next.js/TypeScript configuration was restored exactly. No new browser or network check was run.
+    Sign PDF retains Coming soon with truthful verification-pending copy. Task 15 remains unfinished until
+    its broader browser, downloaded-output and privacy criteria pass.
 
 - [ ] **16. Implement Compress PDF.**
   - Depends on: Tasks 4–5.

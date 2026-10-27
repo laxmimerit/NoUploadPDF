@@ -123,6 +123,24 @@ The cost is an extra local PDF read and worker job while configuring a watermark
 watermark text leaves the browser. Source-based
 filenames end in `-numbered.pdf` or `-watermarked.pdf`.
 
+**Typed signature refinement (2026-10-27):** Sign PDF also accepts up to 80 typed characters.
+Serve Sacramento Regular and its SIL Open Font License from `public/fonts`; the browser never contacts
+a font provider. Wait for the font before rendering text to a transparent PNG, then use the existing
+signature placement and worker export. Clear, reset, drawing, upload, or a text edit cancels pending rendering.
+Explain that signatures are visible marks, not digital signatures. This adds a 78 KB font asset and a small
+main-thread text rasterization step; drawing, image upload, placement, and PDF processing stay unchanged.
+
+**Signature preservation refinement (2026-10-27):** Preserve form appearances as fixed Stamp annotations
+in their original annotation order, rather than flattening widgets into page content. Keep their rectangles,
+appearance matrices, visibility and print flags. Regenerate text and choice appearances when the form requests
+`NeedAppearances`, including when an older saved appearance exists. Reject unsupported form appearances
+and the ambiguous Invisible widget flag with advice to export a regular PDF copy. XFA remains unsupported.
+Add the visible signature as the final printable Stamp so earlier annotations cannot cover it. These marks
+are ordinary PDF annotations, not certificate signatures or tamper protection. Form fields cease to be editable.
+The cost is retaining appearance annotations and depending on standard PDF viewer annotation support.
+Save waits for the selected page's preview and proportional placement, tied to the exact current options.
+Keep Sign PDF marked Coming soon until task 15's full browser, download and privacy checks pass.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -218,7 +236,9 @@ The first PR #16 browser run reached the page-grid tools' final network assertio
 keyboard, download, reset, and narrow-layout checks, but failed six privacy cases. Vercel injected a toolbar
 that posts login validation to `vercel.live`. Its public feedback script also calls `fetch(location.href)`
 with method `HEAD` and `x-vercel-draft-status: 1` to probe draft-mode status. Those body-free HEAD requests
-explain the page's own URL in the merge audit, which rejects every non-GET request. The documented opt-out
+explain the page's own URL in the merge audit, which rejects every non-GET request. The same script sends
+`OPTIONS /` to read `x-robots-tag` while deciding toolbar visibility. PR #16's saved HAR traces confirm
+both kinds of requests with empty bodies; the draft-status HEAD responses return HTTP 204. The documented opt-out
 prevents the injection instead of loosening the product's privacy checks. No deployment setting, credential,
 dependency, or app behavior changes; the cost is a provider-specific header in preview test configuration.
 
@@ -315,3 +335,26 @@ while job buffers are separately transferred to the engine. Documents and thumbn
 Previews render serially at bounded thumbnail resolution and release parser and canvas resources afterward.
 Generated pdf.js assets must match the installed package version. These dependencies use modern browser APIs;
 unsupported browsers receive a recovery error. No server processing or paid service is introduced.
+
+## 7. Keep reusable test and review agents in the project
+
+Status: Accepted. Recorded: 2026-10-27.
+
+**Decision:** Define `test_writer` and `pdf_reviewer` in standalone TOML files under `.codex/agents/`.
+Both set `model_reasoning_effort = "high"` and omit `model`, so they inherit the parent model unless
+an explicit spawn or subagent default overrides it. Creating the definitions does not launch agents
+or authorize automatic delegation. Invoke the appropriate named agent when delegation is requested.
+
+The test writer may author only tests, test-only helpers, and fictional fixtures under `tests/`.
+Implementation, documentation, configuration, and fixture-generator changes remain with the parent.
+The reviewer reads the actual diff and project specifications, reports actionable findings with evidence,
+and never edits files or runs commands that write them. The parent applies fixes and owns final checks.
+
+**Why:** Persistent project roles preserve scope and review standards across delegation requests.
+Tests should independently check observable PDF behavior; review should assess the specification and
+the shared done criteria without silently changing the implementation under review.
+
+**What it costs:** High-effort delegated runs consume additional tokens and time when invoked.
+Custom agents inherit parent permissions; these role boundaries are instructions, not separate sandboxes.
+The format follows the [official subagent documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+No model, provider, permission profile, application behavior, or dependency is changed.

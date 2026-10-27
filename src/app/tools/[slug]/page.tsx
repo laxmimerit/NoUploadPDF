@@ -7,6 +7,7 @@ import { PageGridTool } from "@/components/page-grid-tool";
 import { PageRangeTool } from "@/components/page-range-tool";
 import { PageNumbersTool } from "@/components/page-numbers-tool";
 import { WatermarkTool } from "@/components/watermark-tool";
+import { SignPdfTool } from "@/components/sign-pdf-tool";
 import { tools } from "@/lib/tools";
 import { PrivacyPill } from "@/components/privacy-pill";
 import { ToolCard } from "@/components/tool-grid";
@@ -50,7 +51,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             {!tool.available && <span className="coming-badge">Coming soon</span>}
           </div>
           <p className="tool-explanation">
-            {tool.available
+            {tool.slug === "sign-pdf" && !tool.available
+              ? "Sign PDF is still being verified. You can try the local signature editor below."
+              : tool.available
               ? tool.slug === "merge-pdf"
                 ? "Choose PDFs, set their order, and download one merged file. Your files stay on your device."
                 : tool.slug === "split-pdf"
@@ -61,6 +64,8 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
                       ? "Choose one PDF, set the starting number and position, and save a numbered copy on your device."
                       : tool.options === "watermark"
                         ? "Choose one PDF, preview a text watermark on selected pages, and save it on your device."
+                        : tool.options === "signature"
+                          ? "Draw or upload a signature, place and resize it on a page, and save your signed PDF."
                         : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
               : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
@@ -76,6 +81,8 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
                   ? <PageNumbersTool key={tool.slug} tool={tool} />
                   : tool.options === "watermark"
                     ? <WatermarkTool key={tool.slug} tool={tool} />
+                    : tool.options === "signature"
+                      ? <SignPdfTool key={tool.slug} tool={tool} />
                     : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
         </div>
       </section>
