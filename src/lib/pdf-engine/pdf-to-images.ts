@@ -3,14 +3,27 @@ import { PdfError } from "./errors";
 import { parsePageRanges, rangeIndices } from "./page-ranges";
 import type { PdfJob, PdfResult } from "./protocol";
 
+const MAX_CANVAS_DIMENSION = 8192;
+const MAX_CANVAS_PIXELS = 16_000_000;
+
+function checkCanvasSize(width: number, height: number): void {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0 ||
+      Math.ceil(width) > MAX_CANVAS_DIMENSION || Math.ceil(height) > MAX_CANVAS_DIMENSION ||
+      Math.ceil(width) * Math.ceil(height) > MAX_CANVAS_PIXELS) {
+    throw new PdfError("invalid-options", "This page is too large to convert. Choose a PDF with smaller pages.");
+  }
+}
+
 class WorkerCanvasFactory {
   create(width: number, height: number) {
+    checkCanvasSize(width, height);
     const canvas = new OffscreenCanvas(width, height);
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas unavailable");
     return { canvas, context };
   }
   reset(target: { canvas: OffscreenCanvas }, width: number, height: number) {
+    checkCanvasSize(width, height);
     target.canvas.width = width;
     target.canvas.height = height;
   }
@@ -44,6 +57,7 @@ export async function pdfToImages(job: PdfJob, progress: (value: number, message
     for (const [index, pageIndex] of pages.entries()) {
       const page = await pdf.getPage(pageIndex + 1);
       const viewport = page.getViewport({ scale: 2 });
+      checkCanvasSize(viewport.width, viewport.height);
       const canvas = new OffscreenCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
       try {
         await page.render({ canvas: canvas as unknown as HTMLCanvasElement, viewport }).promise;

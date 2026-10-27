@@ -67,6 +67,25 @@ describe("converters", () => {
       .rejects.toThrow(/valid JPEG or PNG/);
   });
 
+  it("rejects oversized and extreme-aspect pages before allocating a canvas", async () => {
+    for (const [width, height] of [[2100, 2100], [5000, 1]]) {
+      const source = await PDFDocument.create();
+      source.addPage([width, height]);
+      const allocate = vi.fn();
+      vi.stubGlobal("OffscreenCanvas", allocate);
+      try {
+        await expect(pdfToImages(job("pdf-to-images", [
+          { name: "large.pdf", data: arrayBuffer(await source.save()) },
+        ], { ranges: "" }), progress)).rejects.toThrow(/too large.*smaller pages/);
+        expect(allocate).not.toHaveBeenCalled();
+      } finally {
+        vi.stubGlobal("OffscreenCanvas", class {
+          constructor(w: number, h: number) { return createCanvas(w, h); }
+        });
+      }
+    }
+  });
+
   it("renders text from a real PDF into the image", async () => {
     const source = await PDFDocument.create();
     const font = await source.embedFont(StandardFonts.Helvetica);
