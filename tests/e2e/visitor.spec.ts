@@ -6,6 +6,12 @@ import { pageTexts } from "../pdf-output";
 
 const fixture = (name: string) => path.resolve("tests/fixtures", name);
 
+// On Vercel previews the toolbar's empty GET of its own script (vercel.live, answered 204) can still appear
+// after a client-side prefetch. It carries no page data; every other outside request still fails the audit.
+const isPreviewToolbarScript = (request: { url(): string; method(): string; postData(): string | null }) =>
+  !!process.env.PLAYWRIGHT_BASE_URL && new URL(request.url()).hostname === "vercel.live" &&
+  request.method() === "GET" && !request.postData();
+
 for (const viewport of [
   { width: 1280, height: 720 }, { width: 1366, height: 768 }, { width: 390, height: 844 },
 ]) {
@@ -192,7 +198,7 @@ test("image converters download ordered pages and selected PNGs without uploadin
   const origin = new URL(page.url()).origin;
   const unexpected: string[] = [];
   page.on("request", (request) => {
-    if (!request.url().startsWith("http")) return;
+    if (!request.url().startsWith("http") || isPreviewToolbarScript(request)) return;
     if (new URL(request.url()).origin !== origin || request.method() !== "GET" || request.postData()) {
       unexpected.push(request.url());
     }
