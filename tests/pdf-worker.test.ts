@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createCanvas, DOMMatrix, Path2D, loadImage } from "@napi-rs/canvas";
 import { PDFDocument } from "@cantoo/pdf-lib";
 import { PdfError } from "../src/lib/pdf-engine/errors";
 import type { PdfInput, PdfJob, PdfReply } from "../src/lib/pdf-engine/protocol";
@@ -87,6 +88,29 @@ describe("PDF worker jobs", () => {
     const [output] = resultOutputs(reply.result);
     expect(output.data.byteLength).toBeLessThan(uncompressed.byteLength);
     expect(await pageTexts(output.data.slice(0))).toEqual(expected);
+    expect(transferred).toEqual([[output.data]]);
+    expect(request.files).toEqual([]);
+  });
+
+  it("scans a fictional PDF through the worker and transfers the result", async () => {
+    const workerPath = "pdfjs-dist/legacy/build/pdf.worker.mjs";
+    vi.stubGlobal("pdfjsWorker", await import(workerPath));
+    vi.stubGlobal("Path2D", Path2D);
+    vi.stubGlobal("DOMMatrix", DOMMatrix);
+    vi.stubGlobal("OffscreenCanvas", class {
+      constructor(width: number, height: number) { return createCanvas(width, height); }
+    });
+    vi.stubGlobal("createImageBitmap", async (blob: Blob) => {
+      const image = await loadImage(Buffer.from(await blob.arrayBuffer()));
+      return Object.assign(image, { close: () => {} });
+    });
+    const request = job([await readFixture("scanned.pdf")], "scan", "compress-pdf");
+    request.options = { mode: "scan", quality: "smaller" };
+    await dispatch({ data: request });
+    const reply = replies.find((entry) => entry.id === "scan" && entry.type === "result");
+    if (reply?.type !== "result") throw new Error("Expected a scanned result");
+    const [output] = resultOutputs(reply.result);
+    expect((await PDFDocument.load(output.data)).getPageCount()).toBe(2);
     expect(transferred).toEqual([[output.data]]);
     expect(request.files).toEqual([]);
   });

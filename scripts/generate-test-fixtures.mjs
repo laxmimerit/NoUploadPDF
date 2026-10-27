@@ -104,4 +104,24 @@ await writeFile(new URL("password-protected.pdf", directory), await locked.save(
 await writeFile(new URL("renamed-text.pdf", directory),
   "This is a plain text test file with a .pdf extension. It is not a PDF.\n");
 
-console.log("Generated ten fictional fixtures in tests/fixtures.");
+
+
+// Fictional scanned pages: high-resolution, image-only pages with distinct colors and labels.
+const { createCanvas } = await import("@napi-rs/canvas");
+const scanned = await createDocument("Fictional scanned pages");
+for (const [label, color] of [["SCAN PAGE ONE", "#9c2c2c"], ["SCAN PAGE TWO", "#174c9c"]]) {
+  const canvas = createCanvas(1200, 1600);
+  const context = canvas.getContext("2d");
+  context.fillStyle = "white";
+  context.fillRect(0, 0, 1200, 1600);
+  context.fillStyle = color;
+  context.fillRect(100, 100, 1000, 200);
+  context.fillStyle = "black";
+  context.font = "70px sans-serif";
+  context.fillText(label, 120, 450);
+  const image = await scanned.embedPng(canvas.toBuffer("image/png"));
+  scanned.addPage([300, 400]).drawImage(image, { x: 0, y: 0, width: 300, height: 400 });
+}
+await writeFile(new URL("scanned.pdf", directory), await scanned.save({ useObjectStreams: false }));
+
+console.log("Generated fictional fixtures in tests/fixtures.");

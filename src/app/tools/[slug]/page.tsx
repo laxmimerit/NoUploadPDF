@@ -54,7 +54,7 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
           </div>
           <p className="tool-explanation">
             {tool.slug === "compress-pdf"
-              ? "Clean up your PDF without changing its pages. Compare the sizes and download the smaller file."
+              ? "Choose Clean up or Scan, compare the sizes, and download the smaller file."
               : tool.slug === "images-to-pdf"
               ? "Choose JPEG or PNG images, arrange them, and save one PDF on your device."
               : tool.slug === "pdf-to-images"

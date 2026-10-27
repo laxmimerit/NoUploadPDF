@@ -293,7 +293,7 @@ export function ToolShell({
         <p id="pdf-input-help" className="drop-help">
           {imageInput ? "Choose JPEG or PNG images and arrange them in the order you want."
             : tool === "pdf-to-images" ? "Choose one PDF and select the pages to save as images."
-            : config?.options === "compress" ? "Choose one PDF to clean up on your device."
+            : config?.options === "compress" ? "Choose one PDF to compress on your device."
             : config?.options === "signature" && !available
             ? "Sign PDF is still being verified. Choose one PDF to try drawing, typing, or uploading a signature."
             : available
@@ -358,7 +358,7 @@ export function ToolShell({
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
           disabled={processing || !actionReady || files.length < minimumFiles
             || files.some((entry) => entry.error || entry.pages === undefined)}>
-          {processing ? imageInput ? "Processing images…" : "Processing PDFs…" : status === "error" ? "Try again" : config?.actionLabel ?? "Process PDFs"}
+          {processing ? imageInput ? "Processing images…" : "Processing PDFs…" : status === "error" ? "Try again" : tool === "compress-pdf" && options.mode === "scan" ? "Compress PDF" : config?.actionLabel ?? "Process PDFs"}
         </button>
         {downloads.length
           ? downloads.map((download) => (

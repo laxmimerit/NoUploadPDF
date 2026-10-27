@@ -565,4 +565,7 @@ For every tool task (6–16), also:
     text, order, geometry and image data, test errors and retries, and cover download and reset. Seven focused
     test files (56 tests) and type checking pass. Browser, privacy network, lint and production build checks
     are deferred to CI under the current project instructions. PR and Vercel preview review remain pending.
-    Scan mode is the next compression enhancement; see decision 8.
+    Scan enhancement (2026-10-28): Added two local image quality settings, a warning about loss of selectable
+    text and interactive content, and the original-file fallback. Focused tests use a fictional two-page scan,
+    reopen outputs, check page order and dimensions, and exercise the worker and controls. Browser, privacy
+    network, lint, production build, PR CI, and Vercel preview checks are pending under the project instructions.

@@ -80,6 +80,35 @@ test("Compress PDF previews twelve pages and offers a result", async ({ page }) 
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeDisabled();
 });
 
+test("Scan compression downloads an image-based PDF without uploading it", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/tools/compress-pdf");
+  const unexpectedRequests: string[] = [];
+  const origin = new URL(page.url()).origin;
+  page.on("request", (request) => {
+    if (request.url().startsWith("http") &&
+      (new URL(request.url()).origin !== origin || request.method() !== "GET" || request.postData())) {
+      unexpectedRequests.push(request.url());
+    }
+  });
+  const workspace = page.getByRole("region", { name: "Compress PDF workspace" });
+  await workspace.getByLabel("Compression mode").selectOption("scan");
+  await expect(workspace.getByText(/text will no longer be selectable or searchable/)).toBeVisible();
+  await workspace.getByLabel("Choose PDF files").setInputFiles(fixture("scanned.pdf"));
+  await workspace.getByRole("button", { name: "Compress PDF", exact: true }).click();
+  const link = workspace.getByRole("link", { name: "Download", exact: true });
+  await expect(link).toBeVisible();
+  const pending = page.waitForEvent("download");
+  await link.click();
+  const downloaded = await (await pending).path();
+  if (!downloaded) throw new Error("Missing downloaded PDF");
+  expect(await pageTexts(new Uint8Array(await readFile(downloaded)).buffer)).toEqual(["", ""]);
+  expect(unexpectedRequests).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await workspace.getByRole("button", { name: "Start again" }).click();
+  await expect(workspace.getByLabel("Compression mode")).toHaveValue("cleanup");
+});
+
 for (const reverse of [false, true]) {
   test(`Merge PDF downloads five labeled pages in ${reverse ? "reversed" : "selected"} order`, async ({ page }) => {
     await page.setViewportSize(reverse ? { width: 390, height: 844 } : { width: 1280, height: 720 });

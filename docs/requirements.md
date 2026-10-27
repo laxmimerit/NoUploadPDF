@@ -43,7 +43,9 @@ All eleven pages share file selection, a file list with size and page count, loc
 options, progress, errors, download handling, and reset. Damaged, locked, and non-PDF files show recovery messages.
 Jobs accept a tool, files, and options; results can contain one PDF or several PDFs.
 Compress PDF Clean up rewrites the document without reducing image quality, shows before and after byte sizes,
-and offers the original if the result is not smaller. Signed PDFs are kept unchanged.
+and offers the original if the result is not smaller. Scan renders pages as smaller JPEG images with a choice
+of quality, warning that text will no longer be selectable or searchable and interactive content is removed.
+It also offers the original if the result is not smaller. Signed PDFs are kept unchanged in both modes.
 Each output has its own download link and object URL. Changing options, files, or file order clears old results.
 Reset and unmount release all result URLs. Download stays disabled until an operation supplies a result.
 The home page follows `DESIGN.md` with a spacious hero, working merge panel, and searchable tool grid.

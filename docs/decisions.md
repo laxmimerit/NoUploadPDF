@@ -373,11 +373,11 @@ Status: Accepted. Recorded: 2026-10-28.
 
 **Decision:** Start with Clean up, which rewrites the PDF without downsampling images or changing pages.
 Report both byte sizes and offer the original when the result is not smaller. Keep digitally signed files
-unchanged because rewriting invalidates their signatures. Add Scan next as a separate mode for scanned PDFs;
-it may reduce image resolution or quality and must explain that tradeoff before processing.
+unchanged because rewriting invalidates their signatures. Offer Scan as a separate mode for scanned PDFs; it reduces image resolution or quality and explains that
+tradeoff before processing.
 
 **Why:** Clean up provides a lossless first option, while scanned documents often need image reduction for
 substantial savings. Do not use Ghostscript because its AGPL licence is unsuitable for this project.
 
-**What it costs:** Clean up may produce little or no reduction. Scan remains future work and needs its own
-quality controls, implementation, and verification. Browser memory and processing limits still apply.
+**What it costs:** Clean up may produce little or no reduction. Scan uses two image quality settings and removes selectable text and interactive content; it warns
+visitors before processing. Browser memory and processing limits still apply.
