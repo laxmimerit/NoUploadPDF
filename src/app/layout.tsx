@@ -23,7 +23,7 @@ const themeScript = `(() => {
 
 export const metadata: Metadata = {
   title: "NoUploadPDF — Private PDF tools",
-  description: "Merge, split, and extract PDF pages free in your browser. Your files stay on your device.",
+  description: "Merge, split, extract, rotate, and arrange PDF pages free in your browser. Your files stay on your device.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

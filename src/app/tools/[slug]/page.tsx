@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ToolShell } from "@/components/tool-shell";
 import { MergePdfTool } from "@/components/merge-pdf-tool";
+import { PageGridTool } from "@/components/page-grid-tool";
 import { PageRangeTool } from "@/components/page-range-tool";
 import { tools } from "@/lib/tools";
 import { PrivacyPill } from "@/components/privacy-pill";
@@ -52,7 +53,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
                 ? "Choose PDFs, set their order, and download one merged file. Your files stay on your device."
                 : tool.slug === "split-pdf"
                   ? "Choose one PDF and enter ranges. Download a separate PDF for each part, all on your device."
-                  : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
+                  : tool.options === "page-grid"
+                    ? "Choose one PDF, edit its pages, and save a new copy. Everything runs on your device."
+                    : "Choose one PDF and enter the pages you want to save. Everything runs on your device."
               : "Preview your PDFs on your device. This tool is being built and cannot create a result yet."}
           </p>
         </div>
@@ -61,7 +64,9 @@ export default async function ToolPage({ params }: PageProps<"/tools/[slug]">) {
             ? <MergePdfTool key={tool.slug} tool={tool} />
             : tool.options === "page-ranges"
               ? <PageRangeTool key={tool.slug} tool={tool} />
-              : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
+              : tool.options === "page-grid"
+                ? <PageGridTool key={tool.slug} tool={tool} />
+                : <ToolShell key={tool.slug} tool={tool.slug} toolName={tool.name} />}
         </div>
       </section>
       <section className="more-tools section-space" aria-labelledby="more-tools-title">

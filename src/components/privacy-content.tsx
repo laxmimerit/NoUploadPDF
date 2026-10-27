@@ -1,3 +1,4 @@
+import { tools } from "@/lib/tools";
 import { PrivacyPill } from "@/components/privacy-pill";
 
 export function FactStrip() {
@@ -20,7 +21,7 @@ export function PrivacyBand() {
           <div><span className="step-number">01</span><h3>Open a file</h3>
             <p>Pick or drop a PDF. Your browser reads it directly from your device.</p></div>
           <div><span className="step-number">02</span><h3>Process locally</h3>
-            <p>Merge, split, or extract pages using your own device. No file uploads.</p></div>
+            <p>Edit PDF pages using your own device. No file uploads.</p></div>
           <div><span className="step-number">03</span><h3>Save the result</h3>
             <p>Download your new PDF files. Nothing from your documents is sent to a server.</p></div>
         </div>
@@ -37,7 +38,8 @@ const questions = [
     "Not yet. You need an internet connection to load the app and its processing and preview assets. "
     + "Browser-only processing does not mean offline support."],
   ["Which tools can I use today?",
-    "Merge PDF, Split PDF, and Extract pages are ready. The other eight tools are marked Coming soon. "
+    `The available tools are ${tools.filter((tool) => tool.available).map((tool) => tool.name).join(", ")}. `
+    + `The other ${tools.filter((tool) => !tool.available).length} tools are marked Coming soon. `
     + "Their pages support PDF previews, but cannot create a result yet."],
   ["Is it free?", "Yes. The available tools are free to use. No account or sign-up is needed."],
   ["Is there a file size limit?",

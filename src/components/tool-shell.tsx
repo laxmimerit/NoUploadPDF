@@ -8,6 +8,13 @@ import { resultOutputs } from "@/lib/pdf-engine/protocol";
 import { createPdfEngine, type PdfEngine } from "@/lib/pdf-worker-client";
 import { tools } from "@/lib/tools";
 
+export type PreviewProps = {
+  file: File;
+  onReady: (pages: number) => void;
+  onError: (message: string) => void;
+  disabled: boolean;
+};
+
 type SelectedFile = { id: string; file: File; pages?: number; error?: string };
 type Status = "idle" | "ready" | "processing" | "success" | "error";
 type Download = { url: string; name: string };
@@ -18,7 +25,8 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled }: {
+function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled, renderPreviews }: {
+  renderPreviews?: (props: PreviewProps) => ReactNode;
   entry: SelectedFile;
   onDetails: (id: string, details: { pages?: number; error?: string }) => void;
   onRemove: (id: string) => void;
@@ -61,16 +69,19 @@ function FileRow({ entry, onDetails, onRemove, onMove, index, total, disabled }:
         </button>
       </div>}
       {entry.error && <p role="alert" className="mt-3 text-sm text-red-800">{entry.error}</p>}
-      <PdfPreviews file={entry.file} onReady={ready} onError={error} />
+      {renderPreviews
+        ? renderPreviews({ file: entry.file, onReady: ready, onError: error, disabled })
+        : <PdfPreviews file={entry.file} onReady={ready} onError={error} />}
     </li>
   );
 }
 
 // Tool implementations supply their own options UI and values; the lifecycle stays here.
 export function ToolShell({
-  tool, toolName, available, maxFiles, compact = false, options = {}, children, onReset,
+  tool, toolName, available, maxFiles, compact = false, options = {}, children, onReset, renderPreviews,
   engineFactory = createPdfEngine,
 }: {
+  renderPreviews?: (props: PreviewProps) => ReactNode;
   tool: string;
   toolName: string;
   available?: boolean;
@@ -97,6 +108,8 @@ export function ToolShell({
   const resultUrls = useRef<string[]>([]);
   const generation = useRef(0);
   const busy = useRef(false);
+  const optionsKey = JSON.stringify(options);
+  const previousOptions = useRef(optionsKey);
   const focusAfterReset = useRef(false);
   const processing = status === "processing";
 
@@ -105,6 +118,17 @@ export function ToolShell({
     resultUrls.current = [];
     setDownloads([]);
   }, []);
+
+  useEffect(() => {
+    if (previousOptions.current === optionsKey) return;
+    previousOptions.current = optionsKey;
+    if (busy.current || !files.length) return;
+    clearResult();
+    setError(undefined);
+    setProgress(0);
+    setStatus((current) => current === "idle" ? "idle" : "ready");
+    setMessage("Options changed. Save your PDF to create a new result.");
+  }, [optionsKey, clearResult, files.length]);
 
   useEffect(() => () => {
     generation.current++;
@@ -265,7 +289,9 @@ export function ToolShell({
           {available
             ? config?.reorderFiles
               ? "Files merge in the order shown. You can change it before processing."
-              : "Choose a PDF and enter page ranges."
+              : config?.options === "page-grid"
+                ? "Choose one PDF, then use the page controls below."
+                : "Choose a PDF and enter page ranges."
             : "Previews work today; this PDF tool is coming soon."}
         </p>
         <label className="sr-only" htmlFor="pdf-files">Choose PDF files</label>
@@ -282,7 +308,7 @@ export function ToolShell({
         <ul className="space-y-3">
           {files.map((entry, index) => <FileRow key={entry.id} entry={entry} onDetails={details}
             onRemove={remove} onMove={config?.reorderFiles ? move : undefined}
-            index={index} total={files.length} disabled={processing} />)}
+            index={index} total={files.length} disabled={processing} renderPreviews={renderPreviews} />)}
         </ul>
       </div>}
 
@@ -313,7 +339,7 @@ export function ToolShell({
         <button type="button" className="shell-button shell-primary" onClick={() => void run()}
           disabled={processing || files.length < minimumFiles
             || files.some((entry) => entry.error || entry.pages === undefined)}>
-          {processing ? "Processing PDFs…" : status === "error" ? "Try again" : "Process PDFs"}
+          {processing ? "Processing PDFs…" : status === "error" ? "Try again" : config?.actionLabel ?? "Process PDFs"}
         </button>
         {downloads.length
           ? downloads.map((download) => (

@@ -10,15 +10,25 @@ Read this PRD with the [decisions](decisions.md) and [task checklist](tasks.md).
 ## Current state
 
 The home page links to eleven tool pages using fixed slugs from `src/lib/tools.ts`.
-Each page shows its registry name and description. Merge PDF, Split PDF, and Extract pages are implemented;
-the other eight tools remain marked "Coming soon" and report that processing is not built yet.
+Each page shows its registry name and description.
+Merge PDF, Split PDF, Extract pages, Rotate PDF, and Reorder & delete are implemented;
+the other six tools remain marked "Coming soon" and report that processing is not built yet.
 Merge PDF combines two or more files in the displayed order, with Move up and Move down controls.
 The result uses the first file's name, such as `report-merged.pdf`.
 Split PDF and Extract pages accept one PDF and page ranges such as `1-3, 7, 10-12`.
 Split creates a separate downloadable PDF for each comma-separated part, in the entered range order.
 Extract creates one PDF in source order, saving repeated or overlapping pages only once.
 Empty selections, zero, reversed ranges, malformed parts, and pages beyond the document are rejected;
-the error identifies the incorrect part and explains how to correct it. All three tools run in the local worker.
+the error identifies the incorrect part and explains how to correct it. All five tools run in the local worker.
+Rotate PDF and Reorder & delete share a local page grid styled with the current theme tokens.
+Rotate turns individual pages left or right and can turn every page together. Reorder & delete adds drag insertion,
+Earlier/Later buttons, Alt + arrow movement, and Delete on a focused page.
+The drag handle captures the pointer so scrolling during a drag does not lose the selected page. Removed pages can be restored by resetting
+page edits. Both the UI and engine require at least one page. Turns add to existing source rotations, stay with
+pages when moved, and wrap after four quarter turns. Edits clear old downloads. Results use the source base name
+plus `-rotated.pdf` or `-reordered.pdf`. Both tools accept one PDF and run in the local worker.
+Unit tests reopen their results with Cantoo and pdf.js; browser visual, downloaded-file, and network verification
+are still pending. Tasks 9–10 remain unchecked until those checks pass.
 All eleven pages share file selection, a file list with size and page count, local pdf.js page thumbnails,
 options, progress, errors, download handling, and reset. Damaged, locked, and non-PDF files show recovery messages.
 Jobs accept a tool, files, and options; results can contain one PDF or several PDFs.
@@ -27,16 +37,17 @@ Reset and unmount release all result URLs. Download stays disabled until an oper
 The home page follows `DESIGN.md` with a spacious hero, working merge panel, and searchable tool grid.
 A shared header on every page contains
 the logo and name on the left, registry-driven tool-group dropdowns, and an About link.
-About explains local previews, browser-only processing, the three available tools, and the unfinished tools.
+About explains local previews, browser-only processing, the five available tools, and the unfinished tools.
 The shared logo and only favicon (`src/app/icon.svg`) use the design’s Locked page geometry.
 Light and dark themes share layout and privacy green; a saved choice overrides the system preference.
 Fonts are hosted locally. The app does not support offline operation yet.
 Vitest covers registry contracts, PDF validation and worker jobs, and recovery messages using fictional fixtures.
 CI runs unit tests, lint, type checking, and a build.
 Playwright is configured for Chromium visitor tests using the shared fixtures: scrollable tool discovery in both themes,
-all header tool links, twelve report thumbnails, the not-built state on Rotate PDF, non-PDF input,
+all header tool links, twelve report thumbnails, the not-built state on Compress PDF, non-PDF input,
 five-page merge downloads in both file orders, damaged-file recovery, reset, keyboard ordering, narrow layout,
-network checks during merging, and both range tools' retry/download/reset flows.
+network checks during merging, both range tools' retry/download/reset flows,
+and both page-grid tools' edit/download/reset flows.
 The browser cases await execution; the merge flows passed manual in-app browser checks on the source branch
 against a local production build, including reopened downloads in both orders, damaged-file recovery,
 protection errors, keyboard controls, reset, and narrow layout.
@@ -71,7 +82,7 @@ Pages stay marked "Coming soon" until their implementation and done criteria pas
 The home page follows `DESIGN.md` with a privacy-led hero, working merge drop zone, browse and privacy anchors,
 fact strip, searchable category-filtered registry cards, one dark privacy band, and FAQs.
 All eleven tools must be directly linked in the scrollable grid. There is no first-screen tool-fit requirement.
-Show three ready tools and eight coming soon. Do not claim offline support or unfinished operations work today.
+Show five ready tools and six coming soon. Do not claim offline support or unfinished operations work today.
 Check 1280×720, 1366×768, and 390×844 in light and dark without horizontal overflow.
 
 The top of every page has the logo, registry-driven group dropdowns, About, privacy pill, and theme toggle.

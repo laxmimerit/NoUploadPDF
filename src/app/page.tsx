@@ -14,7 +14,7 @@ export default function Home() {
         <div className="hero-copy">
           <p className="eyebrow">PRIVATE PDF TOOLS · FREE</p>
           <h1 id="home-title">Your PDFs never leave your device.</h1>
-          <p className="hero-lead">Merge, split, and extract PDF pages directly in your browser.
+          <p className="hero-lead">Merge, split, extract, rotate, and arrange PDF pages directly in your browser.
             Your files stay on your device, from first click to final download.</p>
           <div className="hero-actions">
             <Link href="#tools" className="shell-button shell-primary">Browse {tools.length} tools

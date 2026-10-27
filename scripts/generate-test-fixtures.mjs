@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { PDFDocument, StandardFonts, rgb } from "@cantoo/pdf-lib";
+import { degrees, PDFDocument, StandardFonts, rgb } from "@cantoo/pdf-lib";
 
 const directory = new URL("../tests/fixtures/", import.meta.url);
 const fixedDate = new Date("2026-01-01T00:00:00Z");
@@ -73,6 +73,14 @@ const firstFive = await fivePages.copyPages(report, [0, 1, 2, 3, 4]);
 firstFive.forEach((page) => fivePages.addPage(page));
 await writeFile(new URL("five-pages.pdf", directory), await fivePages.save({ useObjectStreams: false }));
 
+const fourPages = await createDocument("Fictional four-page mixed-orientation report");
+const firstFour = await fourPages.copyPages(report, [0, 1, 2, 3]);
+firstFour.forEach((page, index) => {
+  page.setRotation(degrees(index * 90));
+  fourPages.addPage(page);
+});
+await writeFile(new URL("four-pages.pdf", directory), await fourPages.save({ useObjectStreams: false }));
+
 // Keep the PDF signature, but truncate an object so the file cannot be parsed.
 await writeFile(new URL("damaged.pdf", directory), "%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages\n");
 
@@ -83,4 +91,4 @@ await writeFile(new URL("password-protected.pdf", directory), await locked.save(
 await writeFile(new URL("renamed-text.pdf", directory),
   "This is a plain text test file with a .pdf extension. It is not a PDF.\n");
 
-console.log("Generated eight fictional fixtures in tests/fixtures.");
+console.log("Generated nine fictional fixtures in tests/fixtures.");

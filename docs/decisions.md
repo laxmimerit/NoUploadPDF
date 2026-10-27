@@ -80,6 +80,27 @@ Every output buffer is transferred back, and the shell creates one download URL 
 changing files, reset, and unmount release those URLs. Separate links avoid a ZIP dependency and let visitors
 choose which outputs to download; the cost is one download action per split PDF.
 
+**Page-grid refinement (2026-10-27):** Rotate PDF and Reorder & delete share one thumbnail grid and the existing
+shell lifecycle. The shell accepts a client preview renderer and invalidates results when serialized options change,
+including button and drag edits. File objects, preview cancellation, result URL cleanup, and stale-reply protection
+stay with their existing owners. The registry chooses the page-grid UI, single-file limit, and save button copy.
+
+Options carry an ordered list of unique 1-based source pages and a quarter-turn delta for every source page.
+The engine adds each delta to that page's existing rotation. Rotate preserves the complete original order;
+Reorder & delete copies only retained pages in the chosen order. Empty, duplicate, out-of-range, malformed,
+and non-quarter-turn plans are rejected with a reset/retry message. The UI also disables deletion of the last page.
+Original page numbers stay on cards while position numbers show the new order. Dragging inserts before a target;
+Earlier/Later buttons and Alt + arrows on a focused card provide keyboard movement. Delete removes a focused
+card; focus follows moved pages or passes to a neighboring retained page. Reset page edits restores the source plan.
+The page handle captures the primary pointer at press time and hit-tests the drop destination at release.
+This keeps dragging attached to the chosen page when scrolling moves the small handle before movement starts.
+A four-pixel movement threshold distinguishes clicks from drags; canceling or dropping outside the grid keeps
+the order unchanged. The handle disables touch scrolling and text selection only within its own tap target.
+Native drag events remain a fallback, and the existing keyboard movement and insertion rule stay the same.
+Downloads use the source base name with `-rotated.pdf` or `-reordered.pdf`. The cost is retaining per-page state
+and ensuring that preview deltas, source identities, and export order stay aligned. Reordering creates a new PDF
+from copied pages, retaining its source title but not promising preservation of document-level metadata or outlines.
+
 ## 3. Deliver every change through a pull request, CI, and a Vercel preview
 
 Status: Accepted. Recorded: 2026-10-27.
@@ -200,7 +221,8 @@ Shared navigation still makes every registry tool directly reachable from every 
 **What it costs:** Seeing all cards requires scrolling. Filters and mobile navigation add interactive states
 and accessibility checks. Local fonts add asset weight but avoid runtime requests to a font provider.
 
-**Truthful content:** Only Merge PDF, Split PDF, and Extract pages are ready; the other eight retain “Coming soon”.
+**Truthful content (updated 2026-10-27):** Merge PDF, Split PDF, Extract pages, Rotate PDF, and Reorder & delete
+are implemented; the other six retain “Coming soon”. Page-grid browser verification remains pending in tasks 9–10.
 PDF previews still work on unfinished pages. Split downloads separate PDFs, not a ZIP. Merge retains the first
 file's base name plus `-merged.pdf`. Offline operation is not supported: loading the app and assets needs internet.
 The design's offline fact and FAQ answer must not be used. Privacy green marks privacy, local processing,
@@ -231,7 +253,8 @@ only to read and draw page previews. Install both through npm and serve pdf.js w
 and decoder assets from this app's own origin, without a CDN or document upload.
 The initial pinned lockfile resolves `@cantoo/pdf-lib` 2.11.1 and `pdfjs-dist` 6.4.299.
 The package preparation script runs before development and both build commands; generated assets are ignored
-by Git and ESLint. Merge PDF, Split PDF, and Extract pages have registered worker operations.
+by Git and ESLint. Merge PDF, Split PDF, Extract pages, Rotate PDF, and Reorder & delete
+have registered worker operations.
 Unfinished tools return the not-built message.
 
 **Why:** The original [`pdf-lib` has had no release since 2021](https://github.com/Hopding/pdf-lib/releases).

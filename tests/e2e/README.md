@@ -15,7 +15,7 @@ The home-page tests use 1280×720, 1366×768, and 390×844 in both themes. They 
 browse anchor, every registry tool in the scrollable grid with accurate availability, the privacy anchor,
 and no horizontal overflow. Decision 5 replaces the former first-screen tool-fit rule.
 Header tests visit every registry tool.
-The shared-shell tests use `report.pdf` on the unfinished Rotate PDF page for the not-built state,
+The shared-shell tests use `report.pdf` on the unfinished Compress PDF page for the not-built state,
 and `renamed-text.pdf` on Merge PDF for invalid input. Merge tests use labeled two- and three-page fixtures,
 reopen downloads with pdf.js, reverse file order with the keyboard, and check damaged-file recovery,
 reset, desktop/narrow layouts, and requests during selection, processing, and download.
@@ -44,4 +44,8 @@ The CI workflow itself can only be verified on GitHub after the change is pushed
 Split PDF and Extract pages also have visitor tests for invalid range parts, retry, keyboard processing,
 multiple downloads, reopened output page counts, option changes, reset focus, and a 320px layout.
 They watch for requests with bodies during the workflow. The existing Merge PDF test retains coverage
-for merging and file ordering. The Rotate PDF test retains coverage for the not-built state.
+for merging and file ordering. The Compress PDF test retains coverage for the not-built state.
+
+Rotate PDF and Reorder & delete use the shared page grid with a mixed-orientation four-page fixture.
+Their visitor cases reopen downloads and verify page text, existing plus added turns, chosen order, filenames,
+keyboard edits, last-page protection, reset, invalid-file retry, both themes at 320px, and requests with bodies.

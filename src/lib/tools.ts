@@ -21,7 +21,8 @@ export type Tool = {
   available?: boolean;
   minimumFiles?: number;
   reorderFiles?: boolean;
-  options?: "page-ranges";
+  options?: "page-ranges" | "page-grid";
+  actionLabel?: string;
   maxFiles?: number;
 };
 
@@ -58,6 +59,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "rotate-pdf",
+    available: true,
+    options: "page-grid",
+    maxFiles: 1,
+    actionLabel: "Save rotated PDF",
     name: "Rotate PDF",
     description: "Turn pages to the right orientation.",
     icon: "rotate",
@@ -65,6 +70,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "reorder-delete",
+    available: true,
+    options: "page-grid",
+    maxFiles: 1,
+    actionLabel: "Save PDF",
     name: "Reorder & delete",
     description: "Arrange or remove pages with ease.",
     icon: "organize",

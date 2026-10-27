@@ -1,4 +1,6 @@
 import { PdfError } from "./errors";
+import { rotatePdf } from "./rotate-pdf";
+import { reorderDelete } from "./reorder-delete";
 import { mergePdf } from "./merge-pdf";
 import { extractPages } from "./extract-pages";
 import { resultOutputs } from "./protocol";
@@ -16,6 +18,8 @@ const port = globalThis as unknown as {
 type Operation = (job: PdfJob, progress: (value: number, message: string) => void) => Promise<PdfResult>;
 const operations = new Map<string, Operation>([
   ["merge-pdf", mergePdf],
+  ["rotate-pdf", rotatePdf],
+  ["reorder-delete", reorderDelete],
   ["split-pdf", splitPdf],
   ["extract-pages", extractPages],
 ]);

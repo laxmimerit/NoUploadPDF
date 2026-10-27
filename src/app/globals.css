@@ -379,3 +379,39 @@ progress { accent-color: var(--green); }
 .not-found { min-height: 65vh; }
 .not-found h1 { margin-top: 24px; }
 .not-found .privacy-pill { margin-top: 24px; }
+
+/* One local page grid for rotation and page organization. */
+.page-editor { margin-top: 24px; }
+.page-editor-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 24px; }
+.page-grid-help { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.page-grid-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.page-grid-buttons .shell-button { padding: 10px 12px; font-size: 13px; }
+.pdf-page-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+.pdf-page-card { position: relative; min-width: 0; padding: 12px; border: 1px solid var(--outline-strong);
+  border-radius: 8px; background: var(--surface); }
+.pdf-page-card:focus-visible { outline: 2px solid var(--foreground); outline-offset: 4px; }
+.pdf-page-card[data-dragged="true"] { opacity: .5; border-style: dashed; }
+.pdf-page-card[data-drop-target="true"]::before { content: ""; position: absolute; top: 0; bottom: 0;
+  left: -12px; width: 4px; background: var(--green); }
+.page-card-heading { display: flex; justify-content: space-between; align-items: center; min-height: 40px; }
+.page-position { color: var(--muted); font: 11px var(--font-jetbrains), monospace; }
+.page-drag-handle { min-width: 40px; min-height: 40px; cursor: grab; font-size: 24px; color: var(--muted); }
+.page-drag-handle { touch-action: none; user-select: none; }
+.page-drag-handle:active { cursor: grabbing; }
+.page-preview-sheet { height: 220px; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; border: 1px solid var(--divider); background: var(--sunk); }
+.page-preview-sheet img { object-fit: contain; transition: transform 120ms ease; }
+.page-caption { display: flex; justify-content: space-between; gap: 8px; margin: 14px 0; font-size: 13px; }
+.page-caption span { color: var(--muted); font-size: 11px; }
+.page-card-actions, .page-card-order { display: flex; gap: 6px; }
+.page-card-actions .shell-button { flex: 1; }
+.page-card-order { margin-top: 8px; }
+.page-card-order .shell-button { flex: 1; min-height: 40px; padding: 6px; font-size: 12px; }
+.page-drop-end { border: 2px dashed var(--green); padding: 20px; margin-top: 16px; text-align: center; }
+.page-editor > .page-grid-help { margin-top: 16px; }
+@media (max-width: 480px) {
+  .pdf-page-grid { grid-template-columns: minmax(0, 1fr); }
+  .page-preview-sheet { height: 240px; }
+}
+@media (prefers-reduced-motion: reduce) { .page-preview-sheet img { transition: none; } }

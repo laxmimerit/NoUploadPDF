@@ -15,8 +15,9 @@ export default function AboutPage() {
       <section className="about-intro text-container section-space">
         <p className="eyebrow">ABOUT NOUPLOADPDF</p>
         <h1>Built so your documents stay yours.</h1>
-        <p className="hero-lead">NoUploadPDF does the work inside your browser. Merge, split, and extract PDF pages
-          on your own device. Your contracts, IDs, and invoices are never uploaded.</p>
+        <p className="hero-lead">NoUploadPDF does the work inside your browser.
+          Merge, split, extract, rotate, and arrange PDF pages on your own device.
+          Your contracts, IDs, and invoices are never uploaded.</p>
         <PrivacyPill>Files stay on this device</PrivacyPill>
       </section>
       <div className="container"><FactStrip /></div>
@@ -36,8 +37,9 @@ export default function AboutPage() {
           <li key={tool.slug}><Link href={`/tools/${tool.slug}`}><span>{tool.name}</span>
             <span>{tool.description}</span><span aria-hidden="true">↗</span></Link></li>
         ))}</ul>
-        <p>The other eight tools are coming soon. You can preview PDFs on their pages, but they cannot create
-          a result yet. Split PDF downloads separate PDFs, with one link for each part.</p>
+        <p>The other {tools.filter((tool) => !tool.available).length} tools are coming soon.
+          You can preview PDFs on their pages, but they cannot create a result yet.
+          Split PDF downloads separate PDFs, with one link for each part.</p>
         <Link href="/#tools" className="shell-button shell-primary">Explore all tools
           <span aria-hidden="true">→</span></Link>
       </section>

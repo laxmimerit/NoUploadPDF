@@ -24,6 +24,21 @@ For every tool task (6–16), also:
 
 ## Checklist
 
+- [ ] **Fix page-grid dragging when scrolling moves the handle.**
+  - Deliverable: The unchanged Reorder & delete visitor test moves page 4 before page 2 and completes its
+    download, reset, keyboard, and privacy checks.
+  - Progress (2026-10-27): Inspected the saved failure trace. The handle is pressed at y=404, then target
+    scrolling shifts it before pointer movement; no native drag starts and the page order stays unchanged.
+    The handle now captures the primary pointer on press and hit-tests the destination on release.
+    It retains insertion markers, native-drag fallback, and the original keyboard controls. Added a unit
+    regression for the captured-pointer path, including a drop on a target thumbnail. The existing browser
+    test and all its assertions are unchanged. All 162 Vitest tests, lint, type checking, and
+    `npm run build:webpack` pass. The build used fresh `.next/page-drag-fix-20261027` output and restored
+    temporary config exactly. The focused browser test is blocked before navigation by macOS Mach-port
+    permission denial (1100), including the outside-sandbox retry with fresh report directories.
+    The first elevated retry also hit old Playwright artifact cleanup EPERM. Browser verification remains
+    unfinished; no passing browser result is claimed. PR, CI, and Vercel preview review remain pending.
+
 - [x] **Remove retained page content after navigation.**
   - Deliverable: Fix the site so all eleven unchanged header-menu visitor assertions find zero “Coming soon”
     badges on ready tool pages and exactly one on unfinished tool pages, including hidden DOM matches.
@@ -318,12 +333,36 @@ For every tool task (6–16), also:
     Other pages remain unchanged.
     Verify 180- and 270-degree rotations and unchanged page count. Apply the shared tool done criteria.
 
+  - Progress (2026-10-27): Added the shared themed page grid, individual and all-page turns, a single-file
+    registry configuration, Save rotated PDF, and source-based `-rotated.pdf` naming. The worker validates
+    page plans and adds turns to existing page rotation. The four-page fictional fixture starts at
+    0/90/180/270 degrees. Reopened unit-test results preserve page count, dimensions, visible text, and
+    unedited rotations after 90/180/270-degree turns. Interaction tests cover repeated turns, reset,
+    button-based result invalidation, error retry with fresh buffers, processing locks, cancellation,
+    stale results, URL cleanup, and reset focus. Browser visual, download, narrow-layout, and network
+    checks remain pending, so this task stays unfinished. All 161 Vitest tests, lint, type checking, and
+    `npm run build:webpack` pass. The normal build and elevated retry hit the existing cache EPERM;
+    fresh `.next/page-grid-checked-20261027` output passed and temporary configuration was restored.
+    Production HTTP checks confirm both tool pages, their own save buttons, single-file selection,
+    five available home cards, six unfinished cards, and unknown-tool 404. Playwright discovers 26 cases;
+    browser cases were not run because this task permits only the in-app browser, whose open requests
+    were queued without inspection access. PR, CI, and Vercel preview review are also pending.
+
 - [ ] **10. Implement Reorder & delete.**
   - Depends on: Tasks 4–5.
   - Deliverable: Rearrange pages and remove unwanted pages before saving.
   - Done: From a labeled four-page fixture, reorder to 4, 2, 1 and delete page 3.
     Reopened output has exactly three pages in that order. Prevent deleting every page.
     Apply the shared tool done criteria.
+
+  - Progress (2026-10-27): Uses the same page grid with drag insertion, visible Earlier/Later controls,
+    Alt + arrows, Delete, individual turns, and edit reset. Focus follows moves and deletions.
+    Both grid and worker prevent removing every page. Reopened unit-test output has exactly pages 4, 2, 1,
+    their original visible content, and additive turns. Downloads use the source base name plus `-reordered.pdf`.
+    Added real-worker visitor cases for both tools and moved the unfinished-tool test to Compress PDF.
+    Browser visual, download, narrow-layout, and network checks remain pending, so this task stays unfinished.
+    The checks and build workaround recorded for task 9 also pass for this implementation.
+    PR, CI, and Vercel preview review are also pending.
 
 - [ ] **11. Implement Images to PDF.**
   - Depends on: Tasks 4–5.

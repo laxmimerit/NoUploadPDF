@@ -55,9 +55,9 @@ for (const tool of tools) {
 }
 
 test("a twelve-page report renders every thumbnail and processing keeps Download disabled", async ({ page }) => {
-  await page.goto("/tools/rotate-pdf");
+  await page.goto("/tools/compress-pdf");
   // Next.js also has an alert for route announcements outside the tool workspace.
-  const workspace = page.getByRole("region", { name: "Rotate PDF workspace", exact: true });
+  const workspace = page.getByRole("region", { name: "Compress PDF workspace", exact: true });
   const download = page.getByRole("button", { name: "Download", exact: true });
   await expect(download).toBeDisabled();
   await page.getByLabel("Choose PDF files", { exact: true }).setInputFiles(fixture("report.pdf"));

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { hasPdfHeader, PdfError, readablePdfError } from "@/lib/pdf-engine/errors";
 
-type Thumbnail = { page: number; url: string };
+export type Thumbnail = { page: number; url: string };
 
-export function PdfPreviews({ file, onReady, onError }: {
+export function PdfPreviews({ file, onReady, onError, children }: {
+  children?: (thumbnails: Thumbnail[]) => ReactNode;
   file: File;
   onReady: (pages: number) => void;
   onError: (message: string) => void;
@@ -86,6 +87,8 @@ export function PdfPreviews({ file, onReady, onError }: {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [file, onReady, onError]);
+
+  if (children) return children(thumbnails);
 
   return (
     <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label={`Page previews for ${file.name}`}>

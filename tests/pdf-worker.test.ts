@@ -12,7 +12,7 @@ describe("PDF worker jobs", () => {
   let dispatch: (event: { data: PdfJob }) => Promise<void>;
   let transferred: Transferable[][];
 
-  function job(files: PdfInput[], id = "fixture-job", tool = "rotate-pdf"): PdfJob {
+  function job(files: PdfInput[], id = "fixture-job", tool = "compress-pdf"): PdfJob {
     return { type: "job", id, tool, files, options: {} };
   }
 
@@ -165,6 +165,29 @@ describe("PDF worker jobs", () => {
     }
     await dispatch({ data: { ...job([await readFixture("invoice.pdf")], "retry", tool), options: { ranges: "1" } } });
     expect(replies.find((entry) => entry.id === "retry" && entry.type === "result")).toBeDefined();
+  });
+
+  it.each(["rotate-pdf", "reorder-delete"])("runs %s and recovers from bad inputs/options", async (tool) => {
+    for (const { name, code } of brokenFixtures) {
+      await dispatch({ data: job([await readFixture(name)], name, tool) });
+      expectError(name, code);
+    }
+    const invalid = job([await readFixture("report.pdf")], "invalid", tool);
+    invalid.options = { order: [], rotations: [] };
+    await dispatch({ data: invalid });
+    expect(replies.find((reply) => reply.id === "invalid" && reply.type === "error")).toMatchObject({
+      code: "invalid-options", message: expect.stringContaining("Keep at least one page."),
+    });
+    const request = job([await readFixture("four-pages.pdf")], "valid", tool);
+    request.options = { order: tool === "rotate-pdf" ? [1, 2, 3, 4] : [4, 2, 1], rotations: [0, 90, 0, 0] };
+    await dispatch({ data: request });
+    const reply = replies.find((reply) => reply.id === "valid" && reply.type === "result");
+    if (reply?.type !== "result") throw new Error("Expected a page-grid result");
+    const [output] = resultOutputs(reply.result);
+    expect((await PDFDocument.load(output.data)).getPageCount()).toBe(tool === "rotate-pdf" ? 4 : 3);
+    expect(transferred).toHaveLength(1);
+    expect(transferred[0]).toHaveLength(1);
+    expect(request.files).toEqual([]);
   });
 
   it("rejects an empty selection without progress", async () => {
