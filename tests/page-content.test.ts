@@ -54,6 +54,9 @@ describe("page content on navigation", () => {
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "merge" } });
     view.rerender(content());
     expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe("merge");
-    expect(screen.getAllByRole("link")).toHaveLength(1);
+    expect(screen.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+      "/tools/merge-pdf",
+      "/tools/merge-number-compress",
+    ]);
   });
 });
